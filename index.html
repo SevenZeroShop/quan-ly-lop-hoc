@@ -254,7 +254,7 @@
 </div>
 
 <div class="header-box">
-  <h1>🏫 LỚP <span id="hClassName">...</span></h1>
+  <h1>🏫 <span id="hClassName">Lớp</span></h1>
   <p>Thu Quỹ • Chi Quỹ • Học tập • Thống kê • Đồng bộ Cloud</p>
   <div class="class-id-badge" onclick="copyClassId()" title="Nhấn để copy mã lớp">
     <span>🔑 Mã lớp:</span>
@@ -2667,6 +2667,33 @@ function updateSelects(){
   document.getElementById('stCount').textContent = students.length;
 }
 
+ /* ============ SAVE CONFIG (LƯU THÔNG TIN LỚP) ============ */
+function saveConfig() {
+  if (!canEdit()) { toast('⚠️ Bạn chỉ có quyền xem!', '#ef4444'); return; }
+  if (!currentClass) { toast('⚠️ Chưa có lớp!', '#ef4444'); return; }
+  
+  const newClass = document.getElementById('cfgClass').value.trim() || 'Lớp';
+  const newSchool = document.getElementById('cfgSchool').value.trim();
+  const newTeacher = document.getElementById('cfgTeacher').value.trim();
+  const newYear = document.getElementById('cfgYear').value.trim();
+  
+  // Cập nhật vào currentClass
+  currentClass.config = currentClass.config || {};
+  currentClass.config.className = newClass;
+  currentClass.config.school = newSchool;
+  currentClass.config.teacher = newTeacher;
+  currentClass.config.year = newYear;
+  currentClass.name = newClass;  // đồng bộ cả field name
+  
+  // Cập nhật header ngay
+  document.getElementById('hClassName').textContent = newClass;
+  document.title = `Quản Lý Lớp ${newClass}`;
+  
+  logActivity(`Cập nhật thông tin lớp: ${newClass}`);
+  saveData();  // Trigger sync cloud
+  toast('✅ Đã lưu thông tin lớp lên cloud!');
+}
+ 
 /* ============ SAVE DATA ============ */
 function saveData(sync = true){
   renderAllUI();
