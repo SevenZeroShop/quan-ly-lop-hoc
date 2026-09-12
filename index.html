@@ -298,32 +298,492 @@
   <button class="nav-btn" onclick="showTab('ungquy',this)">💸 Chi Quỹ</button>
   <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
   <button class="nav-btn" onclick="showTab('thanhvien',this)">👨‍👩‍👧 Thành Viên</button>
+  <button class="nav-btn" onclick="showTab('phat',this)">⚖️ Phạt</button>
   <button class="nav-btn" onclick="showTab('thungrac',this)">🗑️ Thùng Rác</button>
   <button class="nav-btn" onclick="showTab('saoluu',this)">⚙️ Sao Lưu</button>
 </div>
 
-<!-- HƯỚNG DẪN -->
+<!-- HƯỚNG DẪN ĐẦY ĐỦ -->
 <div id="sec-huongdan" class="section-pane active">
-  <div class="card" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #3b82f6;">
-    <h3 style="color:#1e40af;">☁️ ĐÃ KẾT NỐI CLOUD v8.0</h3>
-    <p style="font-size:13px;color:#1e3a8a;line-height:1.7;">
-      <b>Điểm mới:</b> Đăng nhập Google, đổi mật khẩu, nhiều lớp, chia sẻ lớp cho GVCN, phân quyền xem/sửa, xuất Excel, xếp loại học kỳ, thùng rác phục hồi, biểu đồ nâng cao, nhật ký hoạt động.
+
+  <!-- BANNER -->
+  <div class="card" style="background:linear-gradient(135deg,#1e3a8a,#2563eb,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
+    <div style="font-size:46px;margin-bottom:8px;">🏫</div>
+    <h2 style="font-size:20px;text-transform:uppercase;">HƯỚNG DẪN SỬ DỤNG APP QUẢN LÝ LỚP v8.0</h2>
+    <p style="font-size:13px;opacity:.95;margin-top:8px;line-height:1.7;">
+      📚 Hướng dẫn đầy đủ 11 tab — Từ A đến Z<br>
+      📱 Dùng được trên điện thoại • máy tính • máy tính bảng
     </p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
+      <button class="btn-act btn-success btn-mini" onclick="expandAllGuides()">📖 Mở Tất Cả</button>
+      <button class="btn-act btn-warning btn-mini" onclick="collapseAllGuides()">📕 Đóng Tất Cả</button>
+    </div>
   </div>
-  <div class="card" style="border:2px solid #10b981;">
-    <h3 style="color:#166534;">👥 CHIA SẺ LỚP CHO NGƯỜI KHÁC</h3>
-    <div class="guide-step"><h4>Bước 1: Lấy mã lớp</h4><p>Nhấn vào <b>khung mã lớp</b> trên cùng (dạng <code>abc123</code>) để copy.</p></div>
-    <div class="guide-step"><h4>Bước 2: Gửi mã cho người khác</h4><p>Gửi qua Zalo/Messenger kèm link web.</p></div>
-    <div class="guide-step"><h4>Bước 3: Họ vào lớp</h4><p>Họ đăng nhập → nhấn <b>🔗 Vào lớp</b> → nhập mã → OK.</p></div>
-    <div class="guide-step"><h4>Bước 4: Phân quyền</h4><p>Vào tab <b>👨‍👩‍👧 Thành Viên</b> → đổi vai trò: Chỉ xem / Chỉnh sửa / Chủ lớp.</p></div>
+
+  <!-- BẮT ĐẦU NHANH -->
+  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+    <h3 style="color:#166534;border-bottom-color:#86efac;">⚡ BẮT ĐẦU NHANH — 5 PHÚT</h3>
+    <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">1</span> Đăng nhập / Đăng ký</h4>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        Mở link web → nhập email + mật khẩu (≥6 ký tự) → nhấn <b>🔑 ĐĂNG NHẬP</b>. Hoặc dùng <b>Đăng nhập bằng Google</b>. Lần đầu sẽ được tạo lớp tự động.
+      </p>
+    </div>
+    <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">2</span> Nhập danh sách HS</h4>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        Vào tab <b>👥 Danh Sách</b> → dán danh sách (mỗi dòng 1 tên) → nhấn <b>🚀 Lưu DS</b>. Hoặc <b>📥 Import Excel</b> nếu có file sẵn.
+      </p>
+    </div>
+    <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">3</span> Cấu hình lớp</h4>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        Vào tab <b>⚙️ Sao Lưu</b> → điền Tên Trường, GVCN, Tên Lớp, Năm Học → <b>💾 Lưu</b>. Thông tin này sẽ tự hiện trên mọi báo cáo Word/PDF.
+      </p>
+    </div>
+    <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">4</span> Bắt đầu ghi chép hàng ngày</h4>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        • <b>📋 Chuyên Cần</b> — ghi vi phạm<br>
+        • <b>💯 Sổ Điểm</b> — nhập điểm<br>
+        • <b>💰 Thu Quỹ</b> — tạo đợt thu<br>
+        • <b>⚖️ Phạt</b> — tạo phiếu phạt
+      </p>
+    </div>
+    <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">5</span> Backup định kỳ</h4>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        Cuối tuần vào <b>⚙️ Sao Lưu</b> → tải file JSON hoặc Copy nội dung → lưu Google Keep. Dù có cloud vẫn nên backup.
+      </p>
+    </div>
   </div>
-  <div class="card" style="border:2px solid #ef4444;">
-    <h3 style="color:#991b1b;">🔴 LƯU Ý QUAN TRỌNG</h3>
-    <p style="font-size:13px;color:#7f1d1d;">
-      ⚠️ Mọi thao tác đều <b>tự động lưu lên cloud</b> — không cần nhấn gì thêm.<br>
-      ⚠️ Vẫn nên backup định kỳ (tab <b>⚙️ Sao Lưu</b>).
-    </p>
+
+  <!-- ═══════════════════════════════════════════════════
+       CÁC TAB CHI TIẾT (Click vào tiêu đề để mở/đóng)
+       ═══════════════════════════════════════════════════ -->
+
+  <!-- TAB 1: HƯỚNG DẪN -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;" onclick="toggleGuideCard(this)">
+      📖 Tab 1: Hướng Dẫn — Bạn Đang Ở Đây
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        Tab này là nơi chứa toàn bộ hướng dẫn. Nhấn vào từng tiêu đề để mở/đóng. Nhấn <b>Mở Tất Cả</b> ở đầu trang nếu muốn xem hết.
+      </p>
+      <div class="guide-tip" style="margin-top:10px;">
+        💡 <b>Mẹo:</b> Đọc lần lượt từ trên xuống dưới. Tab nào chưa dùng đến có thể bỏ qua.
+      </div>
+    </div>
   </div>
+
+  <!-- TAB 2: CHUYÊN CẦN -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">
+      📋 Tab 2: Chuyên Cần — Ghi Vi Phạm
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Ghi lại các vi phạm của HS — nghỉ học, đi muộn, vi phạm sổ đầu bài, nghỉ có phép.
+      </p>
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff5f5;margin-top:10px;">
+        <h4 style="color:#991b1b;">📝 Cách ghi vi phạm</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Vào tab <b>📋 Chuyên Cần</b><br>
+          <b>Bước 2:</b> Chọn <b>Loại vi phạm</b>:<br>
+          &nbsp;&nbsp;&nbsp;🔴 Nghỉ Không Phép<br>
+          &nbsp;&nbsp;&nbsp;🟡 Đi Muộn<br>
+          &nbsp;&nbsp;&nbsp;📝 Vi Phạm SĐB<br>
+          &nbsp;&nbsp;&nbsp;🔵 Nghỉ Có Phép<br>
+          <b>Bước 3:</b> Chọn <b>Ngày</b> (mặc định hôm nay)<br>
+          <b>Bước 4:</b> Chọn <b>Môn học</b> hoặc để "Chung / Sinh hoạt"<br>
+          <b>Bước 5:</b> Nhập <b>Ghi chú</b><br>
+          <b>Bước 6:</b> <b>Tick chọn HS</b> (có thể chọn nhiều em)<br>
+          <b>Bước 7:</b> Nhấn <b>💾 Lưu</b>
+        </div>
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Mẹo:</b> Cuối buổi sinh hoạt ghi 1 lần. Dùng ô 🔍 để lọc tên nhanh.
+      </div>
+      <div class="guide-ok" style="margin-top:10px;">
+        <b>✅ Xem tổng hợp:</b> Bảng cuối tab hiển thị ai vi phạm bao nhiêu lần. Nhấn 🔍 để xem chi tiết và xóa nếu ghi sai.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: SỔ ĐIỂM -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">
+      💯 Tab 3: Sổ Điểm — Nhập Điểm HS
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Ghi điểm kiểm tra miệng, 15 phút, 1 tiết, học kỳ.
+      </p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">📝 Cách nhập điểm</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Nhập <b>Điểm</b> (0-10, hỗ trợ 0.25; 0.5; 0.75)<br>
+          <b>Bước 2:</b> Chọn <b>Môn</b><br>
+          <b>Bước 3:</b> Chọn <b>Ngày</b><br>
+          <b>Bước 4:</b> Nhập <b>Ghi chú</b> (VD: "KT Miệng")<br>
+          <b>Bước 5:</b> <b>Tick chọn HS</b><br>
+          <b>Bước 6:</b> Nhấn <b>💾 Lưu Điểm</b>
+        </div>
+      </div>
+      <div class="guide-ok" style="margin-top:10px;">
+        <b>✅ Tự động:</b> ĐTB và xếp loại (Giỏi ≥8 • Khá 6.5-8 • TB 5-6.5 • Yếu &lt;5).
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Tìm nâng cao:</b> Dùng form "🔍 Tìm Kiếm Nâng Cao" để lọc HS theo khoảng ĐTB hoặc xếp loại.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: BIỂU ĐỒ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#6d28d9;" onclick="toggleGuideCard(this)">
+      📊 Tab 4: Biểu Đồ — Thống Kê Trực Quan
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Xem thống kê tự động — không cần làm gì cả.
+      </p>
+      <div style="background:#fff;border-radius:8px;padding:12px;margin-top:10px;font-size:13px;line-height:1.9;color:#475569;">
+        <b>📊 4 biểu đồ có sẵn:</b><br>
+        <b>1. Chuyên Cần</b> — Bar chart số vi phạm mỗi HS<br>
+        <b>2. ĐTB HS</b> — Horizontal bar, xếp loại bằng màu<br>
+        &nbsp;&nbsp;&nbsp;🟢 Xanh = Giỏi • 🔵 Xanh dương = Khá • 🟡 Vàng = TB • 🔴 Đỏ = Yếu<br>
+        <b>3. ĐTB Theo Môn</b> — Doughnut chart<br>
+        <b>4. Xếp Loại Học Kỳ</b> — Pie chart (Giỏi/Khá/TB/Yếu)
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Khi nào xem?</b> Cuối tuần (nhắc nhở HS) • Cuối tháng • Trước họp phụ huynh.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: DANH SÁCH -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">
+      👥 Tab 5: Danh Sách — Quản Lý Học Sinh
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Thêm, sửa, xóa HS. Nhập hàng loạt hoặc từ Excel.
+      </p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">📋 Nhập hàng loạt</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          Ô textarea → dán danh sách (mỗi dòng 1 tên) → <b>🚀 Lưu DS</b><br>
+          <i>Có thể có số thứ tự đầu dòng — app tự bỏ.</i>
+        </div>
+      </div>
+      <div class="guide-step" style="border-left-color:#217346;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">📥 Import Excel</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          File Excel cần cột B (hoặc A) chứa tên HS. Hàng đầu là tiêu đề → sẽ tự bỏ qua.
+        </div>
+      </div>
+      <div class="guide-no" style="margin-top:10px;">
+        <b>⚠️ Xóa HS:</b> Khi xóa 1 HS → vi phạm, điểm, lượt đóng quỹ của HS đó cũng bị ảnh hưởng. Có thể phục hồi trong <b>🗑️ Thùng Rác</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: THU QUỸ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">
+      💰 Tab 6: Thu Quỹ — Quản Lý Thu Tiền
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Quản lý các đợt thu quỹ (Quỹ lớp, Quà cáp, Ủng hộ, Kỷ yếu...), theo dõi ai đã/chưa đóng, ghi lại bàn giao cho GVCN.
+      </p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">1</span> Tạo đợt thu</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Nhập <b>Tên đợt thu</b> — VD: "Quỹ lớp tháng 9"<br>
+          <b>Bước 2:</b> Nhập <b>Số tiền/HS</b> — VD: 50000<br>
+          <b>Bước 3:</b> Chọn <b>Ngày bắt đầu</b><br>
+          <b>Bước 4:</b> (Tùy chọn) Ghi chú<br>
+          <b>Bước 5:</b> Nhấn <b>🚀 Tạo</b>
+        </div>
+      </div>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;margin-top:10px;">
+        <h4 style="color:#92400e;"><span class="step-icon" style="background:#f59e0b;">2</span> Đánh dấu HS đã đóng</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Nhấn <b>📋 Chi Tiết</b> trên đợt thu<br>
+          <b>Bước 2:</b> Chọn <b>💵 Tiền mặt</b> hoặc <b>🏦 Chuyển khoản</b><br>
+          <b>Bước 3:</b> <b>Tick HS đã đóng</b><br>
+          <b>Bước 4:</b> Nhấn <b>💾 Đánh Dấu</b>
+        </div>
+      </div>
+      <div class="guide-step" style="border-left-color:#8b5cf6;background:#f5f3ff;margin-top:10px;">
+        <h4 style="color:#6d28d9;"><span class="step-icon" style="background:#8b5cf6;">3</span> Bàn giao cho GVCN</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          Trong đợt thu → <b>💸 Bàn Giao</b> → nhập số tiền, người nhận, ngày, ghi chú → Lưu.<br>
+          <b>Có thể bàn giao NHIỀU LẦN</b> cho cùng 1 đợt.
+        </div>
+      </div>
+      <div class="guide-no" style="margin-top:10px;">
+        <b>⚠️ Đặc biệt chú ý:</b><br>
+        • 🔴 HS chưa đóng → hiện <b>khung đỏ</b><br>
+        • 📊 Progress bar hiển thị % đã thu<br>
+        • 💰 "Còn giữ" = Đã thu - Đã bàn giao. Nếu ÂM → bạn bàn giao vượt!
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Mẹo:</b> Nhấn <b>📋 Copy DS gửi Zalo</b> trong khung đỏ → dán vào nhóm lớp để đôn đốc.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: CHI QUỸ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">
+      💸 Tab 7: Chi Quỹ — Ghi Chi Tiêu
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Ghi lại các khoản đã chi từ quỹ — photo tài liệu, mua phấn, in đề cương...
+      </p>
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff5f5;margin-top:10px;">
+        <h4 style="color:#991b1b;">📝 Cách ghi chi</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Chọn <b>Ngày chi</b><br>
+          <b>Bước 2:</b> Nhập <b>Nội dung</b> (VD: "Photo đề cương Hóa")<br>
+          <b>Bước 3:</b> Nhập <b>Đơn vị</b> (quyển, cái, hộp...)<br>
+          <b>Bước 4:</b> Nhập <b>Số lượng</b><br>
+          <b>Bước 5:</b> Nhập <b>Đơn giá</b><br>
+          <b>Bước 6:</b> <b>Thành tiền tự tính</b> = SL × Đơn giá<br>
+          <b>Bước 7:</b> Nhấn <b>💾 Lưu</b>
+        </div>
+      </div>
+      <div class="guide-ok" style="margin-top:10px;">
+        <b>✅ Đánh dấu đã trả:</b> Nhấn nút ✓ trên dòng → chuyển sang "Đã trả". Nhấn ↩️ nếu bấm nhầm.
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Tự động:</b> Cuối tab hiển thị tổng đang treo / đã trả / Top nội dung chi nhiều.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 8: BÁO CÁO -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#0f766e;" onclick="toggleGuideCard(this)">
+      📄 Tab 8: Báo Cáo — Xuất Word/PDF/Excel
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Xuất báo cáo dạng <b>Word (.doc)</b>, <b>PDF</b>, <b>Excel (.xlsx)</b> hoặc <b>In trực tiếp</b>.
+      </p>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;margin-top:10px;">
+        <h4 style="color:#1e40af;">📋 7 loại báo cáo</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>1. 📊 Tổng Hợp Lớp</b> — Chuyên cần + ĐTB<br>
+          <b>2. 💯 Bảng Điểm</b> — Ma trận HS × Môn<br>
+          <b>3. 📋 Vi Phạm</b> — Chi tiết<br>
+          <b>4. 👥 DS Lớp</b> — Có cột ký nhận<br>
+          <b>5. 💰 Thu Quỹ</b> — Tổng thu + Bàn giao<br>
+          <b>6. 💸 Chi Quỹ</b> — Chi tiết chi tiêu<br>
+          <b>7. 👤 Phiếu Cá Nhân</b> — Phiếu liên lạc PH
+        </div>
+      </div>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">🚀 Xuất báo cáo</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> <b>Tick chọn</b> báo cáo cần xuất<br>
+          <b>Bước 2:</b> Nếu chọn "Phiếu Cá Nhân" → tick thêm HS<br>
+          <b>Bước 3:</b> Nhấn <b>📥 Word</b> / <b>🖨️ In PDF</b> / <b>📊 Excel</b>
+        </div>
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Mẹo:</b> Xuất nhiều báo cáo cùng lúc → gộp chung 1 file Word. Điền thông tin Trường/GVCN ở tab Sao Lưu trước để báo cáo tự chèn header.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 9: THÀNH VIÊN -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#334155;" onclick="toggleGuideCard(this)">
+      👨‍👩‍👧 Tab 9: Thành Viên — Chia Sẻ Lớp
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Mời GVCN, lớp phó, ban cán sự vào cùng quản lý lớp.
+      </p>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;margin-top:10px;">
+        <h4 style="color:#1e40af;">🔑 Cách mời người khác</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Copy <b>Mã lớp</b> (6 ký tự) — ở tab này hoặc nhấn vào khung mã trên đầu trang<br>
+          <b>Bước 2:</b> Gửi mã + link web cho người đó<br>
+          <b>Bước 3:</b> Họ đăng nhập → nhấn <b>🔗 Vào lớp</b> → dán mã → OK<br>
+          <b>Bước 4:</b> Bạn vào tab <b>👨‍👩‍👧 Thành Viên</b> → đổi vai trò
+        </div>
+      </div>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">🎭 3 vai trò</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          👑 <b>Chủ lớp</b> — Toàn quyền, xóa lớp, mời thành viên<br>
+          ✏️ <b>Chỉnh sửa</b> — Thêm/sửa/xóa dữ liệu, không xóa lớp<br>
+          👁️ <b>Chỉ xem</b> — Chỉ xem, không sửa
+        </div>
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Gợi ý:</b> GVCN → Chỉ xem. Lớp phó học tập → Chỉnh sửa. Cán sự khác → Chỉ xem.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 10: THÙNG RÁC -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">
+      🗑️ Tab 10: Thùng Rác — Phục Hồi Dữ Liệu
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Mục đã xóa sẽ vào đây, giữ <b>30 ngày</b>. Có thể phục hồi nếu xóa nhầm.
+      </p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">↩️ Phục hồi</h4>
+        <p style="font-size:13px;color:#475569;line-height:1.8;">
+          Nhấn nút <b>↩️ Phục hồi</b> trên mỗi mục → dữ liệu quay lại vị trí cũ (HS + vi phạm + điểm của HS đó được khôi phục hết).
+        </p>
+      </div>
+      <div class="guide-no" style="margin-top:10px;">
+        <b>⚠️ Xóa vĩnh viễn:</b> Nhấn 🗑️ trên mục → KHÔNG thể hoàn tác.<br>
+        <b>🧹 Xóa hết:</b> Chỉ chủ lớp mới làm được.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 11: PHẠT -->
+  <div class="card guide-section" style="border:2px solid #ef4444;background:linear-gradient(135deg,#fff1f2,#fee2e2);">
+    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">
+      ⚖️ Tab 11: Phạt — Quản Lý Hình Phạt HS
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#991b1b;line-height:1.8;">
+        <b>Mục đích:</b> Quản lý hình phạt HS — chép phạt, vệ sinh, kiểm điểm... theo dõi <b>thời gian còn lại</b> và <b>cảnh báo tự động</b> khi sắp/quá hạn.
+      </p>
+
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff;margin-top:10px;">
+        <h4 style="color:#991b1b;"><span class="step-icon" style="background:#ef4444;">1</span> Tạo Phiếu Phạt</h4>
+        <div style="background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Bước 1:</b> Chọn <b>Học sinh bị phạt</b> (HS có phiếu cũ sẽ có dấu ⚠️)<br>
+          <b>Bước 2:</b> Chọn <b>Hình thức phạt:</b><br>
+          &nbsp;&nbsp;&nbsp;📝 Chép Phạt • 🧹 Vệ Sinh • 📄 Kiểm Điểm<br>
+          &nbsp;&nbsp;&nbsp;🎁 Mua Đồ • 📞 Báo PH • 📉 Hạ HK • 📌 Khác<br>
+          <b>Bước 3:</b> Chọn <b>Mức độ</b>: 🟢 Nhẹ / 🟡 Vừa / 🟠 Nặng / 🔴 Nghiêm Trọng<br>
+          <b>Bước 4:</b> Nhập <b>Nội dung phạt</b> cụ thể<br>
+          <b>Bước 5:</b> Chọn <b>Ngày bắt đầu</b> (mặc định hôm nay)<br>
+          <b>Bước 6:</b> Chọn <b>Hạn hoàn thành</b> (quan trọng!)<br>
+          <b>Bước 7:</b> (Tùy chọn) Ghi chú lý do<br>
+          <b>Bước 8:</b> Nhấn <b>⚖️ Tạo Phiếu Phạt</b>
+        </div>
+      </div>
+
+      <div class="guide-step" style="border-left-color:#dc2626;background:#fee2e2;margin-top:10px;">
+        <h4 style="color:#991b1b;"><span class="step-icon" style="background:#dc2626;">2</span> 🔔 Cảnh Báo Tự Động</h4>
+        <p style="font-size:13px;color:#7f1d1d;line-height:1.8;">
+          App <b>tự động</b> hiện cảnh báo ở đầu tab:
+        </p>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>🚨 Khung đỏ nhấp nháy:</b> HS <b>QUÁ HẠN</b><br>
+          <b>⚠️ Khung vàng:</b> HS <b>sắp hết hạn</b> (≤3 ngày)<br><br>
+          <b>Màu thời gian mỗi phiếu:</b><br>
+          &nbsp;&nbsp;&nbsp;🟢 Còn &gt;3 ngày — bình thường<br>
+          &nbsp;&nbsp;&nbsp;🟡 Còn 1-3 ngày — sắp hết<br>
+          &nbsp;&nbsp;&nbsp;🔴 Hết hạn/quá hạn — khẩn cấp
+        </div>
+      </div>
+
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">3</span> Đánh Dấu Hoàn Thành</h4>
+        <p style="font-size:13px;color:#475569;line-height:1.8;">
+          Tìm phiếu trong "🔴 Đang Chịu Phạt" → nhấn <b>✅ Đã Hoàn Thành</b> → xác nhận.<br>
+          Phiếu chuyển sang Lịch Sử, ghi lại <b>số ngày HS đã mất để hoàn thành</b>.
+        </p>
+      </div>
+
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;margin-top:10px;">
+        <h4 style="color:#92400e;"><span class="step-icon" style="background:#f59e0b;">4</span> Gia Hạn</h4>
+        <p style="font-size:13px;color:#92400e;line-height:1.8;">
+          Nhấn <b>⏰ Gia Hạn</b> → nhập hạn mới (YYYY-MM-DD).<br>
+          App đếm <b>số lần gia hạn</b> — nhiều lần có thể xem xét kỷ luật thêm.
+        </p>
+      </div>
+
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;margin-top:10px;">
+        <h4 style="color:#1e40af;"><span class="step-icon" style="background:#3b82f6;">5</span> Thống Kê</h4>
+        <p style="font-size:13px;color:#1e40af;line-height:1.8;">
+          Cuối tab có bảng <b>📊 Thống Kê Phạt Theo HS</b> — biết ngay ai bị phạt nhiều nhất. Dùng khi xét hạnh kiểm cuối kỳ.
+        </p>
+      </div>
+
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Mẹo:</b><br>
+        • Tạo phiếu phạt <b>NGAY</b> khi HS vi phạm<br>
+        • Đặt hạn cụ thể (3 ngày, 1 tuần) → HS có động lực<br>
+        • Mỗi sáng vào tab Phạt xem cảnh báo → nhắc HS kịp thời<br>
+        • Xuất CSV ở Lịch sử → gửi GVCN cuối tuần
+      </div>
+
+      <div class="guide-no" style="margin-top:10px;">
+        <b>⚠️ Lưu ý:</b><br>
+        • Xóa HS → phiếu phạt của HS đó vẫn còn (đánh dấu "Đã xóa")<br>
+        • Không xóa được phiếu đã "Hoàn thành" — chỉ mở lại được<br>
+        • Hạn có thể để trống → phiếu hiện "Không hạn"
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 12: SAO LƯU -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">
+      ⚙️ Tab 12: Sao Lưu — Backup & Khôi Phục
+      <span class="guide-arrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">
+        <b>Mục đích:</b> Sao lưu dữ liệu ra ngoài để dự phòng, hoặc chuyển máy.
+      </p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
+        <h4 style="color:#166534;">📤 SAO LƯU — 2 cách</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Cách 1: 📥 Tải File .JSON về máy</b><br>
+          → Nhấn nút → tự tải file .json → lưu vào Drive/Zalo<br><br>
+          <b>Cách 2: 📋 Copy Nội Dung</b><br>
+          → Nhấn nút → copy vào clipboard → mở Google Keep / Ghi chú → dán → lưu
+        </div>
+      </div>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;margin-top:10px;">
+        <h4 style="color:#92400e;">📥 KHÔI PHỤC — 2 cách</h4>
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:13px;line-height:1.9;color:#475569;">
+          <b>Cách 1:</b> Nhấn <b>📂 CHỌN FILE BACKUP</b> → chọn file .json → xác nhận<br>
+          <b>Cách 2:</b> Nhấn <b>📥 DÁN TỪ CLIPBOARD</b> → tự dán → ô trạng thái hiện ✅ → nhấn <b>🔄 KHÔI PHỤC</b>
+        </div>
+      </div>
+      <div class="guide-no" style="margin-top:10px;">
+        <b>⚠️ Lưu ý:</b> Khôi phục sẽ <b>GHI ĐÈ</b> dữ liệu hiện tại. Backup trước khi khôi phục!
+      </div>
+      <div class="guide-tip" style="margin-top:10px;">
+        <b>💡 Khi nào backup?</b> Mỗi tuần • Trước khi reset • Trước khi nhập nhiều dữ liệu quan trọng.
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- CHUYÊN CẦN -->
@@ -577,6 +1037,123 @@
     <h3><span>👥 Thành Viên (<span id="memberCount">0</span>)</span>
       <button class="btn-act btn-mini btn-warning" id="btnInviteMember" onclick="openInviteModal()">➕ Thêm</button></h3>
     <div id="memberList"></div>
+  </div>
+</div>
+
+ <!-- PHẠT -->
+<div id="sec-phat" class="section-pane">
+
+  <!-- HD nhanh -->
+  <div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;">
+    <h3 style="color:#92400e;border-bottom-color:#fbbf24;cursor:pointer;" onclick="togglePunishGuide()">
+      📖 HƯỚNG DẪN NHANH TAB PHẠT
+      <span id="ptGuideArrow" style="font-size:18px;">▼</span>
+    </h3>
+    <div id="ptGuideContent" style="display:none;">
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff;">
+        <h4 style="color:#991b1b;">📝 Tạo phiếu phạt</h4>
+        <p style="font-size:13px;color:#475569;line-height:1.7;">
+          Chọn HS → chọn hình thức phạt (chép phạt, vệ sinh, kiểm điểm...) → nhập nội dung cụ thể → chọn hạn → <b>Tạo Phiếu Phạt</b>
+        </p>
+      </div>
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff;">
+        <h4 style="color:#991b1b;">🔔 Cảnh báo thời gian</h4>
+        <p style="font-size:13px;color:#475569;line-height:1.7;">
+          App <b>tự động cảnh báo</b> khi HS sắp hết hạn (vàng) hoặc quá hạn (đỏ nhấp nháy).
+        </p>
+      </div>
+      <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
+        <h4 style="color:#166534;">✅ Khi xong</h4>
+        <p style="font-size:13px;color:#475569;line-height:1.7;">
+          Nhấn <b>✅ Đã Hoàn Thành</b> → phiếu chuyển sang Lịch Sử, ghi nhận số ngày HS đã làm.
+        </p>
+      </div>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fff;">
+        <h4 style="color:#92400e;">⏰ Gia hạn</h4>
+        <p style="font-size:13px;color:#475569;line-height:1.7;">
+          Nhấn <b>⏰ Gia Hạn</b> → nhập hạn mới → app đếm số lần gia hạn.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thống kê -->
+  <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">
+    <div class="stat-box" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#fca5a5;">
+      <span style="color:#991b1b;">Đang Phạt</span><b style="color:#991b1b;" id="ptActive">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#fbbf24;">
+      <span style="color:#92400e;">Sắp Hết Hạn</span><b style="color:#92400e;" id="ptWarning">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);border-color:#dc2626;">
+      <span style="color:#fff;">Quá Hạn</span><b style="color:#fff;" id="ptOverdue">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#86efac;">
+      <span style="color:#166534;">Đã Xong</span><b style="color:#166534;" id="ptDone">0</b></div>
+  </div>
+
+  <!-- Cảnh báo -->
+  <div id="ptAlertBox"></div>
+
+  <!-- Tạo phiếu phạt -->
+  <div class="card" style="border:2px solid #ef4444;background:linear-gradient(135deg,#fff1f2,#ffe4e6);">
+    <h3 style="color:#991b1b;border-bottom-color:#fca5a5;">➕ Tạo Phiếu Phạt Mới</h3>
+    <div class="form-group"><label>Học Sinh Bị Phạt:</label>
+      <select id="ptStudent"><option value="">-- Chọn HS --</option></select></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Hình Thức Phạt:</label>
+        <select id="ptType">
+          <option value="chep_phat">📝 Chép Phạt</option>
+          <option value="ve_sinh">🧹 Vệ Sinh / Trực Nhật Thêm</option>
+          <option value="kiem_diem">📄 Viết Kiểm Điểm</option>
+          <option value="mua_do">🎁 Mua Đồ Dùng Lớp</option>
+          <option value="thong_bao">📞 Thông Báo Phụ Huynh</option>
+          <option value="ha_hanh_kiem">📉 Hạ Hạnh Kiểm</option>
+          <option value="khac">📌 Khác</option>
+        </select></div>
+      <div class="form-group"><label>Mức Độ:</label>
+        <select id="ptLevel">
+          <option value="nhe">🟢 Nhẹ</option>
+          <option value="vua">🟡 Vừa</option>
+          <option value="nang">🟠 Nặng</option>
+          <option value="nghiem_trong">🔴 Nghiêm Trọng</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label>Nội Dung Phạt:</label>
+      <input type="text" id="ptReason" placeholder="VD: Chép phạt 100 lần bài thơ..." maxlength="200"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Ngày Bắt Đầu:</label><input type="date" id="ptStart"></div>
+      <div class="form-group"><label>Hạn Hoàn Thành:</label><input type="date" id="ptDeadline"></div>
+    </div>
+    <div class="form-group"><label>Ghi Chú Thêm:</label>
+      <input type="text" id="ptNote" placeholder="VD: Do vi phạm SĐB 3 lần..." maxlength="200"></div>
+    <button class="btn-act btn-danger btn-full" onclick="createPunishment()">⚖️ Tạo Phiếu Phạt</button>
+  </div>
+
+  <!-- Đang phạt -->
+  <div class="card" style="border:2px solid #dc2626;background:linear-gradient(135deg,#fef2f2,#fee2e2);">
+    <h3 style="color:#991b1b;border-bottom-color:#fca5a5;">🔴 Đang Chịu Phạt <span style="font-size:12px;font-weight:600;" id="ptActiveCount"></span></h3>
+    <input type="text" class="search-input" id="searchPunishActive" onkeyup="renderPunishActive()" placeholder="🔍 Tìm HS..." style="margin-bottom:8px;">
+  </div>
+  <div id="ptListActive"></div>
+
+  <!-- Lịch sử -->
+  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);margin-top:12px;">
+    <h3 style="color:#166534;border-bottom-color:#86efac;">✅ Lịch Sử Phạt Đã Hoàn Thành
+      <button class="btn-act btn-export" onclick="exportToCSV('punish')">📥 CSV</button></h3>
+    <input type="text" class="search-input" id="searchPunishDone" onkeyup="renderPunishDone()" placeholder="🔍 Tìm HS..." style="margin-bottom:8px;">
+  </div>
+  <div class="table-wrapper"><table><thead><tr>
+    <th style="width:6%;text-align:center;">STT</th>
+    <th style="width:22%;">Học Sinh</th>
+    <th style="width:26%;">Nội Dung</th>
+    <th style="width:12%;text-align:center;">Hình Thức</th>
+    <th style="width:11%;text-align:center;">Hoàn Thành</th>
+    <th style="width:11%;text-align:center;">Thời Gian</th>
+    <th style="width:12%;text-align:center;">Thao tác</th>
+  </tr></thead><tbody id="tbPunishDone"></tbody></table></div>
+
+  <!-- Thống kê theo HS -->
+  <div class="card" style="margin-top:12px;">
+    <h3>📊 Thống Kê Phạt Theo Học Sinh</h3>
+    <div id="ptStatsByStudent"></div>
   </div>
 </div>
 
@@ -1073,6 +1650,7 @@ async function loadClassFromCloud(classId) {
     currentClass = { id: classId, ...doc.data() };
     // Đảm bảo các trường tồn tại
     currentClass.students = currentClass.students || [];
+    currentClass.punishments = currentClass.punishments || [];
     currentClass.exps = currentClass.exps || [];
     currentClass.logs = currentClass.logs || [];
     currentClass.scores = currentClass.scores || [];
@@ -2545,17 +3123,16 @@ function exportToCSV(type){
   else if (type === 'attendance') {
     csv += "STT,Học Sinh,Ngày,Môn,Loại Vi Phạm,Ghi Chú\n";
     logs.forEach((l,i)=>{ const st = students.find(s=>String(s.id)===String(l.stId)); csv += `${i+1},${q(st?.name||'')},${q(l.date)},${q(l.sub)},${q(getLogName(l.type).replace(/[🔴🟡🔵📝]/g,'').trim())},${q(l.note)}\n`; });
-  } else if (type === 'score') {
-     } else if (type === 'punish') {
+    } else if (type === 'score') {
+    csv += "STT,Học Sinh,Ngày,Môn,Điểm,Ghi Chú\n";
+    scores.forEach((s,i)=>{ const st = students.find(st=>String(st.id)===String(s.stId)); csv += `${i+1},${q(st?.name||'')},${q(s.date)},${q(s.sub)},${s.val},${q(s.note)}\n`; });
+  } else if (type === 'punish') {
     csv += "STT,Học Sinh,Hình Thức,Mức Độ,Nội Dung,Ngày Bắt Đầu,Hạn,Trạng Thái,Hoàn Thành,Thời Gian\n";
     const lvlMap = { nhe: 'Nhẹ', vua: 'Vừa', nang: 'Nặng', nghiem_trong: 'Nghiêm trọng' };
-    punishments.forEach((p, i) => {
+    getPunishments().forEach((p, i) => {
       const st = students.find(s => String(s.id) === String(p.stId));
       csv += `${i+1},${q(st?.name||'')},${q(PT_TYPE_NAMES[p.type]||'')},${q(lvlMap[p.level]||'')},${q(p.reason)},${q(p.start)},${q(p.deadline)},${p.status==='done'?'Đã xong':'Đang phạt'},${q(p.completedAt?new Date(p.completedAt).toLocaleDateString('vi-VN'):'')},${q(getElapsedTime(p))}\n`;
     });
-  }
-    csv += "STT,Học Sinh,Ngày,Môn,Điểm,Ghi Chú\n";
-    scores.forEach((s,i)=>{ const st = students.find(st=>String(st.id)===String(s.stId)); csv += `${i+1},${q(st?.name||'')},${q(s.date)},${q(s.sub)},${s.val},${q(s.note)}\n`; });
   }
   downloadFile(fname, csv, 'text/csv;charset=utf-8');
 }
@@ -2856,11 +3433,9 @@ function openStudentModal(stId, mode) {
   document.getElementById('studentModal').classList.add('active');
 }
 
- /* ═══════════════════════════════════════════════════════════
-   TAB PHẠT — Quản lý hình phạt (FULL)
+/* ═══════════════════════════════════════════════════════════
+   TAB PHẠT — Quản lý hình phạt (Tích hợp vào class)
    ═══════════════════════════════════════════════════════════ */
-let punishments = JSON.parse(localStorage.getItem('11A1_punish')) || [];
-
 const PT_TYPE_NAMES = {
   chep_phat: '📝 Chép Phạt', ve_sinh: '🧹 Vệ Sinh', kiem_diem: '📄 Kiểm Điểm',
   mua_do: '🎁 Mua Đồ', thong_bao: '📞 Báo PH', ha_hanh_kiem: '📉 Hạ HK', khac: '📌 Khác'
@@ -2876,12 +3451,14 @@ const PT_LEVEL_NAMES = {
   nghiem_trong: { txt: '🔴 Nghiêm Trọng', color: '#dc2626' }
 };
 
+// Getter/setter — tích hợp vào currentClass
+function getPunishments() { return currentClass?.punishments || []; }
+function setPunishments(v) { if (currentClass) currentClass.punishments = v; }
+
 function daysBetween(dateStr) {
   if (!dateStr) return null;
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const d = new Date(dateStr);
-  d.setHours(0, 0, 0, 0);
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const d = new Date(dateStr); d.setHours(0, 0, 0, 0);
   return Math.ceil((d - now) / (1000 * 60 * 60 * 24));
 }
 
@@ -2906,29 +3483,31 @@ function getElapsedTime(p) {
   return `${diffDays} ngày`;
 }
 
+function togglePunishGuide() {
+  const content = document.getElementById('ptGuideContent');
+  const arrow = document.getElementById('ptGuideArrow');
+  if (!content) return;
+  const isOpen = content.style.display !== 'none';
+  content.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+  localStorage.setItem('11A1_ptGuide', isOpen ? 'closed' : 'open');
+}
+
 function renderPunishStats() {
+  const punishments = getPunishments();
   const active = punishments.filter(p => p.status !== 'done');
   const done = punishments.filter(p => p.status === 'done');
-  const overdue = active.filter(p => {
-    const d = daysBetween(p.deadline);
-    return d !== null && d < 0;
-  });
-  const warning = active.filter(p => {
-    const d = daysBetween(p.deadline);
-    return d !== null && d >= 0 && d <= 3;
-  });
+  const overdue = active.filter(p => { const d = daysBetween(p.deadline); return d !== null && d < 0; });
+  const warning = active.filter(p => { const d = daysBetween(p.deadline); return d !== null && d >= 0 && d <= 3; });
   const el1 = document.getElementById('ptActive'); if (el1) el1.textContent = active.length;
   const el2 = document.getElementById('ptWarning'); if (el2) el2.textContent = warning.length;
   const el3 = document.getElementById('ptOverdue'); if (el3) el3.textContent = overdue.length;
   const el4 = document.getElementById('ptDone'); if (el4) el4.textContent = done.length;
 
-  // Cảnh báo ở đầu trang
   const alertBox = document.getElementById('ptAlertBox');
   if (!alertBox) return;
-  if (overdue.length === 0 && warning.length === 0) {
-    alertBox.innerHTML = '';
-    return;
-  }
+  if (overdue.length === 0 && warning.length === 0) { alertBox.innerHTML = ''; return; }
+  const students = getStudents();
   let html = '';
   if (overdue.length > 0) {
     html += `<div class="card" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border:2px solid #dc2626;animation:pulseAlert 2s infinite;">
@@ -2937,12 +3516,9 @@ function renderPunishStats() {
         ${overdue.map(p => {
           const st = students.find(s => String(s.id) === String(p.stId));
           const d = daysBetween(p.deadline);
-          return `<span style="background:#fff;color:#991b1b;border:2px solid #dc2626;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:bold;">
-            ⚠️ ${esc(st?.name || '?')} — Quá ${-d} ngày
-          </span>`;
+          return `<span style="background:#fff;color:#991b1b;border:2px solid #dc2626;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:bold;">⚠️ ${esc(st?.name || '?')} — Quá ${-d} ngày</span>`;
         }).join('')}
-      </div>
-    </div>`;
+      </div></div>`;
   }
   if (warning.length > 0) {
     html += `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;">
@@ -2951,12 +3527,9 @@ function renderPunishStats() {
         ${warning.map(p => {
           const st = students.find(s => String(s.id) === String(p.stId));
           const d = daysBetween(p.deadline);
-          return `<span style="background:#fff;color:#92400e;border:2px solid #f59e0b;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:bold;">
-            ⏰ ${esc(st?.name || '?')} — Còn ${d} ngày
-          </span>`;
+          return `<span style="background:#fff;color:#92400e;border:2px solid #f59e0b;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:bold;">⏰ ${esc(st?.name || '?')} — Còn ${d} ngày</span>`;
         }).join('')}
-      </div>
-    </div>`;
+      </div></div>`;
   }
   alertBox.innerHTML = html;
 }
@@ -2966,10 +3539,8 @@ function renderPunishStudentSelector() {
   if (!sel) return;
   const cur = sel.value;
   const activeCounts = {};
-  punishments.filter(p => p.status !== 'done').forEach(p => {
-    activeCounts[p.stId] = (activeCounts[p.stId] || 0) + 1;
-  });
-  sel.innerHTML = '<option value="">-- Chọn HS --</option>' + students.map(s => {
+  getPunishments().filter(p => p.status !== 'done').forEach(p => { activeCounts[p.stId] = (activeCounts[p.stId] || 0) + 1; });
+  sel.innerHTML = '<option value="">-- Chọn HS --</option>' + getStudents().map(s => {
     const count = activeCounts[s.id] || 0;
     const marker = count > 0 ? ` ⚠️ (${count} phiếu)` : '';
     return `<option value="${s.id}">${esc(s.name)}${marker}</option>`;
@@ -2978,6 +3549,7 @@ function renderPunishStudentSelector() {
 }
 
 function createPunishment() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const stId = document.getElementById('ptStudent').value;
   const type = document.getElementById('ptType').value;
   const level = document.getElementById('ptLevel').value;
@@ -2990,52 +3562,31 @@ function createPunishment() {
   if (!reason) { toast('⚠️ Nhập nội dung phạt!', '#ef4444'); return; }
   if (!start) { toast('⚠️ Chọn ngày bắt đầu!', '#ef4444'); return; }
 
-  punishments.push({
-    id: uid(),
-    stId, type, level, reason,
-    start, deadline: deadline || '',
-    note,
-    status: 'active',
-    createdAt: new Date().toISOString()
-  });
+  const arr = getPunishments();
+  arr.push({ id: uid(), stId, type, level, reason, start, deadline: deadline || '', note, status: 'active', createdAt: new Date().toISOString() });
+  setPunishments(arr);
 
   document.getElementById('ptReason').value = '';
   document.getElementById('ptNote').value = '';
   document.getElementById('ptStudent').value = '';
   document.getElementById('ptDeadline').value = '';
 
+  const st = getStudents().find(s => String(s.id) === String(stId));
+  logActivity(`Tạo phiếu phạt cho ${st?.name || '?'}`);
   saveData();
   toast('⚖️ Đã tạo phiếu phạt!');
 }
 
 function renderPunishActive() {
-  const box = document.getElementById('ptListActive');
-  if (!box) return;
+  const box = document.getElementById('ptListActive'); if (!box) return;
+  const students = getStudents();
   const search = (document.getElementById('searchPunishActive')?.value || '').toLowerCase().trim();
-  let active = punishments.filter(p => p.status !== 'done');
-  if (search) {
-    active = active.filter(p => {
-      const st = students.find(s => String(s.id) === String(p.stId));
-      return st && st.name.toLowerCase().includes(search);
-    });
-  }
-  // Sắp xếp: quá hạn lên đầu, rồi đến sắp hết hạn, rồi theo deadline
-  active.sort((a, b) => {
-    const da = daysBetween(a.deadline);
-    const db = daysBetween(b.deadline);
-    if (da === null && db === null) return 0;
-    if (da === null) return 1;
-    if (db === null) return -1;
-    return da - db;
-  });
+  let active = getPunishments().filter(p => p.status !== 'done');
+  if (search) active = active.filter(p => { const st = students.find(s => String(s.id) === String(p.stId)); return st && st.name.toLowerCase().includes(search); });
+  active.sort((a, b) => { const da = daysBetween(a.deadline); const db = daysBetween(b.deadline); if (da === null && db === null) return 0; if (da === null) return 1; if (db === null) return -1; return da - db; });
 
-  const activeCountEl = document.getElementById('ptActiveCount');
-  if (activeCountEl) activeCountEl.textContent = `(${active.length} phiếu)`;
-
-  if (!active.length) {
-    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có HS nào đang chịu phạt!</div>';
-    return;
-  }
+  const cEl = document.getElementById('ptActiveCount'); if (cEl) cEl.textContent = `(${active.length} phiếu)`;
+  if (!active.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có HS nào đang chịu phạt!</div>'; return; }
 
   box.innerHTML = active.map(p => {
     const st = students.find(s => String(s.id) === String(p.stId));
@@ -3043,87 +3594,79 @@ function renderPunishActive() {
     const lvl = PT_LEVEL_NAMES[p.level] || PT_LEVEL_NAMES.nhe;
     const typeColor = PT_TYPE_COLORS[p.type] || '#64748b';
     const elapsed = getElapsedTime(p);
-    const borderStyle = info.cls === 'overdue' || info.cls === 'urgent' ? '3px solid #dc2626' :
-                        info.cls === 'warning' ? '3px solid #f59e0b' : '2px solid #e2e8f0';
-    return `
-      <div class="collect-card" style="border:${borderStyle};border-left:6px solid ${typeColor};margin-bottom:10px;">
-        <div class="collect-name" style="flex-wrap:wrap;">
-          <span style="font-size:15px;">👤 <b>${esc(st?.name || '(Đã xóa)')}</b></span>
-          <span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:8px;padding:3px 10px;font-size:12px;font-weight:bold;">
-            ${info.label}
-          </span>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
-          <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">
-            ${PT_TYPE_NAMES[p.type] || 'Khác'}
-          </span>
-          <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">
-            ${lvl.txt}
-          </span>
-          <span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">
-            ⏱ Đã ${elapsed}
-          </span>
-        </div>
-        <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;line-height:1.7;">
-          <b>📋 Nội dung:</b> ${esc(p.reason)}<br>
-          <b>📅 Bắt đầu:</b> ${esc(p.start)}${p.deadline ? ` • <b>⏰ Hạn:</b> ${esc(p.deadline)}` : ''}
-          ${p.note ? `<br><b>📝 Ghi chú:</b> ${esc(p.note)}` : ''}
-        </div>
-        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-          <button class="btn-act btn-success" style="flex:2;min-width:140px;" onclick="completePunishment('${p.id}')">✅ Đã Hoàn Thành</button>
-          <button class="btn-act btn-warning" style="flex:1;min-width:100px;" onclick="extendPunishment('${p.id}')">⏰ Gia Hạn</button>
-          <button class="btn-act btn-danger" onclick="deletePunishment('${p.id}')">🗑️</button>
-        </div>
-      </div>`;
+    const borderStyle = (info.cls === 'overdue' || info.cls === 'urgent') ? '3px solid #dc2626' : info.cls === 'warning' ? '3px solid #f59e0b' : '2px solid #e2e8f0';
+    return `<div class="collect-card" style="border:${borderStyle};border-left:6px solid ${typeColor};margin-bottom:10px;">
+      <div class="collect-name" style="flex-wrap:wrap;">
+        <span style="font-size:15px;">👤 <b>${esc(st?.name || '(Đã xóa)')}</b></span>
+        <span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:8px;padding:3px 10px;font-size:12px;font-weight:bold;">${info.label}</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">${PT_TYPE_NAMES[p.type] || 'Khác'}</span>
+        <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">${lvl.txt}</span>
+        <span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">⏱ Đã ${elapsed}</span>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;line-height:1.7;">
+        <b>📋 Nội dung:</b> ${esc(p.reason)}<br>
+        <b>📅 Bắt đầu:</b> ${esc(p.start)}${p.deadline ? ` • <b>⏰ Hạn:</b> ${esc(p.deadline)}` : ''}
+        ${p.note ? `<br><b>📝 Ghi chú:</b> ${esc(p.note)}` : ''}
+      </div>
+      ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn-act btn-success" style="flex:2;min-width:140px;" onclick="completePunishment('${p.id}')">✅ Đã Hoàn Thành</button>
+        <button class="btn-act btn-warning" style="flex:1;min-width:100px;" onclick="extendPunishment('${p.id}')">⏰ Gia Hạn</button>
+        <button class="btn-act btn-danger" onclick="deletePunishment('${p.id}')">🗑️</button>
+      </div>` : ''}
+    </div>`;
   }).join('');
 }
 
 function completePunishment(id) {
-  const p = punishments.find(x => String(x.id) === String(id));
-  if (!p) return;
-  const st = students.find(s => String(s.id) === String(p.stId));
+  if (!canEdit()) return;
+  const arr = getPunishments();
+  const p = arr.find(x => String(x.id) === String(id)); if (!p) return;
+  const st = getStudents().find(s => String(s.id) === String(p.stId));
   if (!confirm(`Xác nhận "${st?.name || '?'}" đã hoàn thành phạt?\n\nNội dung: ${p.reason}`)) return;
   p.status = 'done';
   p.completedAt = new Date().toISOString();
+  setPunishments(arr);
+  logActivity(`HS ${st?.name || '?'} đã hoàn thành phạt`);
   saveData();
   toast('✅ Đã đánh dấu hoàn thành!');
 }
 
 function extendPunishment(id) {
-  const p = punishments.find(x => String(x.id) === String(id));
-  if (!p) return;
+  if (!canEdit()) return;
+  const arr = getPunishments();
+  const p = arr.find(x => String(x.id) === String(id)); if (!p) return;
   const cur = p.deadline || todayStr();
   const newDate = prompt('Nhập hạn mới (YYYY-MM-DD):', cur);
   if (!newDate) return;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; }
   p.deadline = newDate;
   p.extendedCount = (p.extendedCount || 0) + 1;
+  setPunishments(arr);
+  logActivity(`Gia hạn phạt đến ${newDate}`);
   saveData();
   toast(`⏰ Đã gia hạn đến ${newDate}`);
 }
 
 function deletePunishment(id) {
-  const p = punishments.find(x => String(x.id) === String(id));
-  if (!p) return;
+  if (!canEdit()) return;
+  const arr = getPunishments();
+  const p = arr.find(x => String(x.id) === String(id)); if (!p) return;
   if (!confirm('Xóa phiếu phạt này? Không thể hoàn tác!')) return;
-  punishments = punishments.filter(x => String(x.id) !== String(id));
+  setPunishments(arr.filter(x => String(x.id) !== String(id)));
+  logActivity('Xóa 1 phiếu phạt');
   saveData();
   toast('🗑️ Đã xóa!');
 }
 
 function renderPunishDone() {
-  const tb = document.getElementById('tbPunishDone');
-  if (!tb) return;
+  const tb = document.getElementById('tbPunishDone'); if (!tb) return;
+  const students = getStudents();
   const search = (document.getElementById('searchPunishDone')?.value || '').toLowerCase().trim();
-  let done = punishments.filter(p => p.status === 'done');
-  if (search) {
-    done = done.filter(p => {
-      const st = students.find(s => String(s.id) === String(p.stId));
-      return st && st.name.toLowerCase().includes(search);
-    });
-  }
+  let done = getPunishments().filter(p => p.status === 'done');
+  if (search) done = done.filter(p => { const st = students.find(s => String(s.id) === String(p.stId)); return st && st.name.toLowerCase().includes(search); });
   done.sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''));
-
   tb.innerHTML = done.map((p, i) => {
     const st = students.find(s => String(s.id) === String(p.stId));
     const typeColor = PT_TYPE_COLORS[p.type] || '#64748b';
@@ -3132,53 +3675,42 @@ function renderPunishDone() {
       <td style="text-align:center;"><b>${i + 1}</b></td>
       <td><b>${esc(st?.name || '(Đã xóa)')}</b></td>
       <td>${esc(p.reason)}</td>
-      <td style="text-align:center;">
-        <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap;">
-          ${PT_TYPE_NAMES[p.type] || 'Khác'}
-        </span>
-      </td>
-      <td style="text-align:center;font-size:12px;">
-        ${p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—'}
-      </td>
+      <td style="text-align:center;"><span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap;">${PT_TYPE_NAMES[p.type] || 'Khác'}</span></td>
+      <td style="text-align:center;font-size:12px;">${p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—'}</td>
       <td style="text-align:center;font-size:12px;color:#10b981;font-weight:bold;">${elapsed}</td>
-      <td style="text-align:center;white-space:nowrap;">
-        <button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')">↩️ Mở Lại</button>
-        <button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')">🗑️</button>
-      </td>
+      <td style="text-align:center;white-space:nowrap;">${canEdit() ? `<button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')">↩️</button>
+        <button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')">🗑️</button>` : '—'}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có phiếu phạt nào hoàn thành</td></tr>';
 }
 
 function reopenPunishment(id) {
-  const p = punishments.find(x => String(x.id) === String(id));
-  if (!p) return;
+  if (!canEdit()) return;
+  const arr = getPunishments();
+  const p = arr.find(x => String(x.id) === String(id)); if (!p) return;
   if (!confirm('Mở lại phiếu phạt này?')) return;
   p.status = 'active';
   p.completedAt = null;
+  setPunishments(arr);
   saveData();
   toast('↩️ Đã mở lại phiếu phạt');
 }
 
 function renderPunishStatsByStudent() {
-  const box = document.getElementById('ptStatsByStudent');
-  if (!box) return;
-  if (!punishments.length) {
-    box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có dữ liệu</p>';
-    return;
-  }
+  const box = document.getElementById('ptStatsByStudent'); if (!box) return;
+  const punishments = getPunishments();
+  const students = getStudents();
+  if (!punishments.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có dữ liệu</p>'; return; }
   const stats = {};
   punishments.forEach(p => {
     if (!stats[p.stId]) stats[p.stId] = { total: 0, active: 0, done: 0 };
     stats[p.stId].total++;
-    if (p.status === 'done') stats[p.stId].done++;
-    else stats[p.stId].active++;
+    if (p.status === 'done') stats[p.stId].done++; else stats[p.stId].active++;
   });
   const arr = Object.entries(stats).map(([stId, s]) => {
     const st = students.find(x => String(x.id) === String(stId));
     return { name: st?.name || '(Đã xóa)', ...s };
-  }).filter(x => x.name !== '(Đã xóa)')
-    .sort((a, b) => b.total - a.total || b.active - a.active);
-
+  }).filter(x => x.name !== '(Đã xóa)').sort((a, b) => b.total - a.total || b.active - a.active);
   const maxTotal = Math.max(1, ...arr.map(x => x.total));
   box.innerHTML = arr.slice(0, 20).map(x => {
     const pct = (x.total / maxTotal) * 100;
@@ -3188,9 +3720,7 @@ function renderPunishStatsByStudent() {
         <b>${esc(x.name)}</b>
         <span><b style="color:${color};">${x.total}</b> phiếu • 🔴 ${x.active} đang • ✅ ${x.done} xong</span>
       </div>
-      <div class="chart-bar-bg" style="height:12px;">
-        <div style="width:${pct}%;height:100%;background:${color};border-radius:6px;"></div>
-      </div>
+      <div class="chart-bar-bg" style="height:12px;"><div style="width:${pct}%;height:100%;background:${color};border-radius:6px;"></div></div>
     </div>`;
   }).join('') || '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có dữ liệu</p>';
 }
@@ -3201,20 +3731,15 @@ function renderAllPunish() {
   renderPunishActive();
   renderPunishDone();
   renderPunishStatsByStudent();
-}
-
-// Cập nhật saveData để bao gồm punishments
-const _origSaveDataPunish = saveData;
-saveData = function(sync = true) {
-  localStorage.setItem('11A1_punish', JSON.stringify(punishments));
-  _origSaveDataPunish(sync);
-  if (typeof renderAllPunish === 'function') renderAllPunish();
-  if (currentUser) {
-    db.collection('users').doc(currentUser.uid).set({
-      punishments
-    }, { merge: true }).catch(err => console.error(err));
+  // Auto open guide lần đầu
+  const saved = localStorage.getItem('11A1_ptGuide');
+  const content = document.getElementById('ptGuideContent');
+  const arrow = document.getElementById('ptGuideArrow');
+  if (content && saved !== 'closed') {
+    content.style.display = 'block';
+    if (arrow) arrow.textContent = '▲';
   }
-};
+}
  
 /* ============ INIT ============ */
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
