@@ -138,6 +138,7 @@
   .sync-dot{width:8px;height:8px;border-radius:50%;background:#10b981}
   .sync-dot.syncing{background:#f59e0b;animation:pulse 1s infinite}
   .sync-dot.error{background:#ef4444}
+  @keyframes pulseAlert{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.7)}50%{box-shadow:0 0 0 10px rgba(220,38,38,0)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
   .user-bar{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap;gap:8px}
   .user-bar .user-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
@@ -815,7 +816,7 @@ const db = firebase.firestore();
 
 /* ============ STATE ============ */
 let userProfile = null;    // { email, displayName, currentClassId, myClasses[] }
-let currentClass = null;   // { id, ownerId, name, config, students, exps, logs, scores, collects, members, memberIds, editorIds, trash, activities, ... }
+let currentClass = null;   // { id, ownerId, name, config, students, exps, logs, scores, collects, punishments, members, memberIds, editorIds, trash, activities, ... }
 let currentRole = 'view';  // 'owner' | 'edit' | 'view'
 let currentUser = null;
 let isSyncing = false, pendingSync = false;
@@ -2545,6 +2546,14 @@ function exportToCSV(type){
     csv += "STT,Học Sinh,Ngày,Môn,Loại Vi Phạm,Ghi Chú\n";
     logs.forEach((l,i)=>{ const st = students.find(s=>String(s.id)===String(l.stId)); csv += `${i+1},${q(st?.name||'')},${q(l.date)},${q(l.sub)},${q(getLogName(l.type).replace(/[🔴🟡🔵📝]/g,'').trim())},${q(l.note)}\n`; });
   } else if (type === 'score') {
+     } else if (type === 'punish') {
+    csv += "STT,Học Sinh,Hình Thức,Mức Độ,Nội Dung,Ngày Bắt Đầu,Hạn,Trạng Thái,Hoàn Thành,Thời Gian\n";
+    const lvlMap = { nhe: 'Nhẹ', vua: 'Vừa', nang: 'Nặng', nghiem_trong: 'Nghiêm trọng' };
+    punishments.forEach((p, i) => {
+      const st = students.find(s => String(s.id) === String(p.stId));
+      csv += `${i+1},${q(st?.name||'')},${q(PT_TYPE_NAMES[p.type]||'')},${q(lvlMap[p.level]||'')},${q(p.reason)},${q(p.start)},${q(p.deadline)},${p.status==='done'?'Đã xong':'Đang phạt'},${q(p.completedAt?new Date(p.completedAt).toLocaleDateString('vi-VN'):'')},${q(getElapsedTime(p))}\n`;
+    });
+  }
     csv += "STT,Học Sinh,Ngày,Môn,Điểm,Ghi Chú\n";
     scores.forEach((s,i)=>{ const st = students.find(st=>String(st.id)===String(s.stId)); csv += `${i+1},${q(st?.name||'')},${q(s.date)},${q(s.sub)},${s.val},${q(s.note)}\n`; });
   }
@@ -2625,6 +2634,7 @@ function showTab(id, btn){
   document.getElementById('sec-'+id).classList.add('active');
   btn.classList.add('active');
   if (id === 'thongke') renderCharts();
+  if (id === 'phat') renderAllPunish();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
   if (id === 'thanhvien') renderMembersList();
   if (id === 'thungrac') renderTrashList();
@@ -2846,12 +2856,374 @@ function openStudentModal(stId, mode) {
   document.getElementById('studentModal').classList.add('active');
 }
 
+ /* ═══════════════════════════════════════════════════════════
+   TAB PHẠT — Quản lý hình phạt (FULL)
+   ═══════════════════════════════════════════════════════════ */
+let punishments = JSON.parse(localStorage.getItem('11A1_punish')) || [];
+
+const PT_TYPE_NAMES = {
+  chep_phat: '📝 Chép Phạt', ve_sinh: '🧹 Vệ Sinh', kiem_diem: '📄 Kiểm Điểm',
+  mua_do: '🎁 Mua Đồ', thong_bao: '📞 Báo PH', ha_hanh_kiem: '📉 Hạ HK', khac: '📌 Khác'
+};
+const PT_TYPE_COLORS = {
+  chep_phat: '#8b5cf6', ve_sinh: '#10b981', kiem_diem: '#3b82f6',
+  mua_do: '#f59e0b', thong_bao: '#ef4444', ha_hanh_kiem: '#dc2626', khac: '#64748b'
+};
+const PT_LEVEL_NAMES = {
+  nhe: { txt: '🟢 Nhẹ', color: '#10b981' },
+  vua: { txt: '🟡 Vừa', color: '#f59e0b' },
+  nang: { txt: '🟠 Nặng', color: '#f97316' },
+  nghiem_trong: { txt: '🔴 Nghiêm Trọng', color: '#dc2626' }
+};
+
+function daysBetween(dateStr) {
+  if (!dateStr) return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  return Math.ceil((d - now) / (1000 * 60 * 60 * 24));
+}
+
+function getDeadlineInfo(p) {
+  if (p.status === 'done') return { cls: 'done', label: '✅ Đã xong', color: '#10b981' };
+  const days = daysBetween(p.deadline);
+  if (days === null) return { cls: 'normal', label: '📅 Không hạn', color: '#64748b' };
+  if (days < 0) return { cls: 'overdue', label: `🔴 Quá hạn ${-days} ngày`, color: '#dc2626' };
+  if (days === 0) return { cls: 'urgent', label: '🔴 Hết hạn hôm nay', color: '#dc2626' };
+  if (days <= 3) return { cls: 'warning', label: `🟡 Còn ${days} ngày`, color: '#f59e0b' };
+  return { cls: 'normal', label: `🟢 Còn ${days} ngày`, color: '#10b981' };
+}
+
+function getElapsedTime(p) {
+  if (!p.start) return '—';
+  const start = new Date(p.start);
+  const end = p.status === 'done' && p.completedAt ? new Date(p.completedAt) : new Date();
+  const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return '0 ngày';
+  if (diffDays === 0) return 'Hôm nay';
+  if (diffDays === 1) return '1 ngày';
+  return `${diffDays} ngày`;
+}
+
+function renderPunishStats() {
+  const active = punishments.filter(p => p.status !== 'done');
+  const done = punishments.filter(p => p.status === 'done');
+  const overdue = active.filter(p => {
+    const d = daysBetween(p.deadline);
+    return d !== null && d < 0;
+  });
+  const warning = active.filter(p => {
+    const d = daysBetween(p.deadline);
+    return d !== null && d >= 0 && d <= 3;
+  });
+  const el1 = document.getElementById('ptActive'); if (el1) el1.textContent = active.length;
+  const el2 = document.getElementById('ptWarning'); if (el2) el2.textContent = warning.length;
+  const el3 = document.getElementById('ptOverdue'); if (el3) el3.textContent = overdue.length;
+  const el4 = document.getElementById('ptDone'); if (el4) el4.textContent = done.length;
+
+  // Cảnh báo ở đầu trang
+  const alertBox = document.getElementById('ptAlertBox');
+  if (!alertBox) return;
+  if (overdue.length === 0 && warning.length === 0) {
+    alertBox.innerHTML = '';
+    return;
+  }
+  let html = '';
+  if (overdue.length > 0) {
+    html += `<div class="card" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border:2px solid #dc2626;animation:pulseAlert 2s infinite;">
+      <h3 style="color:#991b1b;border-bottom-color:#fca5a5;">🔴 CẢNH BÁO — ${overdue.length} HS QUÁ HẠN PHẠT</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+        ${overdue.map(p => {
+          const st = students.find(s => String(s.id) === String(p.stId));
+          const d = daysBetween(p.deadline);
+          return `<span style="background:#fff;color:#991b1b;border:2px solid #dc2626;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:bold;">
+            ⚠️ ${esc(st?.name || '?')} — Quá ${-d} ngày
+          </span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  if (warning.length > 0) {
+    html += `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;">
+      <h3 style="color:#92400e;border-bottom-color:#fbbf24;">🟡 SẮP HẾT HẠN — ${warning.length} HS</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+        ${warning.map(p => {
+          const st = students.find(s => String(s.id) === String(p.stId));
+          const d = daysBetween(p.deadline);
+          return `<span style="background:#fff;color:#92400e;border:2px solid #f59e0b;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:bold;">
+            ⏰ ${esc(st?.name || '?')} — Còn ${d} ngày
+          </span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  alertBox.innerHTML = html;
+}
+
+function renderPunishStudentSelector() {
+  const sel = document.getElementById('ptStudent');
+  if (!sel) return;
+  const cur = sel.value;
+  const activeCounts = {};
+  punishments.filter(p => p.status !== 'done').forEach(p => {
+    activeCounts[p.stId] = (activeCounts[p.stId] || 0) + 1;
+  });
+  sel.innerHTML = '<option value="">-- Chọn HS --</option>' + students.map(s => {
+    const count = activeCounts[s.id] || 0;
+    const marker = count > 0 ? ` ⚠️ (${count} phiếu)` : '';
+    return `<option value="${s.id}">${esc(s.name)}${marker}</option>`;
+  }).join('');
+  sel.value = cur;
+}
+
+function createPunishment() {
+  const stId = document.getElementById('ptStudent').value;
+  const type = document.getElementById('ptType').value;
+  const level = document.getElementById('ptLevel').value;
+  const reason = document.getElementById('ptReason').value.trim();
+  const start = document.getElementById('ptStart').value;
+  const deadline = document.getElementById('ptDeadline').value;
+  const note = document.getElementById('ptNote').value.trim();
+
+  if (!stId) { toast('⚠️ Chọn HS!', '#ef4444'); return; }
+  if (!reason) { toast('⚠️ Nhập nội dung phạt!', '#ef4444'); return; }
+  if (!start) { toast('⚠️ Chọn ngày bắt đầu!', '#ef4444'); return; }
+
+  punishments.push({
+    id: uid(),
+    stId, type, level, reason,
+    start, deadline: deadline || '',
+    note,
+    status: 'active',
+    createdAt: new Date().toISOString()
+  });
+
+  document.getElementById('ptReason').value = '';
+  document.getElementById('ptNote').value = '';
+  document.getElementById('ptStudent').value = '';
+  document.getElementById('ptDeadline').value = '';
+
+  saveData();
+  toast('⚖️ Đã tạo phiếu phạt!');
+}
+
+function renderPunishActive() {
+  const box = document.getElementById('ptListActive');
+  if (!box) return;
+  const search = (document.getElementById('searchPunishActive')?.value || '').toLowerCase().trim();
+  let active = punishments.filter(p => p.status !== 'done');
+  if (search) {
+    active = active.filter(p => {
+      const st = students.find(s => String(s.id) === String(p.stId));
+      return st && st.name.toLowerCase().includes(search);
+    });
+  }
+  // Sắp xếp: quá hạn lên đầu, rồi đến sắp hết hạn, rồi theo deadline
+  active.sort((a, b) => {
+    const da = daysBetween(a.deadline);
+    const db = daysBetween(b.deadline);
+    if (da === null && db === null) return 0;
+    if (da === null) return 1;
+    if (db === null) return -1;
+    return da - db;
+  });
+
+  const activeCountEl = document.getElementById('ptActiveCount');
+  if (activeCountEl) activeCountEl.textContent = `(${active.length} phiếu)`;
+
+  if (!active.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có HS nào đang chịu phạt!</div>';
+    return;
+  }
+
+  box.innerHTML = active.map(p => {
+    const st = students.find(s => String(s.id) === String(p.stId));
+    const info = getDeadlineInfo(p);
+    const lvl = PT_LEVEL_NAMES[p.level] || PT_LEVEL_NAMES.nhe;
+    const typeColor = PT_TYPE_COLORS[p.type] || '#64748b';
+    const elapsed = getElapsedTime(p);
+    const borderStyle = info.cls === 'overdue' || info.cls === 'urgent' ? '3px solid #dc2626' :
+                        info.cls === 'warning' ? '3px solid #f59e0b' : '2px solid #e2e8f0';
+    return `
+      <div class="collect-card" style="border:${borderStyle};border-left:6px solid ${typeColor};margin-bottom:10px;">
+        <div class="collect-name" style="flex-wrap:wrap;">
+          <span style="font-size:15px;">👤 <b>${esc(st?.name || '(Đã xóa)')}</b></span>
+          <span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:8px;padding:3px 10px;font-size:12px;font-weight:bold;">
+            ${info.label}
+          </span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">
+            ${PT_TYPE_NAMES[p.type] || 'Khác'}
+          </span>
+          <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">
+            ${lvl.txt}
+          </span>
+          <span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">
+            ⏱ Đã ${elapsed}
+          </span>
+        </div>
+        <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;line-height:1.7;">
+          <b>📋 Nội dung:</b> ${esc(p.reason)}<br>
+          <b>📅 Bắt đầu:</b> ${esc(p.start)}${p.deadline ? ` • <b>⏰ Hạn:</b> ${esc(p.deadline)}` : ''}
+          ${p.note ? `<br><b>📝 Ghi chú:</b> ${esc(p.note)}` : ''}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn-act btn-success" style="flex:2;min-width:140px;" onclick="completePunishment('${p.id}')">✅ Đã Hoàn Thành</button>
+          <button class="btn-act btn-warning" style="flex:1;min-width:100px;" onclick="extendPunishment('${p.id}')">⏰ Gia Hạn</button>
+          <button class="btn-act btn-danger" onclick="deletePunishment('${p.id}')">🗑️</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function completePunishment(id) {
+  const p = punishments.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const st = students.find(s => String(s.id) === String(p.stId));
+  if (!confirm(`Xác nhận "${st?.name || '?'}" đã hoàn thành phạt?\n\nNội dung: ${p.reason}`)) return;
+  p.status = 'done';
+  p.completedAt = new Date().toISOString();
+  saveData();
+  toast('✅ Đã đánh dấu hoàn thành!');
+}
+
+function extendPunishment(id) {
+  const p = punishments.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const cur = p.deadline || todayStr();
+  const newDate = prompt('Nhập hạn mới (YYYY-MM-DD):', cur);
+  if (!newDate) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; }
+  p.deadline = newDate;
+  p.extendedCount = (p.extendedCount || 0) + 1;
+  saveData();
+  toast(`⏰ Đã gia hạn đến ${newDate}`);
+}
+
+function deletePunishment(id) {
+  const p = punishments.find(x => String(x.id) === String(id));
+  if (!p) return;
+  if (!confirm('Xóa phiếu phạt này? Không thể hoàn tác!')) return;
+  punishments = punishments.filter(x => String(x.id) !== String(id));
+  saveData();
+  toast('🗑️ Đã xóa!');
+}
+
+function renderPunishDone() {
+  const tb = document.getElementById('tbPunishDone');
+  if (!tb) return;
+  const search = (document.getElementById('searchPunishDone')?.value || '').toLowerCase().trim();
+  let done = punishments.filter(p => p.status === 'done');
+  if (search) {
+    done = done.filter(p => {
+      const st = students.find(s => String(s.id) === String(p.stId));
+      return st && st.name.toLowerCase().includes(search);
+    });
+  }
+  done.sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''));
+
+  tb.innerHTML = done.map((p, i) => {
+    const st = students.find(s => String(s.id) === String(p.stId));
+    const typeColor = PT_TYPE_COLORS[p.type] || '#64748b';
+    const elapsed = getElapsedTime(p);
+    return `<tr>
+      <td style="text-align:center;"><b>${i + 1}</b></td>
+      <td><b>${esc(st?.name || '(Đã xóa)')}</b></td>
+      <td>${esc(p.reason)}</td>
+      <td style="text-align:center;">
+        <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap;">
+          ${PT_TYPE_NAMES[p.type] || 'Khác'}
+        </span>
+      </td>
+      <td style="text-align:center;font-size:12px;">
+        ${p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—'}
+      </td>
+      <td style="text-align:center;font-size:12px;color:#10b981;font-weight:bold;">${elapsed}</td>
+      <td style="text-align:center;white-space:nowrap;">
+        <button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')">↩️ Mở Lại</button>
+        <button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có phiếu phạt nào hoàn thành</td></tr>';
+}
+
+function reopenPunishment(id) {
+  const p = punishments.find(x => String(x.id) === String(id));
+  if (!p) return;
+  if (!confirm('Mở lại phiếu phạt này?')) return;
+  p.status = 'active';
+  p.completedAt = null;
+  saveData();
+  toast('↩️ Đã mở lại phiếu phạt');
+}
+
+function renderPunishStatsByStudent() {
+  const box = document.getElementById('ptStatsByStudent');
+  if (!box) return;
+  if (!punishments.length) {
+    box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có dữ liệu</p>';
+    return;
+  }
+  const stats = {};
+  punishments.forEach(p => {
+    if (!stats[p.stId]) stats[p.stId] = { total: 0, active: 0, done: 0 };
+    stats[p.stId].total++;
+    if (p.status === 'done') stats[p.stId].done++;
+    else stats[p.stId].active++;
+  });
+  const arr = Object.entries(stats).map(([stId, s]) => {
+    const st = students.find(x => String(x.id) === String(stId));
+    return { name: st?.name || '(Đã xóa)', ...s };
+  }).filter(x => x.name !== '(Đã xóa)')
+    .sort((a, b) => b.total - a.total || b.active - a.active);
+
+  const maxTotal = Math.max(1, ...arr.map(x => x.total));
+  box.innerHTML = arr.slice(0, 20).map(x => {
+    const pct = (x.total / maxTotal) * 100;
+    const color = x.active > 0 ? '#ef4444' : '#10b981';
+    return `<div style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+        <b>${esc(x.name)}</b>
+        <span><b style="color:${color};">${x.total}</b> phiếu • 🔴 ${x.active} đang • ✅ ${x.done} xong</span>
+      </div>
+      <div class="chart-bar-bg" style="height:12px;">
+        <div style="width:${pct}%;height:100%;background:${color};border-radius:6px;"></div>
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có dữ liệu</p>';
+}
+
+function renderAllPunish() {
+  renderPunishStats();
+  renderPunishStudentSelector();
+  renderPunishActive();
+  renderPunishDone();
+  renderPunishStatsByStudent();
+}
+
+// Cập nhật saveData để bao gồm punishments
+const _origSaveDataPunish = saveData;
+saveData = function(sync = true) {
+  localStorage.setItem('11A1_punish', JSON.stringify(punishments));
+  _origSaveDataPunish(sync);
+  if (typeof renderAllPunish === 'function') renderAllPunish();
+  if (currentUser) {
+    db.collection('users').doc(currentUser.uid).set({
+      punishments
+    }, { merge: true }).catch(err => console.error(err));
+  }
+};
+ 
 /* ============ INIT ============ */
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
 document.getElementById('exPrice')?.addEventListener('input', calcExpAmt);
 document.getElementById('editExQty')?.addEventListener('input', calcEditExpAmt);
 document.getElementById('editExPrice')?.addEventListener('input', calcEditExpAmt);
 validatePasteContent();
+['ptStart'].forEach(id => { const el = document.getElementById(id); if (el) el.value = todayStr(); });
+renderAllPunish();
 if (!DONATE_CONFIG.enabled) document.getElementById('donateBtn').style.display = 'none';
 
 console.log('%c✅ App v8.0 — Đầy đủ tính năng','color:#10b981;font-size:16px;font-weight:bold;');
