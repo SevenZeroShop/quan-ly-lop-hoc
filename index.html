@@ -191,7 +191,10 @@
       <input type="text" id="authSchool" placeholder="🏛️ Tên trường (không bắt buộc)">
       <input type="text" id="authTeacher" placeholder="👩‍🏫 Tên GVCN (không bắt buộc)">
     </div>
-    <button class="btn-auth" id="btnAuth" onclick="handleAuth()">🔑 ĐĂNG NHẬP</button>
+        <button class="btn-auth" id="btnAuth" onclick="handleAuth()">🔑 ĐĂNG NHẬP</button>
+    <div style="text-align:center;margin-top:12px;">
+      <a href="#" onclick="event.preventDefault();forgotPassword()" style="color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;">🔑 Quên mật khẩu?</a>
+    </div>
     <div style="font-size:11px;color:#94a3b8;margin-top:16px;line-height:1.6;">
       💡 Mỗi tài khoản = 1 lớp riêng biệt<br>
       🔒 Dữ liệu mã hóa an toàn trên cloud
@@ -622,6 +625,27 @@ function showAuthMsg(text, type) {
   el.className = 'auth-msg ' + type;
 }
 
+ async function forgotPassword() {
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) {
+    showAuthMsg('⚠️ Nhập email vào ô trên trước, rồi nhấn "Quên mật khẩu"', 'error');
+    return;
+  }
+  if (!confirm(`Gửi link đặt lại mật khẩu tới:\n\n📧 ${email}\n\nKiểm tra hộp thư (kể cả Spam) sau 1-2 phút. Tiếp tục?`)) return;
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showAuthMsg(`✅ Đã gửi link đặt lại mật khẩu tới ${email}.\n👉 Mở email → nhấn link → đổi mật khẩu mới → quay lại đăng nhập.`, 'success');
+  } catch (err) {
+    const msgs = {
+      'auth/user-not-found': '❌ Email này chưa đăng ký tài khoản!',
+      'auth/invalid-email': '❌ Email không hợp lệ!',
+      'auth/too-many-requests': '❌ Quá nhiều lần thử. Đợi 5 phút rồi thử lại.',
+      'auth/network-request-failed': '❌ Lỗi mạng!'
+    };
+    showAuthMsg(msgs[err.code] || ('❌ ' + err.message), 'error');
+  }
+}
+ 
 async function handleAuth() {
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
