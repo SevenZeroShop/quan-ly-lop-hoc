@@ -2806,11 +2806,24 @@ function reportHeaderBlock(t=''){
 function signBlock(){
   const teacher = currentClass.config?.teacher || '..........................';
   const d = new Date();
-  return `<div class="sign"><div class="who">Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</div>
-    <div class="bold">GIÁO VIÊN CHỦ NHIỆM</div>
-    <div style="font-size:10pt;font-style:italic;margin-bottom:8pt;">(Ký, ghi rõ họ tên)</div>
-    <div style="height:50pt;"></div>
-    <div style="font-weight:bold;font-size:12pt;border-top:1pt solid #333;display:inline-block;padding-top:4pt;min-width:180pt;text-align:center;">${esc(teacher)}</div></div>`;
+  return `<div style="margin-top:30pt;page-break-inside:avoid;">
+  <table style="width:100%;border:none;">
+  <tr>
+  <td style="border:none;width:50%;vertical-align:top;text-align:center;">
+    <p style="font-style:italic;font-size:11pt;margin:0 0 4pt 0;">Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</p>
+    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">NGƯỜI LẬP BẢNG</p>
+    <p style="font-style:italic;font-size:10pt;margin:0 0 60pt 0;">(Ký, ghi rõ họ tên)</p>
+    <p style="font-weight:bold;font-size:12pt;margin:0;">Bùi Sỹ Hòa</p>
+  </td>
+  <td style="border:none;width:50%;vertical-align:top;text-align:center;">
+    <p style="font-style:italic;font-size:11pt;margin:0 0 4pt 0;">Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</p>
+    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">GIÁO VIÊN CHỦ NHIỆM</p>
+    <p style="font-style:italic;font-size:10pt;margin:0 0 60pt 0;">(Ký, ghi rõ họ tên)</p>
+    <p style="font-weight:bold;font-size:12pt;margin:0;">${esc(teacher)}</p>
+  </td>
+  </tr>
+  </table>
+  </div>`;
 }
 function classifyAtt(t){ if(t===0)return{txt:'Tốt',cls:'good'}; if(t<=2)return{txt:'Cần chú ý',cls:'warn'}; return{txt:'Yếu',cls:'bad'}; }
 
