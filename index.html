@@ -303,154 +303,376 @@
   <div class="card" style="background:linear-gradient(135deg,#1e3a8a,#2563eb,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
     <div style="font-size:46px;margin-bottom:8px;">🏫</div>
     <h2 style="font-size:20px;text-transform:uppercase;">HƯỚNG DẪN v8.1</h2>
-    <p style="font-size:13px;opacity:.95;margin-top:8px;">📚 12 tab • Đầy đủ tính năng</p>
+    <p style="font-size:13px;opacity:.95;margin-top:8px;">📚 13 tab • Đầy đủ tính năng • Xuất báo cáo chuẩn</p>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
       <button class="btn-act btn-success btn-mini" onclick="expandAllGuides()">📖 Mở Tất Cả</button>
       <button class="btn-act btn-warning btn-mini" onclick="collapseAllGuides()">📕 Đóng Tất Cả</button>
     </div>
   </div>
 
+  <!-- BẮT ĐẦU NHANH -->
   <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-    <h3 style="color:#166534;">⚡ BẮT ĐẦU NHANH</h3>
+    <h3 style="color:#166534;">⚡ BẮT ĐẦU NHANH (5 bước)</h3>
     <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
       <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">1</span> Đăng nhập / Đăng ký</h4>
-      <p>Nhập email + mật khẩu ≥6 ký tự → Đăng nhập. Hoặc dùng Google.</p>
+      <p>Nhập email + mật khẩu ≥6 ký tự → Đăng nhập. Hoặc dùng <b>Google</b>. Nếu chưa có tài khoản, nhấn tab <b>📝 Đăng Ký</b>.</p>
     </div>
     <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
-      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">2</span> Nhập HS</h4>
-      <p>Vào <b>👥 Danh Sách</b> → dán danh sách → <b>🚀 Lưu DS</b>.</p>
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">2</span> Cấu hình lớp</h4>
+      <p>Vào <b>⚙️ Sao Lưu</b> → điền Trường / GVCN / SĐT GVCN / Tên lớp / Năm học → <b>💾 Lưu</b>. Thông tin này sẽ hiện trên mọi báo cáo xuất ra.</p>
     </div>
     <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
-      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">3</span> Cấu hình lớp</h4>
-      <p>Vào <b>⚙️ Sao Lưu</b> → điền Trường/GVCN/Lớp/Năm → Lưu.</p>
+      <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">3</span> Nhập danh sách HS</h4>
+      <p>Vào <b>👥 Danh Sách</b> → dán danh sách (mỗi dòng 1 tên) → <b>🚀 Lưu DS</b>. Hoặc Import từ file Excel.</p>
     </div>
     <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
       <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">4</span> Ghi chép hàng ngày</h4>
-      <p><b>📋 Chuyên Cần</b> • <b>💯 Sổ Điểm</b> • <b>💰 Thu Quỹ</b> • <b>⚖️ Phạt</b></p>
+      <p><b>📋 Chuyên Cần</b> • <b>💯 Sổ Điểm</b> • <b>💰 Thu Quỹ</b> • <b>⚖️ Phạt</b> • <b>🧹 Lao Động</b></p>
     </div>
     <div class="guide-step" style="border-left-color:#10b981;background:#fff;">
       <h4 style="color:#166534;"><span class="step-icon" style="background:#10b981;">5</span> Backup định kỳ</h4>
-      <p>Cuối tuần vào <b>⚙️ Sao Lưu</b> → tải JSON hoặc Copy → lưu Google Keep.</p>
+      <p>Cuối tuần vào <b>⚙️ Sao Lưu</b> → tải file <b>.JSON</b> → lưu Google Drive / Copy → lưu Google Keep.</p>
     </div>
   </div>
 
+  <!-- ════════ TAB 1 ════════ -->
   <div class="card guide-section">
     <h3 style="cursor:pointer;" onclick="toggleGuideCard(this)">📖 Tab 1: Hướng Dẫn <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;">Nhấn tiêu đề để mở/đóng. Nhấn "Mở Tất Cả" để xem hết.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">Nhấn tiêu đề để mở/đóng từng mục. Nhấn <b>📖 Mở Tất Cả</b> để xem hết, hoặc <b>📕 Đóng Tất Cả</b> để thu gọn.</p>
+      <div class="guide-tip" style="margin-top:10px;">💡 Hướng dẫn có 13 tab — mỗi tab là 1 chức năng riêng biệt của app.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 2: CHUYÊN CẦN ════════ -->
   <div class="card guide-section">
     <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">📋 Tab 2: Chuyên Cần <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Ghi vi phạm HS.</p>
-      <div class="guide-step" style="border-left-color:#ef4444;background:#fff5f5;margin-top:10px;">
-        <h4 style="color:#991b1b;">📝 Cách ghi</h4>
-        <p>Bước 1: Chọn loại (Nghỉ KP/Đi muộn/SĐB/Nghỉ phép)<br>Bước 2: Ngày + Môn + Ghi chú<br>Bước 3: Tick HS → <b>💾 Lưu</b></p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Ghi nhận các vi phạm nề nếp: nghỉ không phép, đi muộn, vi phạm sổ đầu bài, nghỉ có phép.</p>
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff5f5;">
+        <h4 style="color:#991b1b;">📝 Cách ghi vi phạm</h4>
+        <p>
+          <b>Bước 1:</b> Chọn <b>Loại Vi Phạm</b> (🔴 Nghỉ KP / 🟡 Đi muộn / 📝 SĐB / 🔵 Nghỉ phép)<br>
+          <b>Bước 2:</b> Chọn <b>Ngày</b> (mặc định hôm nay) + <b>Môn học</b> + <b>Ghi chú</b><br>
+          <b>Bước 3:</b> Tick chọn HS bị vi phạm (có thể chọn nhiều)<br>
+          <b>Bước 4:</b> Nhấn <b>💾 Lưu</b>
+        </p>
       </div>
+      <div class="guide-ok">✅ Sau khi lưu, bảng <b>Tổng Hợp</b> bên dưới sẽ cập nhật badges vi phạm cho từng HS.</div>
+      <div class="guide-tip">💡 Nhấn nút <b>🔍</b> trên mỗi dòng để xem lịch sử vi phạm của HS đó. Có thể <b>Sửa / Xóa</b> từng vi phạm.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 3: SỔ ĐIỂM ════════ -->
   <div class="card guide-section">
     <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">💯 Tab 3: Sổ Điểm <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Ghi điểm + tự tính ĐTB, xếp loại.</p>
-      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
-        <h4 style="color:#166534;">📝 Cách nhập</h4>
-        <p>Bước 1: Nhập điểm (0-10)<br>Bước 2: Môn + Ngày + Ghi chú<br>Bước 3: Tick HS → <b>💾 Lưu Điểm</b></p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Ghi điểm kiểm tra miệng / 15 phút / 1 tiết / học kỳ, tự động tính ĐTB & xếp loại.</p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;">
+        <h4 style="color:#166534;">📝 Nhập điểm</h4>
+        <p>
+          <b>Bước 1:</b> Nhập điểm (0-10, có thể dùng số thập phân)<br>
+          <b>Bước 2:</b> Chọn <b>Môn</b> + <b>Ngày</b> + <b>Ghi chú</b> (VD: "KT 15p")<br>
+          <b>Bước 3:</b> Tick HS cần nhập<br>
+          <b>Bước 4:</b> Nhấn <b>💾 Lưu Điểm</b>
+        </p>
       </div>
-      <div class="guide-ok" style="margin-top:10px;">✅ Tự động: Giỏi ≥8 • Khá 6.5-8 • TB 5-6.5 • Yếu &lt;5</div>
-      <div class="guide-tip" style="margin-top:10px;">💡 Có tìm kiếm 🔍 ở đầu bảng — gõ tên hoặc STT để lọc nhanh.</div>
+      <div class="guide-ok">✅ Tự động xếp loại: <b>Giỏi ≥8.0</b> • <b>Khá 6.5-7.9</b> • <b>TB 5.0-6.4</b> • <b>Yếu &lt;5.0</b></div>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;">
+        <h4 style="color:#1e40af;">🔍 Tìm kiếm nâng cao</h4>
+        <p>Lọc HS theo <b>ĐTB từ… đến…</b> hoặc theo <b>Xếp loại</b>. VD: lọc HS có ĐTB 5-6.5 để phụ đạo thêm.</p>
+      </div>
+      <div class="guide-tip">💡 Ô tìm kiếm 🔍 phía trên bảng cho phép gõ tên hoặc STT để lọc nhanh.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 4: BIỂU ĐỒ ════════ -->
   <div class="card guide-section">
     <h3 style="cursor:pointer;color:#6d28d9;" onclick="toggleGuideCard(this)">📊 Tab 4: Biểu Đồ <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;">4 biểu đồ tự động: Chuyên cần • ĐTB HS • ĐTB Môn • Xếp loại học kỳ.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">Tự động vẽ <b>4 biểu đồ</b> trực quan từ dữ liệu đã nhập:</p>
+      <ul style="font-size:13px;color:#475569;line-height:1.9;padding-left:20px;margin-top:6px;">
+        <li>📊 <b>Chuyên cần</b> — cột: số vi phạm từng HS (đỏ nếu >3)</li>
+        <li>📈 <b>ĐTB HS</b> — cột ngang: xếp hạng theo điểm</li>
+        <li>📚 <b>ĐTB Môn</b> — vòng tròn: tỷ lệ điểm các môn</li>
+        <li>🎯 <b>Xếp loại học kỳ</b> — bánh: số HS Giỏi/Khá/TB/Yếu</li>
+      </ul>
+      <div class="guide-tip">💡 Biểu đồ tự cập nhật mỗi khi bạn vào tab này. Phù hợp để trình chiếu trong họp phụ huynh.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 5: TKB ════════ -->
   <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">👥 Tab 5: Danh Sách <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#0f766e;" onclick="toggleGuideCard(this)">📅 Tab 5: Thời Khóa Biểu <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Thêm HS:</b> Nhập hàng loạt (mỗi dòng 1 tên) hoặc Import Excel.<br><b>Sửa:</b> Nhấn nút Sửa trên từng dòng.<br><b>Xóa:</b> Vào Thùng Rác phục hồi được trong 30 ngày.</p>
-    </div>
-  </div>
-
-  <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">💰 Tab 6: Thu Quỹ <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
-    <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Tạo đợt thu, đánh dấu đã đóng, bàn giao cho GVCN.</p>
-      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;margin-top:10px;">
-        <h4 style="color:#166534;">1. Tạo đợt thu</h4>
-        <p>Nhập tên (Quỹ lớp/Quà cáp...) → Số tiền/HS → Ngày → <b>🚀 Tạo</b></p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Nhập TKB cố định theo tuần để tra cứu nhanh.</p>
+      <div class="guide-step" style="border-left-color:#0d9488;background:#f0fdfa;">
+        <h4 style="color:#0f766e;">📝 Cách nhập</h4>
+        <p>
+          <b>Bước 1:</b> Tại bảng <b>Nhập Thời Khóa Biểu</b>, mỗi ô dropdown = 1 tiết của 1 thứ<br>
+          <b>Bước 2:</b> Chọn môn học tương ứng từ danh sách<br>
+          <b>Bước 3:</b> Nhấn <b>💾 Lưu TKB</b>
+        </p>
       </div>
-      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;margin-top:10px;">
-        <h4 style="color:#92400e;">2. Đánh dấu đã đóng</h4>
-        <p>Nhấn <b>📋 Chi Tiết</b> → Chọn Tiền mặt/CK → Tick HS → <b>💾 Đánh Dấu</b></p>
+      <div class="guide-ok">✅ Sau khi lưu, mục <b>Xem Thời Khóa Biểu</b> bên dưới sẽ hiển thị dạng thẻ theo từng thứ để tra cứu nhanh.</div>
+      <div class="guide-tip">💡 Mặc định app có <b>5 tiết/ngày × 7 ngày</b>. Ô để trống = tiết nghỉ.</div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB 6: DANH SÁCH ════════ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">👥 Tab 6: Danh Sách HS <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Quản lý DS lớp, chức danh cán sự, SĐT, địa chỉ.</p>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;">
+        <h4 style="color:#92400e;">➕ 3 cách thêm HS</h4>
+        <p>
+          <b>1. Thêm nhanh:</b> Điền form (Tên + SĐT + Địa chỉ + Chức danh) → <b>➕ Thêm HS</b><br>
+          <b>2. Nhập hàng loạt:</b> Dán danh sách (mỗi dòng 1 tên) → <b>🚀 Lưu DS</b><br>
+          <b>3. Import Excel:</b> Nhấn <b>📥 Import Excel</b> → chọn file .xlsx
+        </p>
       </div>
-      <div class="guide-step" style="border-left-color:#8b5cf6;background:#f5f3ff;margin-top:10px;">
-        <h4 style="color:#6d28d9;">3. Bàn giao</h4>
-        <p><b>💸 Bàn Giao</b> → Nhập số tiền + người nhận + ngày → Lưu.</p>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;">
+        <h4 style="color:#1e40af;">✏️ Sửa / Xóa</h4>
+        <p>Mỗi dòng có nút <b>✏️ Sửa</b> (mở modal điền đầy đủ thông tin) và <b>🗑️ Xóa</b> (đưa vào Thùng Rác — phục hồi được trong 30 ngày).</p>
       </div>
-      <div class="guide-tip" style="margin-top:10px;">💡 Có nút <b>✏️ Sửa</b> trên mỗi đợt thu để đổi tên/số tiền.</div>
+      <div class="guide-ok">✅ Chức danh hỗ trợ: 👑 Lớp trưởng • ⭐ Lớp phó • 📘 Bí thư • 💰 Thủ quỹ • 🧑‍🤝‍🧑 Tổ trưởng/phó • 📌 Cán sự lớp.</div>
+      <div class="guide-tip">💡 Xuất CSV nhanh: nhấn <b>📥 CSV</b> ở góc phải tiêu đề.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 7: THU QUỸ ════════ -->
   <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">💸 Tab 7: Chi Quỹ <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">💰 Tab 7: Thu Quỹ <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Ghi chi:</b> Ngày + Nội dung + ĐV + SL + Đơn giá → Thành tiền tự tính.<br><b>Đã trả:</b> Nhấn ✓.<br><b>Sửa:</b> Nhấn ✏️.<br><b>Tìm:</b> Ô 🔍 ở đầu bảng.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Quản lý các đợt thu (quỹ lớp, quà cáp, ủng hộ…) — theo dõi ai đã đóng, ai chưa, số tiền bàn giao.</p>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;">
+        <h4 style="color:#166534;">1️⃣ Tạo đợt thu</h4>
+        <p>Nhập <b>Tên</b> (VD: Quỹ lớp tháng 9) → <b>Số tiền/HS</b> → <b>Ngày</b> → <b>Ghi chú</b> → <b>🚀 Tạo</b></p>
+      </div>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;">
+        <h4 style="color:#92400e;">2️⃣ Đánh dấu đã đóng</h4>
+        <p>Nhấn <b>📋 Chi Tiết</b> trên đợt thu → Chọn <b>💵 Tiền mặt</b> / <b>🏦 Chuyển khoản</b> → Tick HS đã đóng → <b>💾 Đánh Dấu</b></p>
+      </div>
+      <div class="guide-step" style="border-left-color:#8b5cf6;background:#f5f3ff;">
+        <h4 style="color:#6d28d9;">3️⃣ Bàn giao cho GVCN</h4>
+        <p><b>💸 Bàn Giao</b> → Nhập số tiền + người nhận (VD: Cô giáo chủ nhiệm) + ngày → Lưu</p>
+      </div>
+      <div class="guide-ok">✅ Tự động tính: <b>Đã thu</b> • <b>Bàn giao</b> • <b>Còn giữ</b> • <b>% hoàn thành</b></div>
+      <div class="guide-tip">💡 Nhấn <b>📋 Copy DS gửi Zalo</b> để copy danh sách HS chưa đóng — gửi thẳng vào nhóm lớp.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 8: CHI QUỸ ════════ -->
   <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#0f766e;" onclick="toggleGuideCard(this)">📄 Tab 8: Báo Cáo <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">💸 Tab 8: Chi Quỹ <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;">7 loại: Tổng hợp, Bảng điểm, Vi phạm, DS lớp, Thu quỹ, Chi quỹ, Phiếu cá nhân.<br>Xuất: <b>Word</b> / <b>PDF</b> / <b>Excel</b>.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Ghi lại các khoản chi từ quỹ lớp (mua đồ, photo tài liệu, liên hoan…).</p>
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff5f5;">
+        <h4 style="color:#991b1b;">📝 Cách ghi chi</h4>
+        <p>
+          <b>Bước 1:</b> Nhập <b>Ngày</b> + <b>Nội dung</b> (VD: Mua giấy A4)<br>
+          <b>Bước 2:</b> Nhập <b>ĐV</b> (VD: ram) + <b>SL</b> (VD: 2) + <b>Đơn giá</b> (VD: 70000)<br>
+          <b>Bước 3:</b> Thành tiền tự động = SL × Đơn giá<br>
+          <b>Bước 4:</b> Nhấn <b>💾 Lưu</b>
+        </p>
+      </div>
+      <div class="guide-ok">✅ Trạng thái <b>Chưa trả / Đã trả</b> — nhấn nút <b>✓</b> để đánh dấu đã thanh toán.</div>
+      <div class="guide-tip">💡 Phần <b>📊 Tổng Hợp</b> bên dưới hiển thị top 10 nội dung chi nhiều nhất — hữu ích để báo cáo.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 9: BÁO CÁO ════════ -->
   <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#334155;" onclick="toggleGuideCard(this)">👨‍👩‍👧 Tab 9: Thành Viên <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#0f766e;" onclick="toggleGuideCard(this)">📄 Tab 9: Báo Cáo &amp; Xuất File <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mời:</b> Copy mã lớp → gửi Zalo → họ nhấn 🔗 Vào lớp → dán mã.<br><b>3 vai trò:</b> 👑 Chủ lớp • ✏️ Chỉnh sửa • 👁️ Chỉ xem.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Xuất báo cáo chuẩn theo mẫu Bộ GD&ĐT (có Quốc hiệu, tiêu ngữ, chữ ký GVCN).</p>
+      <div class="guide-step" style="border-left-color:#0d9488;background:#f0fdfa;">
+        <h4 style="color:#0f766e;">📋 7 loại báo cáo</h4>
+        <p>
+          <b>📊 Tổng hợp:</b> Đặc điểm tình hình + Chuyên cần + Kết quả HT + Đánh giá chung<br>
+          <b>💯 Bảng điểm:</b> Ma trận HS × Môn + ĐTB + XL<br>
+          <b>📋 Vi phạm:</b> Chi tiết từng vụ vi phạm<br>
+          <b>👥 DS lớp:</b> Danh sách HS có cột ký nhận<br>
+          <b>💰 Thu quỹ:</b> Tổng thu + bàn giao + DS chưa đóng<br>
+          <b>💸 Chi quỹ:</b> Chi tiết từng khoản chi<br>
+          <b>👤 Cá nhân:</b> Phiếu liên lạc riêng cho từng HS
+        </p>
+      </div>
+      <div class="guide-step" style="border-left-color:#2b579a;background:#eff6ff;">
+        <h4 style="color:#1e40af;">📥 Cách xuất file</h4>
+        <p>
+          <b>Bước 1:</b> Tick chọn loại báo cáo cần xuất (chọn nhiều được)<br>
+          <b>Bước 2:</b> Nếu chọn <b>👤 Cá nhân</b> → chọn HS cụ thể bên dưới<br>
+          <b>Bước 3:</b> Nhấn <b>📥 Word</b> / <b>🖨️ In-PDF</b> / <b>📊 Excel</b>
+        </p>
+      </div>
+      <div class="guide-ok">✅ File Word/PDF tự động có: Quốc hiệu, tiêu ngữ, tên trường, lớp, năm học, tên GVCN, ngày lập, <b>chữ ký GVCN</b>.</div>
+      <div class="guide-tip">💡 Nếu in PDF: nhấn <b>🖨️ In / PDF</b> → trong hộp thoại in chọn <b>Save as PDF</b>.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 10: THÀNH VIÊN ════════ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#334155;" onclick="toggleGuideCard(this)">👨‍👩‍👧 Tab 10: Thành Viên <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Mời người khác (phụ huynh, BCS, GV khác) cùng xem/sửa dữ liệu lớp.</p>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;">
+        <h4 style="color:#1e40af;">📤 Mời thành viên</h4>
+        <p>
+          <b>Bước 1:</b> Copy <b>Mã lớp</b> (6 ký tự) ở đầu trang<br>
+          <b>Bước 2:</b> Gửi mã qua Zalo / Email cho người cần mời<br>
+          <b>Bước 3:</b> Họ đăng nhập app → nhấn <b>🔗 Vào lớp</b> → dán mã<br>
+          <b>Bước 4:</b> Vào tab Thành Viên → đổi quyền cho họ (✏️ hoặc 👁️)
+        </p>
+      </div>
+      <div class="guide-ok">
+        ✅ <b>3 vai trò:</b><br>
+        👑 <b>Chủ lớp</b> — toàn quyền, xóa lớp, reset<br>
+        ✏️ <b>Chỉnh sửa</b> — thêm/sửa/xóa dữ liệu<br>
+        👁️ <b>Chỉ xem</b> — chỉ xem, không sửa được
+      </div>
+      <div class="guide-tip">💡 Chỉ <b>Chủ lớp</b> mới có nút <b>➕ Thêm</b> và <b>🗑️ Xóa</b> thành viên.</div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB 11: LAO ĐỘNG ════════ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">🧹 Tab 11: Lao Động - Trực Nhật <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Phân tổ, giao nhiệm vụ trực nhật, chấm điểm thi đua giữa các tổ.</p>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;">
+        <h4 style="color:#1e40af;">1️⃣ Tạo tổ</h4>
+        <p>Điền <b>Tên tổ</b> + <b>Tổ trưởng</b> + tick <b>thành viên</b> → <b>🚀 Tạo Tổ</b><br>
+        Hoặc nhấn <b>🎲 Chia Đều Tự Động</b> → nhập số tổ → app chia random đều các HS.</p>
+      </div>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;">
+        <h4 style="color:#92400e;">2️⃣ Tạo nhiệm vụ trực</h4>
+        <p>Chọn <b>ngày</b> + <b>HS trực</b> + <b>nhiệm vụ</b> → <b>📝 Tạo Nhiệm Vụ (Đang Chờ)</b>.<br>
+        Nhiệm vụ sẽ ở trạng thái <b>⏳ Đang chờ</b> cho đến khi cuối buổi cập nhật kết quả.</p>
+      </div>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;">
+        <h4 style="color:#166534;">3️⃣ Cập nhật kết quả</h4>
+        <p>Tại mục <b>⏳ Nhiệm Vụ Đang Chờ</b> → chọn <b>trạng thái</b> (Hoàn thành tốt / Muộn / Chưa đủ / Bỏ) + <b>điểm</b> (0-10) → <b>💾 Hoàn Thành</b>.</p>
+      </div>
+      <div class="guide-ok">✅ Điểm tự động cộng cho <b>tổ của HS trực</b> → xem <b>🏆 Bảng Xếp Hạng</b> ở cuối.</div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB 12: PHẠT ════════ -->
   <div class="card guide-section" style="border:2px solid #ef4444;background:linear-gradient(135deg,#fff1f2,#fee2e2);">
-    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">⚖️ Tab 10: Phạt <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#991b1b;" onclick="toggleGuideCard(this)">⚖️ Tab 12: Phiếu Phạt <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#991b1b;line-height:1.8;"><b>Mục đích:</b> Quản lý hình phạt HS — chép phạt, vệ sinh, kiểm điểm... theo dõi thời gian còn lại.</p>
-      <div class="guide-step" style="border-left-color:#ef4444;background:#fff;margin-top:10px;">
+      <p style="font-size:13px;color:#991b1b;line-height:1.8;"><b>Mục đích:</b> Theo dõi các hình phạt (chép phạt, vệ sinh, kiểm điểm…) và hạn hoàn thành.</p>
+      <div class="guide-step" style="border-left-color:#ef4444;background:#fff;">
         <h4 style="color:#991b1b;">📝 Tạo phiếu phạt</h4>
-        <p>Bước 1: Chọn HS<br>Bước 2: Hình thức (Chép phạt/Vệ sinh/Kiểm điểm/Mua đồ/Báo PH/Hạ HK)<br>Bước 3: Mức độ (Nhẹ/Vừa/Nặng/Nghiêm trọng)<br>Bước 4: Nội dung cụ thể<br>Bước 5: Ngày bắt đầu + Hạn<br>Bước 6: <b>⚖️ Tạo Phiếu Phạt</b></p>
+        <p>
+          <b>Bước 1:</b> Tick HS vi phạm (chọn nhiều được)<br>
+          <b>Bước 2:</b> Chọn <b>Hình thức</b> (Chép phạt / Vệ sinh / Kiểm điểm / Mua đồ / Báo PH / Hạ HK / Khác)<br>
+          <b>Bước 3:</b> Chọn <b>Mức độ</b> (Nhẹ / Vừa / Nặng / Nghiêm trọng)<br>
+          <b>Bước 4:</b> Nhập <b>Nội dung</b> cụ thể (VD: Chép phạt 100 lần)<br>
+          <b>Bước 5:</b> Nhập <b>Ngày BĐ</b> + <b>Hạn</b><br>
+          <b>Bước 6:</b> <b>⚖️ Tạo Phiếu Phạt</b>
+        </p>
       </div>
-      <div class="guide-step" style="border-left-color:#dc2626;background:#fee2e2;margin-top:10px;">
+      <div class="guide-step" style="border-left-color:#dc2626;background:#fee2e2;">
         <h4 style="color:#991b1b;">🔔 Cảnh báo tự động</h4>
-        <p>🚨 Khung đỏ nhấp nháy: QUÁ HẠN<br>⚠️ Khung vàng: SẮP HẾT HẠN (≤3 ngày)</p>
+        <p>
+          🚨 Khung <b>đỏ</b>: <b>QUÁ HẠN</b><br>
+          ⚠️ Khung <b>vàng</b>: <b>SẮP HẾT HẠN</b> (≤3 ngày)<br>
+          🟢 Khung <b>xanh</b>: Còn nhiều thời gian
+        </p>
       </div>
-      <div class="guide-tip" style="margin-top:10px;">💡 Có nút <b>✏️ Sửa</b> trên mỗi phiếu để đổi nội dung/hạn.</div>
+      <div class="guide-ok">✅ Nút <b>✅ Đã Hoàn Thành</b> để đánh dấu xong, nút <b>⏰ Gia Hạn</b> để dời hạn, nút <b>✏️ Sửa</b> để đổi nội dung.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 13: THÙNG RÁC ════════ -->
   <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">🗑️ Tab 11: Thùng Rác <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">🗑️ Tab 13: Thùng Rác <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;">Mục đã xóa giữ 30 ngày. Nhấn ↩️ để phục hồi. Nhấn 🗑️ để xóa vĩnh viễn.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;">Mọi mục đã xóa (HS, đợt thu, khoản chi…) được giữ tại đây <b>30 ngày</b> trước khi xóa vĩnh viễn.</p>
+      <div class="guide-ok">✅ Nhấn <b>↩️ Phục hồi</b> để khôi phục mục đã lỡ xóa.</div>
+      <div class="guide-no">⚠️ Nhấn <b>🗑️</b> = xóa vĩnh viễn, KHÔNG thể khôi phục.</div>
+      <div class="guide-tip">💡 Nút <b>🧹 Xóa Hết</b> chỉ Chủ lớp mới dùng được — dọn sạch thùng rác 1 lần.</div>
     </div>
   </div>
 
+  <!-- ════════ TAB 14: SAO LƯU ════════ -->
   <div class="card guide-section">
-    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">⚙️ Tab 12: Sao Lưu <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <h3 style="cursor:pointer;color:#166534;" onclick="toggleGuideCard(this)">⚙️ Tab 14: Sao Lưu &amp; Cấu Hình <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
     <div class="guide-body" style="display:none;">
-      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Backup:</b> Tải file .JSON hoặc Copy nội dung → dán Google Keep.<br><b>Khôi phục:</b> Chọn file hoặc Dán từ clipboard → 🔄 Khôi phục.<br><b>Reset:</b> Chỉ chủ lớp mới làm được.</p>
+      <p style="font-size:13px;color:#475569;line-height:1.8;"><b>Mục đích:</b> Cấu hình thông tin lớp + backup dữ liệu + khôi phục.</p>
+      <div class="guide-step" style="border-left-color:#3b82f6;background:#eff6ff;">
+        <h4 style="color:#1e40af;">⚙️ Cấu hình lớp</h4>
+        <p>Điền <b>Tên Trường</b> + <b>GVCN</b> + <b>SĐT GVCN</b> + <b>Tên Lớp</b> + <b>Năm Học</b> → <b>💾 Lưu</b>. Thông tin này sẽ xuất hiện trên header app và mọi báo cáo xuất ra.</p>
+      </div>
+      <div class="guide-step" style="border-left-color:#10b981;background:#f0fdf4;">
+        <h4 style="color:#166534;">📤 Sao lưu (Backup)</h4>
+        <p>
+          <b>Cách 1:</b> Nhấn <b>📥 Tải File .JSON</b> → lưu vào Google Drive / máy tính<br>
+          <b>Cách 2:</b> Nhấn <b>📋 Copy Nội Dung</b> → dán vào Google Keep / Note
+        </p>
+      </div>
+      <div class="guide-step" style="border-left-color:#f59e0b;background:#fffbeb;">
+        <h4 style="color:#92400e;">📥 Khôi phục (Restore)</h4>
+        <p>
+          <b>Cách 1:</b> Chọn file <b>.JSON</b> đã lưu → <b>📂 CHỌN FILE BACKUP</b><br>
+          <b>Cách 2:</b> Copy nội dung → nhấn <b>📥 DÁN TỪ CLIPBOARD</b> → chờ check xanh → <b>🔄 KHÔI PHỤC</b>
+        </p>
+      </div>
+      <div class="guide-no">⚠️ Khôi phục sẽ <b>THAY THẾ</b> toàn bộ dữ liệu hiện tại. Hãy <b>Backup trước</b> khi khôi phục!</div>
+    </div>
+  </div>
+
+  <!-- ════════ TÀI KHOẢN ════════ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#1e40af;" onclick="toggleGuideCard(this)">🔑 Quản Lý Tài Khoản <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <div class="guide-body" style="display:none;">
+      <div class="guide-step" style="border-left-color:#0d9488;">
+        <h4 style="color:#0f766e;">🔒 Đổi mật khẩu</h4>
+        <p>Nhấn nút <b>⚙️ Tài khoản</b> ở thanh user trên cùng → nhập mật khẩu cũ + mới (≥6 ký tự) → <b>💾 Đổi Mật Khẩu</b>.</p>
+      </div>
+      <div class="guide-step" style="border-left-color:#8b5cf6;">
+        <h4 style="color:#6d28d9;">🔑 Quên mật khẩu</h4>
+        <p>Ở màn hình đăng nhập, nhấn <b>🔑 Quên mật khẩu?</b> → nhập email → app gửi link đặt lại qua mail. <b>Kiểm tra cả hộp Spam.</b></p>
+      </div>
+      <div class="guide-step" style="border-left-color:#ef4444;">
+        <h4 style="color:#991b1b;">📋 Nhật ký hoạt động</h4>
+        <p>Trong modal Tài khoản có mục <b>📋 Nhật Ký</b> — ghi lại 50 thao tác gần nhất (ai làm gì, lúc nào) — dùng khi nhiều người cùng chỉnh sửa.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ ĐỒNG BỘ ════════ -->
+  <div class="card guide-section">
+    <h3 style="cursor:pointer;color:#2563eb;" onclick="toggleGuideCard(this)">🔄 Đồng Bộ Đa Thiết Bị <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <div class="guide-body" style="display:none;">
+      <p style="font-size:13px;color:#475569;line-height:1.8;">App tự động đồng bộ lên <b>Firebase Cloud</b> mỗi khi bạn thao tác. Trạng thái hiện ở badge góc <b>dưới-trái</b> màn hình:</p>
+      <div class="guide-ok">🟢 <b>Đã đồng bộ</b> — dữ liệu đã lên cloud an toàn.</div>
+      <div class="guide-tip">🟠 <b>Đang đồng bộ</b> — chờ vài giây.</div>
+      <div class="guide-no">🔴 <b>Lỗi đồng bộ</b> — kiểm tra mạng hoặc tải lại trang (F5).</div>
+      <div class="guide-step" style="border-left-color:#3b82f6;margin-top:10px;">
+        <p><b>Cách dùng đa thiết bị:</b> Đăng nhập cùng tài khoản (email) trên điện thoại + máy tính → dữ liệu tự cập nhật 2 chiều.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ FAQ ════════ -->
+  <div class="card guide-section" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+    <h3 style="cursor:pointer;color:#92400e;" onclick="toggleGuideCard(this)">❓ Câu Hỏi Thường Gặp (FAQ) <span class="guide-arrow" style="font-size:18px;">▼</span></h3>
+    <div class="guide-body" style="display:none;">
+      <div class="guide-step"><h4>Q: Tôi quên mật khẩu?</h4><p>A: Nhấn <b>🔑 Quên mật khẩu?</b> ở màn hình đăng nhập → nhập email → check hộp thư (kể cả Spam).</p></div>
+      <div class="guide-step"><h4>Q: Tôi muốn xóa HS nhưng lỡ tay?</h4><p>A: Vào <b>🗑️ Thùng Rác</b> → nhấn <b>↩️ Phục hồi</b>. Mục được giữ trong 30 ngày.</p></div>
+      <div class="guide-step"><h4>Q: Tôi muốn chuyển sang lớp khác?</h4><p>A: Ở thanh <b>📚 Lớp đang xem</b> phía trên → chọn lớp → app tự chuyển.</p></div>
+      <div class="guide-step"><h4>Q: Báo cáo xuất ra bị lỗi font tiếng Việt?</h4><p>A: File Word/Excel đã có BOM UTF-8. Nếu vẫn lỗi, mở bằng <b>Google Docs</b> hoặc <b>LibreOffice</b>.</p></div>
+      <div class="guide-step"><h4>Q: Tại sao tôi không thấy nút Sửa / Xóa?</h4><p>A: Bạn đang ở chế độ <b>👁️ Chỉ xem</b>. Liên hệ <b>Chủ lớp</b> để được cấp quyền ✏️.</p></div>
+      <div class="guide-step"><h4>Q: Có mấy người cùng sửa được không?</h4><p>A: Có. Mời nhiều thành viên với quyền ✏️. App tự ghi nhật ký từng thao tác.</p></div>
+      <div class="guide-step"><h4>Q: Xuất Excel có bị mất dữ liệu không?</h4><p>A: Không. Excel xuất đủ 5 sheet: DS HS, Bảng điểm, Chuyên cần, Chi quỹ, Thu quỹ, Lao động.</p></div>
+      <div class="guide-step"><h4>Q: App có giới hạn số HS / số lớp không?</h4><p>A: Không giới hạn. Firebase free tier đủ dùng cho 1 lớp học phổ thông.</p></div>
     </div>
   </div>
 </div>
-
  
 <!-- CHUYÊN CẦN -->
 <div id="sec-diemdanh" class="section-pane">
@@ -3653,58 +3875,55 @@ function buildWordHTML(title, body){
 function downloadWord(filename, title, bodyHtml){ downloadFile(filename, buildWordHTML(title, bodyHtml), 'application/msword;charset=utf-8'); }
 
 function reportHeaderBlock(t=''){
-  const className = currentClass.config?.className || currentClass.name || 'Lớp';
-  const school = currentClass.config?.school || '';
-  const year = currentClass.config?.year || '';
+  const cfg = currentClass.config || {};
+  const className = cfg.className || currentClass.name || '...';
+  const school = cfg.school || '';
+  const teacher = cfg.teacher || '';
+  const phone = cfg.teacherPhone || '';
+  const year = cfg.year || '';
   const d = new Date();
   const dd = String(d.getDate()).padStart(2,'0');
   const mm = String(d.getMonth()+1).padStart(2,'0');
   const yyyy = d.getFullYear();
+
   return `
-  <table style="width:100%;border:none;border-collapse:collapse;margin-bottom:14pt;">
+  <table style="width:100%;border:none;border-collapse:collapse;margin-bottom:10pt;">
     <tr>
-      <td style="border:none;width:45%;vertical-align:top;text-align:center;padding:0;">
-        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">${school ? esc(school.toUpperCase()) : 'TRƯỜNG ..........................'}</p>
-        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">LỚP ${esc(className.toUpperCase())}</p>
+      <td style="border:none;width:45%;vertical-align:top;text-align:center;padding:0 8pt 0 0;">
+        <p style="font-size:10.5pt;font-weight:bold;margin:0 0 2pt 0;text-transform:uppercase;">${school ? 'TRƯỜNG ' + esc(school) : 'TRƯỜNG ..........................'}</p>
+        <p style="font-size:10.5pt;font-weight:bold;margin:0 0 2pt 0;">LỚP ${esc(className.toUpperCase())}</p>
         <p style="font-size:10pt;margin:0;">${year ? 'Năm học: ' + esc(year) : ''}</p>
+        <p style="font-size:10pt;margin:0;">${teacher ? 'GVCN: ' + esc(teacher) : ''}</p>
+        <p style="font-size:10pt;margin:0;">${phone ? 'ĐT: ' + esc(phone) : ''}</p>
         <p style="font-size:10pt;font-style:italic;margin:6pt 0 0 0;letter-spacing:2pt;">─────────</p>
       </td>
-      <td style="border:none;width:55%;vertical-align:top;text-align:center;padding:0;">
-        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
-        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">Độc lập - Tự do - Hạnh phúc</p>
+      <td style="border:none;width:55%;vertical-align:top;text-align:center;padding:0 0 0 8pt;">
+        <p style="font-size:10.5pt;font-weight:bold;margin:0 0 2pt 0;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+        <p style="font-size:10.5pt;font-weight:bold;margin:0 0 2pt 0;">Độc lập - Tự do - Hạnh phúc</p>
         <p style="font-size:10pt;font-style:italic;margin:6pt 0 0 0;letter-spacing:2pt;">─────────</p>
         <p style="font-size:10pt;margin:6pt 0 0 0;"><i>${className}, ngày ${dd} tháng ${mm} năm ${yyyy}</i></p>
       </td>
     </tr>
   </table>
-
-  <h1 style="font-size:16pt;text-align:center;font-weight:bold;text-transform:uppercase;margin:18pt 0 4pt 0;line-height:1.4;">
-    ${esc(t || ('BÁO CÁO LỚP ' + className))}
-  </h1>
-  <p style="text-align:center;font-size:11pt;font-style:italic;margin:0 0 16pt 0;">
-    (Về tình hình học tập, chuyên cần và các hoạt động của lớp)
-  </p>
-  <p style="font-size:11pt;margin:0 0 8pt 0;"><b>Kính gửi:</b> Ban Giám hiệu Nhà trường</p>
-  <p style="font-size:11pt;margin:0 0 14pt 0;padding-left:60pt;">Giáo viên chủ nhiệm lớp ${esc(className)}</p>`;
+  <h1 style="font-size:15pt;text-align:center;font-weight:bold;text-transform:uppercase;margin:14pt 0 4pt 0;line-height:1.35;">${esc(t || ('BÁO CÁO LỚP ' + className))}</h1>
+  <p style="text-align:center;font-size:11pt;font-style:italic;margin:0 0 10pt 0;">(Về tình hình học tập, chuyên cần và các hoạt động của lớp${year ? ' — Năm học ' + esc(year) : ''})</p>
+  <p style="font-size:11pt;margin:0 0 4pt 0;"><b>Kính gửi:</b> Ban Giám hiệu Nhà trường</p>
+  <p style="font-size:11pt;margin:0 0 12pt 0;padding-left:40pt;">Giáo viên chủ nhiệm lớp ${esc(className)}</p>`;
 }
  
 function signBlock(){
-  const teacher = currentClass.config?.teacher || '..........................';
+  const cfg = currentClass.config || {};
+  const teacher = cfg.teacher || '..........................';
+  const school = cfg.school || '';
   const d = new Date();
-  return `<div style="margin-top:40pt;page-break-inside:avoid;">
+  return `<div style="margin-top:30pt;page-break-inside:avoid;">
   <table style="width:100%;border:none;border-collapse:collapse;">
   <tr>
-  <td style="border:none;width:50%;vertical-align:top;text-align:center;padding:0 20pt 0 0;">
-    <p style="font-size:11pt;margin:0 0 4pt 0;"><i>Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</i></p>
-    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">DUYỆT CỦA GVCN</p>
-    <p style="font-size:10pt;margin:0 0 70pt 0;"><i>(Ký, ghi rõ họ tên)</i></p>
+  <td style="border:none;width:100%;vertical-align:top;text-align:right;padding:0;">
+    <p style="font-size:11pt;margin:0 0 3pt 0;"><i>${school ? esc(school) + ', ' : ''}Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</i></p>
+    <p style="font-weight:bold;font-size:12pt;margin:0 0 3pt 0;">GIÁO VIÊN CHỦ NHIỆM</p>
+    <p style="font-size:10pt;margin:0 0 65pt 0;"><i>(Ký, ghi rõ họ tên)</i></p>
     <p style="font-weight:bold;font-size:12pt;margin:0;">${esc(teacher)}</p>
-  </td>
-  <td style="border:none;width:50%;vertical-align:top;text-align:center;padding:0 0 0 20pt;">
-    <p style="font-size:11pt;margin:0 0 4pt 0;"><i>Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</i></p>
-    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">NGƯỜI LẬP BẢNG</p>
-    <p style="font-size:10pt;margin:0 0 70pt 0;"><i>(Ký, ghi rõ họ tên)</i></p>
-    <p style="font-weight:bold;font-size:12pt;margin:0;">Bùi Sỹ Hòa</p>
   </td>
   </tr>
   </table>
