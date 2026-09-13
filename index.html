@@ -309,6 +309,7 @@
    <button class="nav-btn" onclick="showTab('pheduyet',this)" id="navPheduyet" style="display:none;">⏳ Phê Duyệt <span id="pendingBadge" style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:2px;display:none;">0</span></button>
   <button class="nav-btn" onclick="showTab('laodong',this)">🧹 Lao Động</button>
   <button class="nav-btn" onclick="showTab('phat',this)">⚖️ Phạt</button>
+  <button class="nav-btn" onclick="showTab('khenthuong',this)">🏅 Khen Thưởng</button>
   <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
   <button class="nav-btn" onclick="showTab('thungrac',this)">🗑️ Thùng Rác</button>
   <button class="nav-btn" onclick="showTab('saoluu',this)">⚙️ Sao Lưu</button>
@@ -1166,6 +1167,74 @@
   </div>
 </div>
 
+ <!-- KHEN THƯỞNG -->
+<div id="sec-khenthuong" class="section-pane">
+  <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+    <div class="stat-box" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#fbbf24;">
+      <span style="color:#92400e;">Đang Khen</span><b style="color:#92400e;" id="rwActive">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#86efac;">
+      <span style="color:#166534;">Đã Trao</span><b style="color:#166534;" id="rwDone">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-color:#93c5fd;">
+      <span style="color:#1e40af;">Tổng Điểm</span><b style="color:#1e40af;" id="rwPoints">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-color:#c4b5fd;">
+      <span style="color:#6d28d9;">HS Được Khen</span><b style="color:#6d28d9;" id="rwStudents">0</b></div>
+  </div>
+
+  <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+    <h3 style="color:#92400e;border-bottom-color:#fbbf24;">➕ Tạo Khen Thưởng</h3>
+    <div class="form-group">
+      <label>Học Sinh Được Khen (chọn nhiều được):</label>
+      <input type="text" class="search-input" id="searchRwStudent" onkeyup="filterChecklist('searchRwStudent','rwStudentChecklist')" placeholder="🔍 Tìm tên HS..." style="margin-bottom:6px;">
+      <div class="checkbox-toolbar">
+        <button class="btn-act btn-mini" onclick="toggleAll('rwStudentCheck',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('rwStudentCheck',false)">✖ Bỏ</button>
+      </div>
+      <div class="checkbox-group" id="rwStudentChecklist" style="max-height:180px;"></div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group"><label>Hình Thức Khen:</label>
+        <select id="rwType">
+          <option value="tuyen_duong">📢 Tuyên Dương Trước Lớp</option>
+          <option value="giay_khen">📜 Giấy Khen</option>
+          <option value="tang_qua">🎁 Tặng Quà Nhỏ</option>
+          <option value="diem_cong">💯 Điểm Cộng Thi Đua</option>
+          <option value="thuong_quy">💰 Thưởng Từ Quỹ Lớp</option>
+          <option value="ho_tro_ban">🤝 Giúp Đỡ Bạn Bè</option>
+          <option value="tich_cuc">✋ Tích Cực Phát Biểu</option>
+          <option value="khac">🏅 Khác</option>
+        </select></div>
+      <div class="form-group"><label>Mức Độ:</label>
+        <select id="rwLevel">
+          <option value="nho">🟢 Nhỏ</option>
+          <option value="vua" selected>🟡 Vừa</option>
+          <option value="lon">🟠 Lớn</option>
+          <option value="xuat_sac">🔴 Xuất Sắc</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label>Nội Dung:</label>
+      <input type="text" id="rwReason" placeholder="VD: Đạt 10 điểm Toán, giúp bạn học tập..." maxlength="200"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Ngày Khen:</label><input type="date" id="rwDate"></div>
+      <div class="form-group"><label>Điểm Thưởng (0-100):</label>
+        <input type="number" id="rwPointsInput" min="0" max="100" step="1" value="5"></div>
+    </div>
+    <div class="form-group"><label>Ghi Chú:</label>
+      <input type="text" id="rwNote" placeholder="VD: Có tiến bộ rõ rệt..." maxlength="200"></div>
+    <button class="btn-act btn-success btn-full" onclick="createReward()">🏅 Tạo Khen Thưởng</button>
+  </div>
+
+  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+    <h3 style="color:#166534;border-bottom-color:#86efac;">✨ Danh Sách Khen Thưởng</h3>
+    <input type="text" class="search-input" id="searchRewardList" onkeyup="renderRewardList()" placeholder="🔍 Tìm theo tên HS hoặc nội dung..." style="margin-bottom:8px;">
+  </div>
+  <div id="rwList"></div>
+
+  <div class="card" style="margin-top:12px;">
+    <h3>🏆 Bảng Xếp Hạng HS Được Khen</h3>
+    <div id="rwRanking"></div>
+  </div>
+</div>
+ 
  <!-- PHÊ DUYỆT -->
 <div id="sec-pheduyet" class="section-pane">
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
@@ -1824,6 +1893,7 @@ async function loadClassFromCloud(classId) {
     if (!doc.exists) { toast('⚠️ Lớp không tồn tại!', '#ef4444'); return false; }
     currentClass = { id: classId, ...doc.data() };
     currentClass.students = currentClass.students || [];
+    currentClass.rewards = currentClass.rewards || [];
     currentClass.punishments = currentClass.punishments || [];
    currentClass.timetable = currentClass.timetable || {};
     currentClass.customSubjects = currentClass.customSubjects || [];
@@ -1942,6 +2012,7 @@ function renderAllUI() {
   renderMembersList();
   renderTrashList();
   renderAllPunish();
+  renderAllReward();
   renderAllLabor();
   renderAllTimetable();
   renderPending();
@@ -3215,6 +3286,232 @@ function renderLaborRanking() {
       </div>
     </div>`;
   }).join('');
+}
+
+   /* ═══════════════ KHEN THƯỞNG ═══════════════ */
+const RW_TYPE_NAMES = {
+  tuyen_duong: '📢 Tuyên Dương', giay_khen: '📜 Giấy Khen',
+  tang_qua: '🎁 Tặng Quà', diem_cong: '💯 Điểm Cộng',
+  thuong_quy: '💰 Thưởng Quỹ', ho_tro_ban: '🤝 Giúp Bạn',
+  tich_cuc: '✋ Tích Cực', khac: '🏅 Khác'
+};
+const RW_TYPE_COLORS = {
+  tuyen_duong: '#f59e0b', giay_khen: '#dc2626', tang_qua: '#ec4899',
+  diem_cong: '#3b82f6', thuong_quy: '#10b981', ho_tro_ban: '#8b5cf6',
+  tich_cuc: '#0ea5e9', khac: '#64748b'
+};
+const RW_LEVEL_NAMES = {
+  nho: { txt: '🟢 Nhỏ', color: '#10b981' },
+  vua: { txt: '🟡 Vừa', color: '#f59e0b' },
+  lon: { txt: '🟠 Lớn', color: '#f97316' },
+  xuat_sac: { txt: '🔴 Xuất Sắc', color: '#dc2626' }
+};
+
+function getRewards() { return currentClass?.rewards || []; }
+function setRewards(v) { if (currentClass) currentClass.rewards = v; }
+
+function renderRewardStudentSelector() {
+  const box = document.getElementById('rwStudentChecklist');
+  if (!box) return;
+  const checkedIds = new Set([...document.querySelectorAll('input[name="rwStudentCheck"]:checked')].map(c => c.value));
+  const rewardCounts = {};
+  getRewards().forEach(r => { rewardCounts[r.stId] = (rewardCounts[r.stId] || 0) + 1; });
+  box.innerHTML = getStudents().map((s, i) => {
+    const count = rewardCounts[s.id] || 0;
+    const marker = count > 0 ? ` 🏅 (${count})` : '';
+    return `<label class="checkbox-item"><input type="checkbox" name="rwStudentCheck" value="${s.id}" ${checkedIds.has(String(s.id)) ? 'checked' : ''}> ${i+1}. ${esc(s.name)}${marker}</label>`;
+  }).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
+}
+
+function createReward() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const checked = [...document.querySelectorAll('input[name="rwStudentCheck"]:checked')];
+  const type = document.getElementById('rwType').value;
+  const level = document.getElementById('rwLevel').value;
+  const reason = document.getElementById('rwReason').value.trim();
+  const date = document.getElementById('rwDate').value || todayStr();
+  const points = parseInt(document.getElementById('rwPointsInput').value) || 0;
+  const note = document.getElementById('rwNote').value.trim();
+
+  if (!checked.length) { toast('⚠️ Chọn ít nhất 1 HS!', '#ef4444'); return; }
+  if (!reason) { toast('⚠️ Nhập nội dung!', '#ef4444'); return; }
+  if (points < 0 || points > 100) { toast('⚠️ Điểm 0-100!', '#ef4444'); return; }
+
+  const arr = getRewards();
+  checked.forEach(cb => {
+    arr.push({
+      id: uid(), stId: cb.value, type, level, reason, date, points, note,
+      status: 'active',
+      createdAt: new Date().toISOString()
+    });
+  });
+  setRewards(arr);
+
+  document.getElementById('rwReason').value = '';
+  document.getElementById('rwNote').value = '';
+  document.querySelectorAll('input[name="rwStudentCheck"]').forEach(c => c.checked = false);
+
+  logActivity(`Tạo ${checked.length} khen thưởng`);
+  saveData();
+  toast(`🏅 Đã tạo ${checked.length} khen thưởng!`);
+}
+
+function renderRewardStats() {
+  const rewards = getRewards();
+  const active = rewards.filter(r => r.status === 'active');
+  const done = rewards.filter(r => r.status === 'done');
+  const totalPoints = rewards.reduce((s, r) => s + (r.points || 0), 0);
+  const uniqueStudents = new Set(rewards.map(r => String(r.stId))).size;
+  document.getElementById('rwActive').textContent = active.length;
+  document.getElementById('rwDone').textContent = done.length;
+  document.getElementById('rwPoints').textContent = totalPoints;
+  document.getElementById('rwStudents').textContent = uniqueStudents;
+}
+
+function renderRewardList() {
+  const box = document.getElementById('rwList'); if (!box) return;
+  const students = getStudents();
+  const search = (document.getElementById('searchRewardList')?.value || '').toLowerCase().trim();
+
+  let list = getRewards().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  if (search) {
+    list = list.filter(r => {
+      const st = students.find(s => String(s.id) === String(r.stId));
+      return (st?.name || '').toLowerCase().includes(search) || (r.reason || '').toLowerCase().includes(search);
+    });
+  }
+
+  if (!list.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:24px;">Chưa có khen thưởng nào!</div>';
+    return;
+  }
+
+  box.innerHTML = list.map(r => {
+    const st = students.find(s => String(s.id) === String(r.stId));
+    const lvl = RW_LEVEL_NAMES[r.level] || RW_LEVEL_NAMES.vua;
+    const typeColor = RW_TYPE_COLORS[r.type] || '#64748b';
+    const isDone = r.status === 'done';
+
+    return `<div class="collect-card" style="border-left:6px solid ${typeColor};${isDone ? 'opacity:.85;border-color:#86efac;background:linear-gradient(135deg,#f0fdf4,#fff);' : ''}">
+      <div class="collect-name" style="flex-wrap:wrap;">
+        <span style="font-size:15px;">👤 <b>${esc(st?.name || '(Đã xóa)')}</b></span>
+        <span style="background:${isDone ? '#dcfce7' : '#fef3c7'};color:${isDone ? '#166534' : '#92400e'};border:1px solid ${isDone ? '#86efac' : '#fbbf24'};border-radius:8px;padding:3px 10px;font-size:12px;font-weight:bold;">${isDone ? '✅ Đã trao' : '✨ Đang khen'}</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">${RW_TYPE_NAMES[r.type] || 'Khác'}</span>
+        <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">${lvl.txt}</span>
+        <span style="background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">💯 +${r.points} điểm</span>
+        <span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">📅 ${esc(r.date)}</span>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;line-height:1.7;">
+        <b>📋 Nội dung:</b> ${esc(r.reason)}
+        ${r.note ? `<br><b>📝 Ghi chú:</b> ${esc(r.note)}` : ''}
+      </div>
+      ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+        ${!isDone ? `<button class="btn-act btn-success" style="flex:2;min-width:130px;" onclick="markRewardDone('${r.id}')">✅ Đã Trao Thưởng</button>` : `<button class="btn-act btn-warning" style="flex:2;min-width:130px;" onclick="reopenReward('${r.id}')">↩️ Mở Lại</button>`}
+        <button class="btn-act btn-teal" style="min-width:70px;" onclick="editReward('${r.id}')">✏️ Sửa</button>
+        <button class="btn-act btn-danger" onclick="deleteReward('${r.id}')">🗑️</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function markRewardDone(id) {
+  if (!canEdit()) return;
+  const arr = getRewards();
+  const r = arr.find(x => String(x.id) === String(id)); if (!r) return;
+  const st = getStudents().find(s => String(s.id) === String(r.stId));
+  if (!confirm(`Xác nhận đã trao thưởng cho "${st?.name || '?'}"?`)) return;
+  r.status = 'done';
+  r.completedAt = new Date().toISOString();
+  setRewards(arr);
+  logActivity(`Trao thưởng cho ${st?.name || '?'}`);
+  saveData();
+  toast('✅ Đã đánh dấu trao thưởng!');
+}
+
+function reopenReward(id) {
+  if (!canEdit()) return;
+  const arr = getRewards();
+  const r = arr.find(x => String(x.id) === String(id)); if (!r) return;
+  if (!confirm('Mở lại khen thưởng này?')) return;
+  r.status = 'active';
+  r.completedAt = null;
+  setRewards(arr);
+  saveData();
+  toast('↩️ Đã mở lại!');
+}
+
+function editReward(id) {
+  if (!canEdit()) return;
+  const arr = getRewards();
+  const r = arr.find(x => String(x.id) === String(id)); if (!r) return;
+  const newReason = prompt('Nội dung mới:', r.reason);
+  if (newReason === null) return;
+  if (!newReason.trim()) { toast('⚠️ Nội dung không được trống!', '#ef4444'); return; }
+  r.reason = newReason.trim();
+  const newPoints = prompt('Điểm thưởng mới (0-100):', r.points);
+  if (newPoints === null) return;
+  const pts = parseInt(newPoints);
+  if (isNaN(pts) || pts < 0 || pts > 100) { toast('⚠️ Điểm 0-100!', '#ef4444'); return; }
+  r.points = pts;
+  logActivity('Sửa khen thưởng');
+  saveData();
+  toast('✏️ Đã sửa!');
+}
+
+function deleteReward(id) {
+  if (!canEdit()) return;
+  const arr = getRewards();
+  const r = arr.find(x => String(x.id) === String(id)); if (!r) return;
+  if (!confirm('Xóa khen thưởng này?')) return;
+  setRewards(arr.filter(x => String(x.id) !== String(id)));
+  logActivity('Xóa 1 khen thưởng');
+  saveData();
+  toast('🗑️ Đã xóa!');
+}
+
+function renderRewardRanking() {
+  const box = document.getElementById('rwRanking'); if (!box) return;
+  const rewards = getRewards();
+  const students = getStudents();
+  if (!rewards.length) {
+    box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có dữ liệu</p>';
+    return;
+  }
+  const stats = {};
+  rewards.forEach(r => {
+    if (!stats[r.stId]) stats[r.stId] = { total: 0, points: 0 };
+    stats[r.stId].total++;
+    stats[r.stId].points += (r.points || 0);
+  });
+  const arr = Object.entries(stats).map(([stId, s]) => {
+    const st = students.find(x => String(x.id) === String(stId));
+    return { name: st?.name || '(Đã xóa)', ...s };
+  }).filter(x => x.name !== '(Đã xóa)').sort((a, b) => b.points - a.points || b.total - a.total);
+
+  const maxPoints = Math.max(1, ...arr.map(x => x.points));
+  box.innerHTML = arr.slice(0, 20).map((x, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+    const pct = (x.points / maxPoints) * 100;
+    const color = i === 0 ? '#f59e0b' : i === 1 ? '#64748b' : i === 2 ? '#dc2626' : '#10b981';
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+        <span><b>${medal}</b> <b>${esc(x.name)}</b></span>
+        <span><b style="color:${color};">${x.points} điểm</b> • ${x.total} lần khen</span>
+      </div>
+      <div class="chart-bar-bg" style="height:12px;">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,${color},${color}90);border-radius:6px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAllReward() {
+  renderRewardStats();
+  renderRewardStudentSelector();
+  renderRewardList();
+  renderRewardRanking();
 }
 
  /* ═══════════════ PHÊ DUYỆT ═══════════════ */
@@ -4622,6 +4919,7 @@ function showTab(id, btn){
   if (id === 'thoikhoabieu') renderAllTimetable();
   if (id === 'thongke') renderCharts();
   if (id === 'phat') renderAllPunish();
+  if (id === 'khenthuong') renderAllReward();
   if (id === 'laodong') renderAllLabor();
   if (id === 'pheduyet') renderPending();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
