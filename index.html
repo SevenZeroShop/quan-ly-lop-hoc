@@ -581,14 +581,19 @@
     </div>
     <input type="file" id="excelInput" accept=".xlsx,.xls" onchange="handleExcelImport(event)" style="display:none;">
   </div>
-  <div class="card">
-    <h3><span>👥 DS Lớp (<span id="stCount">0</span> HS)</span></h3>
-    <input type="text" class="search-input" id="searchStList" onkeyup="filterTable('searchStList','tbStList',1)" placeholder="🔍 Tìm theo tên hoặc STT...">
+    <div class="card">
+    <h3><span>👥 DS Lớp (<span id="stCount">0</span> HS)</span>
+      <button class="btn-act btn-export" onclick="exportToCSV('stList')">📥 CSV</button></h3>
+    <input type="text" class="search-input" id="searchStList" onkeyup="renderStudentList()" placeholder="🔍 Tìm theo tên, SĐT, chức danh hoặc STT...">
   </div>
-  <div class="table-wrapper"><table><thead><tr>
-    <th style="width:10%;text-align:center;">STT</th><th style="width:60%;">Họ và Tên</th><th style="width:30%;">Thao tác</th>
+  <div class="table-wrapper"><table style="min-width:780px;"><thead><tr>
+    <th style="width:6%;text-align:center;">STT</th>
+    <th style="width:22%;">Họ và Tên</th>
+    <th style="width:13%;">Chức danh</th>
+    <th style="width:14%;">SĐT</th>
+    <th style="width:25%;">Địa chỉ</th>
+    <th style="width:20%;text-align:center;">Thao tác</th>
   </tr></thead><tbody id="tbStList"></tbody></table></div>
-</div>
 
 <!-- THU QUỸ -->
 <div id="sec-thuquy" class="section-pane">
@@ -1866,21 +1871,27 @@ function renderStudentList() {
       s.name.toLowerCase().includes(keyword) || 
       String(idx+1).includes(keyword) ||
       (s.phone || '').toLowerCase().includes(keyword) ||
-      (s.role || '').toLowerCase().includes(keyword)
+      (s.role || '').toLowerCase().includes(keyword) ||
+      (s.address || '').toLowerCase().includes(keyword)
     );
   }
   document.getElementById('tbStList').innerHTML = filtered.map((s)=>{
     const i = students.indexOf(s);
-    const roleBadge = s.role ? `<span style="display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px;">${esc(s.role)}</span>` : '';
-    const phone = s.phone ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">📞 ${esc(s.phone)}</div>` : '';
-    const address = s.address ? `<div style="font-size:11px;color:#64748b;margin-top:1px;">📍 ${esc(s.address)}</div>` : '';
+    const roleBadge = s.role 
+      ? `<span style="display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${esc(s.role)}</span>` 
+      : '<span style="color:#cbd5e1;">—</span>';
+    const phone = s.phone ? `<b>${esc(s.phone)}</b>` : '<span style="color:#cbd5e1;">—</span>';
+    const address = s.address ? esc(s.address) : '<span style="color:#cbd5e1;">—</span>';
     return `<tr>
       <td style="text-align:center;"><b>${i+1}</b></td>
-      <td><b>${esc(s.name)}</b>${roleBadge}${phone}${address}</td>
-      <td>${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="editStudent('${s.id}')">Sửa</button>
-      <button class="btn-act btn-danger btn-mini" onclick="delStudent('${s.id}')">Xóa</button>`:'<span style="color:#94a3b8;">—</span>'}</td>
+      <td><b>${esc(s.name)}</b></td>
+      <td>${roleBadge}</td>
+      <td>${phone}</td>
+      <td>${address}</td>
+      <td style="text-align:center;white-space:nowrap;">${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="editStudent('${s.id}')">✏️ Sửa</button>
+      <button class="btn-act btn-danger btn-mini" onclick="delStudent('${s.id}')">🗑️ Xóa</button>`:'<span style="color:#94a3b8;">—</span>'}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="3" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
 }
  
 function editStudent(id){
