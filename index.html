@@ -229,9 +229,29 @@
 </div>
 
 <div class="header-box">
-  <h1>🏫 <span id="hClassName">Lớp</span></h1>
-  <p>Thu Quỹ • Chi Quỹ • Học tập • Thống kê • Đồng bộ Cloud</p>
-  <div class="class-id-badge" onclick="copyClassId()" title="Nhấn để copy mã lớp">
+  <h1>🏫 LỚP <span id="hClassName">...</span></h1>
+
+  <!-- Thông tin lớp chi tiết -->
+  <div id="hClassInfoBox" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;text-align:left;">
+    <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 10px;">
+      <div style="font-size:10px;opacity:.85;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">🏛️ Trường</div>
+      <div id="hSchool" style="font-size:12px;font-weight:600;margin-top:3px;line-height:1.3;">—</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 10px;">
+      <div style="font-size:10px;opacity:.85;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">👩‍🏫 GVCN</div>
+      <div id="hTeacher" style="font-size:12px;font-weight:600;margin-top:3px;line-height:1.3;">—</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 10px;">
+      <div style="font-size:10px;opacity:.85;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">📞 SĐT GVCN</div>
+      <div id="hTeacherPhone" style="font-size:12px;font-weight:600;margin-top:3px;line-height:1.3;">—</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 10px;">
+      <div style="font-size:10px;opacity:.85;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">📅 Năm học</div>
+      <div id="hYear" style="font-size:12px;font-weight:600;margin-top:3px;line-height:1.3;">—</div>
+    </div>
+  </div>
+
+  <div class="class-id-badge" onclick="copyClassId()" title="Nhấn để copy mã lớp" style="margin-top:12px;">
     <span>🔑 Mã lớp:</span>
     <span id="hClassId" style="letter-spacing:2px;">------</span>
     <span>📋</span>
@@ -1510,23 +1530,43 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('userBar').style.display = 'none';
     document.getElementById('syncBadge').style.display = 'none';
     document.getElementById('classSwitcher').style.display = 'none';
+       ['hClassName','hSchool','hTeacher','hTeacherPhone','hYear'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+    const _cid = document.getElementById('hClassId');
+    if (_cid) _cid.textContent = '------';
   }
 });
 
 /* ═══════════════ RENDER ALL ═══════════════ */
 function renderAllUI() {
   if (!currentClass) return;
-  document.getElementById('hClassName').textContent = currentClass.config?.className || currentClass.name || '...';
+
+  // ─── Thông tin lớp trên header ───
+  const _cfg = currentClass.config || {};
+  const _className = _cfg.className || currentClass.name || '...';
+  document.getElementById('hClassName').textContent = _className;
+  document.getElementById('hSchool').textContent = _cfg.school || '— Chưa cập nhật —';
+  document.getElementById('hTeacher').textContent = _cfg.teacher || '— Chưa cập nhật —';
+  document.getElementById('hTeacherPhone').textContent = _cfg.teacherPhone || '— Chưa cập nhật —';
+  document.getElementById('hYear').textContent = _cfg.year || '— Chưa cập nhật —';
   document.getElementById('hClassId').textContent = currentClass.id.toUpperCase();
+  document.title = `Quản Lý Lớp ${_className}`;
+
+  // ─── Form Sao Lưu ───
   document.getElementById('memberClassId').value = currentClass.id.toUpperCase();
-  document.title = `Quản Lý Lớp ${currentClass.config?.className || ''}`;
-  document.getElementById('cfgClass').value = currentClass.config?.className || '';
-  document.getElementById('cfgSchool').value = currentClass.config?.school || '';
-  document.getElementById('cfgTeacher').value = currentClass.config?.teacher || '';
-  document.getElementById('cfgTeacherPhone').value = currentClass.config?.teacherPhone || '';
-  document.getElementById('cfgYear').value = currentClass.config?.year || '';
+  document.getElementById('cfgClass').value = _className === '...' ? '' : _className;
+  document.getElementById('cfgSchool').value = _cfg.school || '';
+  document.getElementById('cfgTeacher').value = _cfg.teacher || '';
+  document.getElementById('cfgTeacherPhone').value = _cfg.teacherPhone || '';
+  document.getElementById('cfgYear').value = _cfg.year || '';
+
+  // ─── Vai trò user ───
   const roleLabels = { owner: '👑 Chủ lớp', edit: '✏️ Chỉnh sửa', view: '👁️ Chỉ xem' };
   document.getElementById('userRole').textContent = roleLabels[currentRole] || '';
+
+  // ─── Render các phần ───
   renderClassSwitcher();
   applyPermissionsToUI();
   updateSelects();
