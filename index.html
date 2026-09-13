@@ -790,13 +790,22 @@
   <!-- Lịch đã tạo -->
   <div class="card"><h3>📋 Lịch Trực Đã Tạo</h3><div id="ldScheduleView"></div></div>
 
-  <!-- Điểm danh trực -->
+    <!-- Điểm danh trực -->
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
     <h3 style="color:#92400e;">✅ Điểm Danh Trực Nhật Hôm Nay</h3>
-    <div class="grid-2">
-      <div class="form-group"><label>Ngày:</label><input type="date" id="ldDutyDate"></div>
-      <div class="form-group"><label>Tổ trực:</label><select id="ldDutyTeam"></select></div>
+    <div class="form-group"><label>Ngày:</label><input type="date" id="ldDutyDate"></div>
+
+    <div class="form-group">
+      <label>Thành viên trực hôm nay (chọn 2 hoặc nhiều em — có thể khác tổ):</label>
+      <input type="text" class="search-input" id="searchLdDuty" onkeyup="filterChecklist('searchLdDuty','ldDutyChecklist')" placeholder="🔍 Tìm tên HS..." style="margin-bottom:6px;">
+      <div class="checkbox-toolbar">
+        <button class="btn-act btn-mini" onclick="toggleAll('ldDutyCheck',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('ldDutyCheck',false)">✖ Bỏ</button>
+      </div>
+      <div class="checkbox-group" id="ldDutyChecklist" style="max-height:220px;"></div>
+      <div id="ldDutyTeamsPreview" style="margin-top:8px;font-size:12px;color:#475569;"></div>
     </div>
+
     <div class="form-group"><label>Nhiệm vụ đã giao:</label>
       <input type="text" id="ldDutyTask" placeholder="Quét lớp, lau bảng..."></div>
     <div class="grid-2">
@@ -814,7 +823,7 @@
       <input type="text" id="ldDutyNote" placeholder="VD: Lớp sạch sẽ, bàn ghế ngay ngắn"></div>
     <button class="btn-act btn-warning btn-full" onclick="saveLaborDuty()">💾 Lưu Điểm Danh</button>
   </div>
-
+ 
   <!-- Lịch sử -->
   <div class="card">
     <h3>📜 Lịch Sử Trực Nhật
@@ -867,6 +876,7 @@
         <select id="ptType">
           <option value="chep_phat">📝 Chép Phạt</option>
           <option value="ve_sinh">🧹 Vệ Sinh</option>
+          <option value="nhac_nho">💬 Bị Nhắc Nhở</option>
           <option value="kiem_diem">📄 Kiểm Điểm</option>
           <option value="mua_do">🎁 Mua Đồ</option>
           <option value="thong_bao">📞 Báo PH</option>
@@ -2430,7 +2440,7 @@ function renderLaborTeamSelector() {
       getStudents().map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
     leaderSel.value = cur;
   }
-  // Member checklist
+  // Member checklist (tạo tổ)
   const cb = document.getElementById('ldMemberChecklist');
   if (cb) {
     const checked = new Set([...document.querySelectorAll('input[name="ldMember"]:checked')].map(x => x.value));
@@ -2438,71 +2448,44 @@ function renderLaborTeamSelector() {
       `<label class="checkbox-item"><input type="checkbox" name="ldMember" value="${s.id}" ${checked.has(String(s.id)) ? 'checked' : ''}> ${i+1}. ${esc(s.name)}</label>`
     ).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
   }
-  // Team selectors
+  // Duty checklist (chọn thành viên trực hôm nay)
+  const dutyCb = document.getElementById('ldDutyChecklist');
+  if (dutyCb) {
+    const checked = new Set([...document.querySelectorAll('input[name="ldDutyCheck"]:checked')].map(x => x.value));
+    dutyCb.innerHTML = getStudents().map((s, i) => {
+      const team = getTeams().find(t => t.memberIds.some(id => String(id) === String(s.id)));
+      const teamTag = team ? `<span style="color:${team.color};font-weight:700;font-size:10px;margin-left:4px;">[${esc(team.name)}]</span>` : '';
+      return `<label class="checkbox-item"><input type="checkbox" name="ldDutyCheck" value="${s.id}" ${checked.has(String(s.id)) ? 'checked' : ''} onchange="updateLdDutyPreview()"> ${i+1}. ${esc(s.name)}${teamTag}</label>`;
+    }).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
+  }
+  // Team selector for schedule
   const opts = getTeams().map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
-  ['ldScheduleTeam','ldDutyTeam'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { const c = el.value; el.innerHTML = opts || '<option value="">-- Chưa có tổ --</option>'; el.value = c; }
+  const el = document.getElementById('ldScheduleTeam');
+  if (el) { const c = el.value; el.innerHTML = opts || '<option value="">-- Chưa có tổ --</option>'; el.value = c; }
+  updateLdDutyPreview();
+}
+
+function updateLdDutyPreview() {
+  const box = document.getElementById('ldDutyTeamsPreview');
+  if (!box) return;
+  const checked = [...document.querySelectorAll('input[name="ldDutyCheck"]:checked')].map(c => c.value);
+  if (!checked.length) { box.innerHTML = ''; return; }
+  const teamsInvolved = {};
+  checked.forEach(stId => {
+    const team = getTeams().find(t => t.memberIds.some(id => String(id) === String(stId)));
+    if (team) {
+      if (!teamsInvolved[team.id]) teamsInvolved[team.id] = { name: team.name, color: team.color, count: 0 };
+      teamsInvolved[team.id].count++;
+    }
   });
-}
-
-function autoAssignLaborTeams() {
-  const n = parseInt(prompt('Chia thành bao nhiêu tổ?', getTeams().length || 4));
-  if (!n || n < 2) return;
-  const students = getStudents();
-  if (!students.length) { toast('⚠️ Chưa có HS!', '#ef4444'); return; }
-  document.querySelectorAll('input[name="ldMember"]').forEach(cb => cb.checked = false);
-  toast(`💡 Gợi ý: chia ${students.length} HS thành ${n} tổ (~${Math.ceil(students.length/n)} em/tổ). Hãy tạo từng tổ.`, '#f59e0b');
-}
-
-function createLaborTeam() {
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const name = document.getElementById('ldTeamName').value.trim();
-  const leaderId = document.getElementById('ldTeamLeader').value;
-  const note = document.getElementById('ldTeamNote').value.trim();
-  if (!name) { toast('⚠️ Nhập tên tổ!', '#ef4444'); return; }
-  const memberIds = [...document.querySelectorAll('input[name="ldMember"]:checked')].map(c => c.value);
-  if (!memberIds.length) { toast('⚠️ Chọn thành viên!', '#ef4444'); return; }
-  const teams = getTeams();
-  teams.push({
-    id: uid(), name, leaderId, memberIds, note,
-    color: TEAM_COLORS[teams.length % TEAM_COLORS.length],
-    createdAt: new Date().toISOString()
-  });
-  setTeams(teams);
-  document.getElementById('ldTeamName').value = '';
-  document.getElementById('ldTeamNote').value = '';
-  document.getElementById('ldTeamLeader').value = '';
-  document.querySelectorAll('input[name="ldMember"]').forEach(c => c.checked = false);
-  logActivity(`Tạo tổ lao động: ${name}`);
-  saveData();
-  toast(`✅ Đã tạo "${name}" (${memberIds.length} TV)!`);
-}
-
-function renderLaborTeamList() {
-  const box = document.getElementById('ldTeamList'); if (!box) return;
-  const teams = getTeams();
-  if (!teams.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:24px;">Chưa có tổ nào.</div>'; return; }
-  box.innerHTML = teams.map(t => {
-    const leader = getStudents().find(s => String(s.id) === String(t.leaderId));
-    const members = t.memberIds.map(id => getStudents().find(s => String(s.id) === String(id))).filter(Boolean);
-    return `
-      <div class="collect-card" style="border-left:6px solid ${t.color};">
-        <div class="collect-name">
-          <span>📁 ${esc(t.name)}</span>
-          <span style="font-size:13px;color:#1e40af;font-weight:bold;">${members.length} thành viên</span>
-        </div>
-        ${leader ? `<div style="font-size:13px;color:#92400e;margin-top:4px;">👑 Tổ trưởng: <b>${esc(leader.name)}</b></div>` : ''}
-        ${t.note ? `<div class="collect-meta">📝 ${esc(t.note)}</div>` : ''}
-        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;">
-          ${members.map(m => `<span style="background:${t.color}20;color:${t.color};border:1px solid ${t.color}50;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;">${esc(m.name)}</span>`).join('')}
-        </div>
-        ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:12px;">
-          <button class="btn-act btn-warning btn-mini" onclick="editLaborTeam('${t.id}')">✏️ Sửa</button>
-          <button class="btn-act btn-danger btn-mini" onclick="deleteLaborTeam('${t.id}')">🗑️ Xóa</button>
-        </div>` : ''}
-      </div>`;
-  }).join('');
+  const arr = Object.values(teamsInvolved);
+  if (!arr.length) {
+    box.innerHTML = '⚠️ Các HS được chọn chưa thuộc tổ nào → điểm sẽ không được cộng cho tổ.';
+    return;
+  }
+  box.innerHTML = '🏷️ <b>Tổ được cộng điểm:</b> ' + arr.map(t =>
+    `<span style="background:${t.color}20;color:${t.color};border:1px solid ${t.color}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;margin-left:4px;">${esc(t.name)} (${t.count} TV)</span>`
+  ).join('');
 }
 
 function editLaborTeam(id) {
@@ -2577,47 +2560,83 @@ function deleteLaborSchedule(id) {
 function saveLaborDuty() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const date = document.getElementById('ldDutyDate').value;
-  const teamId = document.getElementById('ldDutyTeam').value;
   const task = document.getElementById('ldDutyTask').value.trim();
   const status = document.getElementById('ldDutyStatus').value;
   const score = parseFloat(document.getElementById('ldDutyScore').value) || 0;
   const note = document.getElementById('ldDutyNote').value.trim();
+  const memberIds = [...document.querySelectorAll('input[name="ldDutyCheck"]:checked')].map(c => c.value);
+
   if (!date) { toast('⚠️ Chọn ngày!', '#ef4444'); return; }
-  if (!teamId) { toast('⚠️ Chọn tổ!', '#ef4444'); return; }
+  if (!memberIds.length) { toast('⚠️ Chọn ít nhất 1 HS trực!', '#ef4444'); return; }
   if (!task) { toast('⚠️ Nhập nhiệm vụ!', '#ef4444'); return; }
   if (score < 0 || score > 10) { toast('⚠️ Điểm 0-10!', '#ef4444'); return; }
+
+  // Tự động xác định tổ tham gia
+  const teamIds = [];
+  memberIds.forEach(stId => {
+    const team = getTeams().find(t => t.memberIds.some(id => String(id) === String(stId)));
+    if (team && !teamIds.includes(String(team.id))) teamIds.push(String(team.id));
+  });
+
   const duties = getDuties();
-  duties.push({ id: uid(), date, teamId, task, status, score, note });
+  duties.push({
+    id: uid(), date, task, status, score, note,
+    memberIds,          // HS trực hôm nay
+    teamIds             // Tổ được cộng điểm (tự động)
+  });
   setDuties(duties);
   document.getElementById('ldDutyTask').value = '';
   document.getElementById('ldDutyNote').value = '';
   document.getElementById('ldDutyScore').value = 10;
-  logActivity(`Điểm danh trực nhật ngày ${date}`);
+  document.querySelectorAll('input[name="ldDutyCheck"]').forEach(c => c.checked = false);
+  updateLdDutyPreview();
+  logActivity(`Điểm danh trực nhật ngày ${date} cho ${memberIds.length} HS`);
   saveData();
-  toast('✅ Đã lưu điểm danh!');
+  const teamsStr = teamIds.length ? ` → cộng điểm cho ${teamIds.length} tổ` : '';
+  toast(`✅ Đã lưu ${memberIds.length} HS trực${teamsStr}!`);
 }
 
 function renderDutyLogTable() {
   const tb = document.getElementById('tbDutyLog'); if (!tb) return;
   const keyword = (document.getElementById('searchDutyLog')?.value || '').toLowerCase().trim();
   let sorted = getDuties().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  // Tương thích dữ liệu cũ (chỉ có teamId)
+  sorted = sorted.map(d => {
+    if (d.memberIds) return d;
+    // Data cũ: chỉ có teamId → lấy tổ viên
+    const team = getTeams().find(t => String(t.id) === String(d.teamId));
+    return { ...d, memberIds: team ? team.memberIds : [], teamIds: d.teamId ? [String(d.teamId)] : [] };
+  });
+
   if (keyword) {
     sorted = sorted.filter(d => {
-      const t = getTeams().find(x => String(x.id) === String(d.teamId));
-      return (t?.name || '').toLowerCase().includes(keyword) || (d.date || '').includes(keyword);
+      const memberNames = (d.memberIds || []).map(id => {
+        const st = getStudents().find(s => String(s.id) === String(id));
+        return st?.name || '';
+      }).join(' ');
+      return memberNames.toLowerCase().includes(keyword) || (d.date || '').includes(keyword);
     });
   }
+
   const statusLabels = {
     done: '<span class="badge badge-paid">✅ Tốt</span>',
     late: '<span class="badge badge-late">⚠️ Muộn</span>',
     missed: '<span class="badge badge-pending">❌ Bỏ</span>',
     partial: '<span class="badge badge-perm">🟡 Chưa đủ</span>'
   };
+
   tb.innerHTML = sorted.map(l => {
-    const t = getTeams().find(x => String(x.id) === String(l.teamId));
+    const members = (l.memberIds || []).map(id => {
+      const st = getStudents().find(s => String(s.id) === String(id));
+      if (!st) return '';
+      const team = getTeams().find(t => t.memberIds.some(mid => String(mid) === String(st.id)));
+      const tag = team ? ` <span style="color:${team.color};font-size:10px;">[${esc(team.name)}]</span>` : '';
+      return `${esc(st.name)}${tag}`;
+    }).filter(Boolean).join(', ') || '—';
     return `<tr>
       <td><b>${esc(l.date)}</b></td>
-      <td><span style="color:${t?.color || '#1e3a8a'};font-weight:bold;">${esc(t?.name || '—')}</span></td>
+      <td>${members}</td>
       <td>${esc(l.task)}</td>
       <td style="text-align:center;">${statusLabels[l.status] || ''}</td>
       <td style="text-align:center;"><b style="color:${l.score >= 8 ? '#10b981' : l.score >= 5 ? '#f59e0b' : '#ef4444'};">${l.score}</b></td>
@@ -2626,6 +2645,7 @@ function renderDutyLogTable() {
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">Chưa có dữ liệu</td></tr>';
 }
+ 
 function deleteDutyLog(id) {
   if (!canEdit()) return;
   if (!confirm('Xóa lượt trực này?')) return;
@@ -2638,14 +2658,23 @@ function renderLaborRanking() {
   const box = document.getElementById('ldRanking'); if (!box) return;
   const teams = getTeams();
   if (!teams.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có tổ nào</p>'; return; }
+
+  // Chuẩn hóa dữ liệu cũ
+  const duties = getDuties().map(d => {
+    if (d.teamIds) return d;
+    const team = getTeams().find(t => String(t.id) === String(d.teamId));
+    return { ...d, teamIds: team ? [String(team.id)] : [] };
+  });
+
   const stats = teams.map(t => {
-    const tDuties = getDuties().filter(d => String(d.teamId) === String(t.id));
+    const tDuties = duties.filter(d => (d.teamIds || []).some(tid => String(tid) === String(t.id)));
     const totalScore = tDuties.reduce((s, d) => s + d.score, 0);
     const avgScore = tDuties.length ? totalScore / tDuties.length : 0;
     const doneCount = tDuties.filter(d => d.status === 'done').length;
     const missedCount = tDuties.filter(d => d.status === 'missed').length;
     return { team: t, totalScore, avgScore, doneCount, missedCount, count: tDuties.length };
   }).sort((a, b) => b.totalScore - a.totalScore);
+
   const maxScore = Math.max(1, ...stats.map(s => s.totalScore));
   box.innerHTML = stats.map((s, i) => {
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
@@ -2664,7 +2693,7 @@ function renderLaborRanking() {
     </div>`;
   }).join('');
 }
-
+ 
 function renderAllLabor() {
   renderLaborTeamSelector();
   renderLaborTeamList();
@@ -2675,13 +2704,15 @@ function renderAllLabor() {
 
 /* ═══════════════ PHẠT ═══════════════ */
 const PT_TYPE_NAMES = {
+  nhac_nho: '💬 Bị Nhắc Nhở',
   chep_phat: '📝 Chép Phạt', ve_sinh: '🧹 Vệ Sinh', kiem_diem: '📄 Kiểm Điểm',
   mua_do: '🎁 Mua Đồ', thong_bao: '📞 Báo PH', ha_hanh_kiem: '📉 Hạ HK', khac: '📌 Khác'
 };
 const PT_TYPE_COLORS = {
-  chep_phat: '#8b5cf6', ve_sinh: '#10b981', kiem_diem: '#3b82f6',
+  nhac_nho: '#0ea5e9', chep_phat: '#8b5cf6', ve_sinh: '#10b981', kiem_diem: '#3b82f6',
   mua_do: '#f59e0b', thong_bao: '#ef4444', ha_hanh_kiem: '#dc2626', khac: '#64748b'
 };
+ 
 const PT_LEVEL_NAMES = {
   nhe: { txt: '🟢 Nhẹ', color: '#10b981' },
   vua: { txt: '🟡 Vừa', color: '#f59e0b' },
