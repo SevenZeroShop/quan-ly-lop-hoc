@@ -528,9 +528,28 @@
 <div id="sec-danhsach" class="section-pane">
   <div class="card">
     <h3>➕ Thêm HS Nhanh</h3>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <input type="text" id="quickName" class="search-input" style="flex:1;min-width:200px;" placeholder="Nhập tên...">
-      <button class="btn-act btn-success" onclick="quickAddStudent()">Thêm</button>
+        <div class="grid-2">
+      <div class="form-group" style="margin-bottom:6px;"><label>Tên HS:</label>
+        <input type="text" id="quickName" placeholder="Nhập tên HS..."></div>
+      <div class="form-group" style="margin-bottom:6px;"><label>SĐT:</label>
+        <input type="text" id="quickPhone" placeholder="VD: 0912345678"></div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group" style="margin-bottom:6px;"><label>Địa chỉ:</label>
+        <input type="text" id="quickAddress" placeholder="VD: Thôn 1, xã A..."></div>
+      <div class="form-group" style="margin-bottom:6px;"><label>Chức danh:</label>
+        <select id="quickRole">
+          <option value="">-- Không --</option>
+          <option value="Lớp trưởng">👑 Lớp trưởng</option>
+          <option value="Lớp phó">⭐ Lớp phó</option>
+          <option value="Bí thư">📘 Bí thư</option>
+          <option value="Thủ quỹ">💰 Thủ quỹ</option>
+          <option value="Tổ trưởng">🧑‍🤝‍🧑 Tổ trưởng</option>
+          <option value="Tổ phó">🧑‍🤝‍🧑 Tổ phó</option>
+          <option value="Cán sự lớp">📌 Cán sự lớp</option>
+        </select></div>
+    </div>
+    <button class="btn-act btn-success btn-full" onclick="quickAddStudent()">➕ Thêm HS</button>
     </div>
   </div>
   <div class="card">
@@ -901,6 +920,7 @@
     <h3 style="color:#1e40af;">⚙️ Thông Tin Lớp</h3>
     <div class="form-group"><label>Tên Trường:</label><input type="text" id="cfgSchool"></div>
     <div class="form-group"><label>GVCN:</label><input type="text" id="cfgTeacher"></div>
+    <div class="form-group"><label>SĐT GVCN:</label><input type="text" id="cfgTeacherPhone" placeholder="VD: 0912345678"></div>
     <div class="grid-2">
       <div class="form-group"><label>Tên Lớp:</label><input type="text" id="cfgClass"></div>
       <div class="form-group"><label>Năm Học:</label><input type="text" id="cfgYear"></div>
@@ -928,7 +948,37 @@
     <button class="btn-act btn-danger" onclick="resetAll()">🧹 XÓA TẤT CẢ</button>
   </div>
 </div>
-
+<!-- MODAL SỬA HS -->
+<div class="modal-overlay" id="editStudentModal" onclick="if(event.target===this)closeEditStudent()">
+  <div class="modal-card" style="max-width:520px;">
+    <div class="modal-header"><h3>✏️ Sửa Thông Tin Học Sinh</h3><button class="modal-close" onclick="closeEditStudent()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editStudentId">
+      <div class="form-group"><label>Họ và tên:</label>
+        <input type="text" id="editStudentName"></div>
+      <div class="form-group"><label>SĐT:</label>
+        <input type="text" id="editStudentPhone" placeholder="VD: 0912345678"></div>
+      <div class="form-group"><label>Địa chỉ:</label>
+        <input type="text" id="editStudentAddress" placeholder="VD: Thôn 1, xã A..."></div>
+      <div class="form-group"><label>Chức danh:</label>
+        <select id="editStudentRole">
+          <option value="">-- Không --</option>
+          <option value="Lớp trưởng">👑 Lớp trưởng</option>
+          <option value="Lớp phó">⭐ Lớp phó</option>
+          <option value="Bí thư">📘 Bí thư</option>
+          <option value="Thủ quỹ">💰 Thủ quỹ</option>
+          <option value="Tổ trưởng">🧑‍🤝‍🧑 Tổ trưởng</option>
+          <option value="Tổ phó">🧑‍🤝‍🧑 Tổ phó</option>
+          <option value="Cán sự lớp">📌 Cán sự lớp</option>
+        </select></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn-act btn-success" style="flex:1;padding:12px;" onclick="saveEditStudent()">💾 Cập Nhật</button>
+        <button class="btn-act btn-warning" style="flex:1;padding:12px;" onclick="closeEditStudent()">✖ Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
 <!-- MODAL HS -->
 <div class="modal-overlay" id="studentModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-card">
@@ -1473,6 +1523,7 @@ function renderAllUI() {
   document.getElementById('cfgClass').value = currentClass.config?.className || '';
   document.getElementById('cfgSchool').value = currentClass.config?.school || '';
   document.getElementById('cfgTeacher').value = currentClass.config?.teacher || '';
+  document.getElementById('cfgTeacherPhone').value = currentClass.config?.teacherPhone || '';
   document.getElementById('cfgYear').value = currentClass.config?.year || '';
   const roleLabels = { owner: '👑 Chủ lớp', edit: '✏️ Chỉnh sửa', view: '👁️ Chỉ xem' };
   document.getElementById('userRole').textContent = roleLabels[currentRole] || '';
@@ -1679,7 +1730,7 @@ function closeModal(){ document.getElementById('studentModal').classList.remove(
 
 document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closeAllModals(); } });
 function closeAllModals() {
-  ['studentModal','expenseModal','collectModal','handoverModal','donateModal','accountModal','createClassModal','joinClassModal','inviteMemberModal','editCollectModal','editPunishModal'].forEach(id => {
+  ['studentModal','expenseModal','collectModal','handoverModal','donateModal','accountModal','createClassModal','joinClassModal','inviteMemberModal','editCollectModal','editPunishModal','editStudentModal'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
 }
@@ -1733,19 +1784,24 @@ function deleteScoreItem(id){ if (!canEdit()) return; if (!confirm('Xóa?')) ret
 /* ═══════════════ DANH SÁCH ═══════════════ */
 function quickAddStudent() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const inp = document.getElementById('quickName');
-  const n = inp.value.trim();
-  if (!n) return;
+  const name = document.getElementById('quickName').value.trim();
+  const phone = document.getElementById('quickPhone').value.trim();
+  const address = document.getElementById('quickAddress').value.trim();
+  const role = document.getElementById('quickRole').value;
+  if (!name) { toast('⚠️ Nhập tên HS!', '#ef4444'); return; }
   const students = getStudents();
-  students.push({ id: uid(), name: n });
+  students.push({ id: uid(), name, phone, address, role });
   setStudents(students);
-  inp.value = '';
-  logActivity(`Thêm HS: ${n}`);
+  document.getElementById('quickName').value = '';
+  document.getElementById('quickPhone').value = '';
+  document.getElementById('quickAddress').value = '';
+  document.getElementById('quickRole').value = '';
+  logActivity(`Thêm HS: ${name}`);
   saveData();
   toast('✅ Đã thêm HS!');
 }
 document.addEventListener('keydown', e=>{ if (e.key==='Enter' && document.activeElement.id==='quickName') quickAddStudent(); });
-
+ 
 function importStudents() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const txt = document.getElementById('txtBatch').value.trim();
@@ -1767,41 +1823,51 @@ function renderStudentList() {
   let filtered = students;
   if (keyword) {
     filtered = students.filter((s, idx) => 
-      s.name.toLowerCase().includes(keyword) || String(idx+1).includes(keyword)
+      s.name.toLowerCase().includes(keyword) || 
+      String(idx+1).includes(keyword) ||
+      (s.phone || '').toLowerCase().includes(keyword) ||
+      (s.role || '').toLowerCase().includes(keyword)
     );
   }
   document.getElementById('tbStList').innerHTML = filtered.map((s)=>{
     const i = students.indexOf(s);
-    return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(s.name)}</b></td>
-    <td>${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="editStudent('${s.id}')">Sửa</button>
-    <button class="btn-act btn-danger btn-mini" onclick="delStudent('${s.id}')">Xóa</button>`:'<span style="color:#94a3b8;">—</span>'}</td></tr>`;
+    const roleBadge = s.role ? `<span style="display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px;">${esc(s.role)}</span>` : '';
+    const phone = s.phone ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">📞 ${esc(s.phone)}</div>` : '';
+    const address = s.address ? `<div style="font-size:11px;color:#64748b;margin-top:1px;">📍 ${esc(s.address)}</div>` : '';
+    return `<tr>
+      <td style="text-align:center;"><b>${i+1}</b></td>
+      <td><b>${esc(s.name)}</b>${roleBadge}${phone}${address}</td>
+      <td>${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="editStudent('${s.id}')">Sửa</button>
+      <button class="btn-act btn-danger btn-mini" onclick="delStudent('${s.id}')">Xóa</button>`:'<span style="color:#94a3b8;">—</span>'}</td>
+    </tr>`;
   }).join('') || '<tr><td colspan="3" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
 }
-
+ 
 function editStudent(id){
   if (!canEdit()) return;
-  const students = getStudents();
-  const st = students.find(s=>String(s.id)===String(id)); if (!st) return;
-  const n = prompt('Đổi tên:', st.name);
-  if (n && n.trim()) { st.name = n.trim(); logActivity(`Đổi tên HS: ${n.trim()}`); saveData(); toast('✏️ Đã đổi!'); }
+  const st = getStudents().find(s=>String(s.id)===String(id)); if (!st) return;
+  document.getElementById('editStudentId').value = st.id;
+  document.getElementById('editStudentName').value = st.name || '';
+  document.getElementById('editStudentPhone').value = st.phone || '';
+  document.getElementById('editStudentAddress').value = st.address || '';
+  document.getElementById('editStudentRole').value = st.role || '';
+  document.getElementById('editStudentModal').classList.add('active');
 }
-function delStudent(id){
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const students = getStudents();
-  const st = students.find(s=>String(s.id)===String(id)); if (!st) return;
-  if (!confirm(`Xóa "${st.name}"? (Có thể phục hồi trong Thùng Rác)`)) return;
-  const trash = getTrash();
-  trash.push({ id: uid(), type: 'student', data: st, deletedAt: new Date().toISOString(), deleteRelated: { logs: getLogs().filter(l=>String(l.stId)===String(id)), scores: getScores().filter(s=>String(s.stId)===String(id)) } });
-  setTrash(trash);
-  setStudents(students.filter(s=>String(s.id)!==String(id)));
-  setLogs(getLogs().filter(l=>String(l.stId)!==String(id)));
-  setScores(getScores().filter(s=>String(s.stId)!==String(id)));
-  const collects = getCollects();
-  collects.forEach(c=>{ c.payments = (c.payments||[]).filter(p=>String(p.stId)!==String(id)); });
-  setCollects(collects);
-  logActivity(`Xóa HS: ${st.name}`);
+function closeEditStudent(){ document.getElementById('editStudentModal').classList.remove('active'); }
+function saveEditStudent(){
+  if (!canEdit()) return;
+  const id = document.getElementById('editStudentId').value;
+  const st = getStudents().find(s=>String(s.id)===String(id)); if (!st) return;
+  const name = document.getElementById('editStudentName').value.trim();
+  if (!name) { toast('⚠️ Nhập tên!', '#ef4444'); return; }
+  st.name = name;
+  st.phone = document.getElementById('editStudentPhone').value.trim();
+  st.address = document.getElementById('editStudentAddress').value.trim();
+  st.role = document.getElementById('editStudentRole').value;
+  logActivity(`Sửa HS: ${name}`);
   saveData();
-  toast('🗑️ Đã xóa! Có thể phục hồi trong Thùng Rác');
+  closeEditStudent();
+  toast('✏️ Đã cập nhật!');
 }
 
 /* ═══════════════ THU QUỸ ═══════════════ */
@@ -3113,9 +3179,9 @@ function exportToExcel(type) {
 
   // Sheet 1: Danh sách HS
   if (type === 'students' || type === 'all') {
-    const headers = ['STT', 'Họ và Tên', 'Ngày sinh', 'Ký nhận'];
-    const rows = students.map((s,i) => [i+1, s.name, '', '']);
-    XLSX.utils.book_append_sheet(wb, makeSheet('DANH SÁCH HỌC SINH', headers, rows, [6, 30, 15, 20]), 'DS Học Sinh');
+    const headers = ['STT', 'Họ và Tên', 'Chức danh', 'SĐT', 'Địa chỉ', 'Ký nhận'];
+    const rows = students.map((s,i) => [i+1, s.name, s.role || '', s.phone || '', s.address || '', '']);
+    XLSX.utils.book_append_sheet(wb, makeSheet('DANH SÁCH HỌC SINH', headers, rows, [6, 28, 15, 15, 35, 18]), 'DS Học Sinh');
   }
 
   // Sheet 2: Bảng điểm
@@ -3368,9 +3434,12 @@ function buildIndividualReport(stId){
   const payRows = stPayments.map((x,i)=>`<tr><td class="center">${i+1}</td><td>${esc(x.collect.name)}</td><td class="center">${esc(x.pay.date||'')}</td><td class="center">${x.pay.method==='transfer'?'CK':'TM'}</td><td class="center bold">${(x.pay.amount||x.collect.amount).toLocaleString('vi-VN')}đ</td></tr>`).join('') || '<tr><td colspan="5" class="center">Chưa đóng</td></tr>';
   const attCls = classifyAtt(totalViol);
   return `${reportHeaderBlock('PHIẾU THÔNG TIN')}
-    <table class="overview" style="margin-bottom:10pt;">
+       <table class="overview" style="margin-bottom:10pt;">
       <tr><td>Họ và tên:</td><td><b>${esc(st.name)}</b></td></tr>
+      ${st.role ? `<tr><td>Chức danh:</td><td><b>${esc(st.role)}</b></td></tr>` : ''}
       <tr><td>Lớp:</td><td>${esc(currentClass.config?.className||'')}</td></tr>
+      ${st.phone ? `<tr><td>SĐT:</td><td>${esc(st.phone)}</td></tr>` : ''}
+      ${st.address ? `<tr><td>Địa chỉ:</td><td>${esc(st.address)}</td></tr>` : ''}
       <tr><td>Tổng vi phạm:</td><td><b class="${attCls.cls}">${totalViol} (${attCls.txt})</b></td></tr>
     </table>
     <h2>I. CHUYÊN CẦN</h2>
@@ -3386,9 +3455,25 @@ function buildIndividualReport(stId){
 
 function buildListReport(){
   const students = getStudents();
-  const rows = students.map((st,i)=>`<tr><td class="center">${i+1}</td><td>${esc(st.name)}</td><td style="width:22%"></td><td style="width:18%"></td></tr>`).join('') || '<tr><td colspan="4" class="center">Chưa có</td></tr>';
-  return `${reportHeaderBlock('DANH SÁCH HỌC SINH')}<p class="small">Tổng: <b>${students.length}</b> HS.</p>
-    <table><thead><tr><th>STT</th><th>Họ và tên</th><th>Ngày sinh</th><th>Ký nhận</th></tr></thead><tbody>${rows}</tbody></table>${signBlock()}`;
+  const rows = students.map((st,i)=>`<tr>
+    <td class="center">${i+1}</td>
+    <td>${esc(st.name)}${st.role ? ` <span style="font-size:9pt;font-style:italic;color:#555;">(${esc(st.role)})</span>` : ''}</td>
+    <td class="center">${esc(st.phone || '')}</td>
+    <td>${esc(st.address || '')}</td>
+    <td style="width:14%"></td>
+  </tr>`).join('') || '<tr><td colspan="5" class="center">Chưa có HS</td></tr>';
+  return `${reportHeaderBlock('DANH SÁCH HỌC SINH')}
+    <p class="small">Tổng số: <b>${students.length}</b> học sinh.</p>
+    <table>
+      <thead><tr>
+        <th style="width:5%">STT</th>
+        <th style="width:28%">Họ và tên</th>
+        <th style="width:15%">SĐT</th>
+        <th style="width:38%">Địa chỉ</th>
+        <th style="width:14%">Ký nhận</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>${signBlock()}`;
 }
 
 function buildFundReport(){
@@ -3661,6 +3746,7 @@ function saveConfig() {
   currentClass.config.className = newClass;
   currentClass.config.school = document.getElementById('cfgSchool').value.trim();
   currentClass.config.teacher = document.getElementById('cfgTeacher').value.trim();
+  currentClass.config.teacherPhone = document.getElementById('cfgTeacherPhone').value.trim();
   currentClass.config.year = document.getElementById('cfgYear').value.trim();
   currentClass.name = newClass;
   document.getElementById('hClassName').textContent = newClass;
