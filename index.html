@@ -726,11 +726,11 @@
   </div>
 </div>
 
- <!-- LAO ĐỘNG -->
+<!-- LAO ĐỘNG -->
 <div id="sec-laodong" class="section-pane">
   <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #10b981;">
-    <h3 style="color:#166534;">🧹 PHÂN CÔNG LAO ĐỘNG - TRỰC NHẬT</h3>
-    <p style="font-size:13px;color:#166534;line-height:1.7;">Chia tổ → lên lịch trực → điểm danh hàng ngày → thống kê thi đua.</p>
+    <h3 style="color:#166534;margin:0;">🧹 CÔNG LAO ĐỘNG - TRỰC NHẬT</h3>
+    <p style="font-size:13px;color:#166534;line-height:1.7;margin-top:6px;">Chia tổ → phân công trực → theo dõi hoàn thành → thống kê thi đua tổ.</p>
   </div>
 
   <!-- Tạo tổ -->
@@ -757,46 +757,13 @@
     <button class="btn-act btn-success btn-full" onclick="createLaborTeam()">🚀 Tạo Tổ</button>
   </div>
 
-  <!-- Danh sách tổ -->
-  <div class="card">
-    <h3>👥 Danh Sách Tổ Lao Động</h3>
-  </div>
-  <div id="ldTeamList"></div>
-
-  <!-- Lịch trực cố định -->
-  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-    <h3 style="color:#166534;">📅 Lịch Trực Nhật Cố Định (lặp tuần)</h3>
-    <div class="grid-3">
-      <div class="form-group"><label>Thứ:</label>
-        <select id="ldScheduleDay">
-          <option value="2">Thứ 2</option><option value="3">Thứ 3</option>
-          <option value="4">Thứ 4</option><option value="5">Thứ 5</option>
-          <option value="6">Thứ 6</option><option value="7">Thứ 7</option>
-          <option value="8">Chủ nhật</option>
-        </select></div>
-      <div class="form-group"><label>Tổ trực:</label><select id="ldScheduleTeam"></select></div>
-      <div class="form-group"><label>Ca:</label>
-        <select id="ldScheduleShift">
-          <option value="sang">🌅 Sáng</option>
-          <option value="chieu">🌇 Chiều</option>
-          <option value="full">☀️ Cả ngày</option>
-        </select></div>
-    </div>
-    <div class="form-group"><label>Nhiệm vụ:</label>
-      <input type="text" id="ldScheduleTask" value="Quét lớp, lau bảng, đổ rác, sắp xếp bàn ghế"></div>
-    <button class="btn-act btn-success btn-full" onclick="saveLaborSchedule()">💾 Lưu Lịch Trực</button>
-  </div>
-
-  <!-- Lịch đã tạo -->
-  <div class="card"><h3>📋 Lịch Trực Đã Tạo</h3><div id="ldScheduleView"></div></div>
-
-    <!-- Điểm danh trực -->
+  <!-- Điểm danh trực nhật -->
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
-    <h3 style="color:#92400e;">✅ Điểm Danh Trực Nhật Hôm Nay</h3>
-    <div class="form-group"><label>Ngày:</label><input type="date" id="ldDutyDate"></div>
-
+    <h3 style="color:#92400e;">✅ Điểm Danh Trực Nhật</h3>
+    <p style="font-size:12px;color:#78350f;margin-bottom:10px;">Chọn 1 hoặc nhiều HS. Mặc định <b>⏳ Đang chờ</b> — cập nhật kết quả sau khi trực xong.</p>
+    <div class="form-group"><label>Ngày trực:</label><input type="date" id="ldDutyDate"></div>
     <div class="form-group">
-      <label>Thành viên trực hôm nay (chọn 2 hoặc nhiều em — có thể khác tổ):</label>
+      <label>Chọn HS trực:</label>
       <input type="text" class="search-input" id="searchLdDuty" onkeyup="filterChecklist('searchLdDuty','ldDutyChecklist')" placeholder="🔍 Tìm tên HS..." style="margin-bottom:6px;">
       <div class="checkbox-toolbar">
         <button class="btn-act btn-mini" onclick="toggleAll('ldDutyCheck',true)">✔ Tất cả</button>
@@ -805,39 +772,39 @@
       <div class="checkbox-group" id="ldDutyChecklist" style="max-height:220px;"></div>
       <div id="ldDutyTeamsPreview" style="margin-top:8px;font-size:12px;color:#475569;"></div>
     </div>
-
-    <div class="form-group"><label>Nhiệm vụ đã giao:</label>
-      <input type="text" id="ldDutyTask" placeholder="Quét lớp, lau bảng..."></div>
-    <div class="grid-2">
-      <div class="form-group"><label>Trạng thái:</label>
-        <select id="ldDutyStatus">
-          <option value="done">✅ Hoàn thành tốt</option>
-          <option value="late">⚠️ Hoàn thành muộn</option>
-          <option value="partial">🟡 Làm chưa đủ</option>
-          <option value="missed">❌ Bỏ trực</option>
-        </select></div>
-      <div class="form-group"><label>Điểm thi đua (0-10):</label>
-        <input type="number" id="ldDutyScore" min="0" max="10" step="0.5" value="10"></div>
-    </div>
+    <div class="form-group"><label>Nhiệm vụ:</label>
+      <input type="text" id="ldDutyTask" placeholder="VD: Quét lớp, lau bảng, đổ rác..."></div>
     <div class="form-group"><label>Ghi chú:</label>
-      <input type="text" id="ldDutyNote" placeholder="VD: Lớp sạch sẽ, bàn ghế ngay ngắn"></div>
-    <button class="btn-act btn-warning btn-full" onclick="saveLaborDuty()">💾 Lưu Điểm Danh</button>
+      <input type="text" id="ldDutyNote" placeholder="VD: Khu vực hành lang..."></div>
+    <button class="btn-act btn-warning btn-full" onclick="createLaborDuty()">📝 Tạo Nhiệm Vụ Trực (Đang Chờ)</button>
   </div>
- 
+
+  <!-- Danh sách đang chờ -->
+  <div class="card" style="border:2px solid #f97316;background:linear-gradient(135deg,#fff7ed,#ffedd5);">
+    <h3 style="color:#9a3412;">⏳ Nhiệm Vụ Đang Chờ <span id="ldPendingCount" style="font-size:12px;font-weight:400;"></span></h3>
+    <input type="text" class="search-input" id="searchLdPending" onkeyup="renderLdPending()" placeholder="🔍 Tìm theo tên HS hoặc nhiệm vụ..." style="margin-bottom:8px;">
+  </div>
+  <div id="ldPendingList"></div>
+
+  <!-- Lịch trực đã tạo (tổ) -->
+  <div class="card">
+    <h3>📋 Lịch Trực Đã Tạo <span id="ldTeamCount" style="font-size:12px;font-weight:400;color:#64748b;"></span></h3>
+    <div id="ldScheduleView"></div>
+  </div>
+
   <!-- Lịch sử -->
   <div class="card">
     <h3>📜 Lịch Sử Trực Nhật
       <button class="btn-act btn-export" onclick="exportToCSV('labor')">📥 CSV</button></h3>
-    <input type="text" class="search-input" id="searchDutyLog" onkeyup="renderDutyLogTable()" placeholder="🔍 Tìm theo tổ hoặc ngày..." style="margin-bottom:8px;">
+    <input type="text" class="search-input" id="searchDutyLog" onkeyup="renderDutyLogTable()" placeholder="🔍 Tìm theo tên HS, tổ hoặc ngày..." style="margin-bottom:8px;">
   </div>
   <div class="table-wrapper"><table><thead><tr>
     <th style="width:11%;">Ngày</th>
-    <th style="width:16%;">Tổ</th>
-    <th style="width:30%;">Nhiệm Vụ</th>
-    <th style="width:13%;text-align:center;">Trạng Thái</th>
+    <th style="width:28%;">HS Trực</th>
+    <th style="width:24%;">Nhiệm Vụ</th>
+    <th style="width:12%;text-align:center;">Trạng Thái</th>
     <th style="width:8%;text-align:center;">Điểm</th>
-    <th style="width:14%;">Ghi Chú</th>
-    <th style="width:8%;text-align:center;">Xóa</th>
+    <th style="width:17%;text-align:center;">Thao tác</th>
   </tr></thead><tbody id="tbDutyLog"></tbody></table></div>
 
   <!-- Xếp hạng -->
@@ -2422,16 +2389,99 @@ function removeMember(u) {
   toast('🗑️ Đã xóa!');
 }
 
- /* ═══════════════ LAO ĐỘNG / TRỰC NHẬT ═══════════════ */
+/* ═══════════════ LAO ĐỘNG / TRỰC NHẬT ═══════════════ */
 function getTeams() { return currentClass?.teams || []; }
 function setTeams(v) { if (currentClass) currentClass.teams = v; }
-function getSchedules() { return currentClass?.schedules || []; }
-function setSchedules(v) { if (currentClass) currentClass.schedules = v; }
 function getDuties() { return currentClass?.duties || []; }
 function setDuties(v) { if (currentClass) currentClass.duties = v; }
 
 const TEAM_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
+/* ───── Tạo tổ ───── */
+function createLaborTeam() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const name = document.getElementById('ldTeamName').value.trim();
+  const leaderId = document.getElementById('ldTeamLeader').value;
+  const note = document.getElementById('ldTeamNote').value.trim();
+  const memberIds = [...document.querySelectorAll('input[name="ldMember"]:checked')].map(c => c.value);
+
+  if (!name) { toast('⚠️ Nhập tên tổ!', '#ef4444'); return; }
+  if (!memberIds.length) { toast('⚠️ Chọn ít nhất 1 thành viên!', '#ef4444'); return; }
+
+  const teams = getTeams();
+  if (teams.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+    toast('⚠️ Tên tổ đã tồn tại!', '#ef4444'); return;
+  }
+
+  const color = TEAM_COLORS[teams.length % TEAM_COLORS.length];
+  teams.push({
+    id: uid(), name, color, leaderId, memberIds, note,
+    createdAt: new Date().toISOString()
+  });
+  setTeams(teams);
+
+  document.getElementById('ldTeamName').value = '';
+  document.getElementById('ldTeamLeader').value = '';
+  document.getElementById('ldTeamNote').value = '';
+  document.querySelectorAll('input[name="ldMember"]').forEach(c => c.checked = false);
+
+  logActivity(`Tạo tổ lao động: ${name}`);
+  saveData();
+  toast(`✅ Đã tạo tổ "${name}"!`);
+}
+
+function autoAssignLaborTeams() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const students = getStudents();
+  if (students.length < 2) { toast('⚠️ Cần ít nhất 2 HS!', '#ef4444'); return; }
+  const numTeams = parseInt(prompt('Chia thành bao nhiêu tổ?', '3'));
+  if (!numTeams || numTeams < 2 || numTeams > 10) { toast('⚠️ Số tổ từ 2-10!', '#ef4444'); return; }
+  if (students.length < numTeams) { toast('⚠️ Số HS ít hơn số tổ!', '#ef4444'); return; }
+  if (!confirm(`Tạo tự động ${numTeams} tổ mới và chia đều ${students.length} HS?`)) return;
+
+  const shuffled = [...students].sort(() => Math.random() - 0.5);
+  const newTeams = [];
+  for (let i = 0; i < numTeams; i++) {
+    newTeams.push({
+      id: uid(), name: `Tổ ${i + 1}`,
+      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      leaderId: '', memberIds: [], note: ''
+    });
+  }
+  shuffled.forEach((st, i) => newTeams[i % numTeams].memberIds.push(st.id));
+  newTeams.forEach(t => { if (t.memberIds.length) t.leaderId = t.memberIds[0]; });
+
+  setTeams([...getTeams(), ...newTeams]);
+  logActivity(`Tự động chia ${numTeams} tổ`);
+  saveData();
+  toast(`🎲 Đã chia ${numTeams} tổ!`);
+}
+
+function editLaborTeam(id) {
+  if (!canEdit()) return;
+  const t = getTeams().find(x => String(x.id) === String(id)); if (!t) return;
+  const newName = prompt('Tên mới:', t.name);
+  if (newName && newName.trim() && newName.trim() !== t.name) {
+    t.name = newName.trim();
+    logActivity(`Sửa tên tổ: ${t.name}`);
+    saveData();
+    toast('✏️ Đã sửa!');
+  }
+}
+
+function deleteLaborTeam(id) {
+  if (!canEdit()) return;
+  const t = getTeams().find(x => String(x.id) === String(id)); if (!t) return;
+  if (!confirm(`Xóa tổ "${t.name}"?`)) return;
+  setTeams(getTeams().filter(x => String(x.id) !== String(id)));
+  const duties = getDuties().map(d => d.teamIds ? { ...d, teamIds: d.teamIds.filter(tid => String(tid) !== String(id)) } : d);
+  setDuties(duties);
+  logActivity(`Xóa tổ: ${t.name}`);
+  saveData();
+  toast('🗑️ Đã xóa tổ!');
+}
+
+/* ───── Render tổ ───── */
 function renderLaborTeamSelector() {
   const leaderSel = document.getElementById('ldTeamLeader');
   if (leaderSel) {
@@ -2440,7 +2490,6 @@ function renderLaborTeamSelector() {
       getStudents().map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
     leaderSel.value = cur;
   }
-  // Member checklist (tạo tổ)
   const cb = document.getElementById('ldMemberChecklist');
   if (cb) {
     const checked = new Set([...document.querySelectorAll('input[name="ldMember"]:checked')].map(x => x.value));
@@ -2448,7 +2497,6 @@ function renderLaborTeamSelector() {
       `<label class="checkbox-item"><input type="checkbox" name="ldMember" value="${s.id}" ${checked.has(String(s.id)) ? 'checked' : ''}> ${i+1}. ${esc(s.name)}</label>`
     ).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
   }
-  // Duty checklist (chọn thành viên trực hôm nay)
   const dutyCb = document.getElementById('ldDutyChecklist');
   if (dutyCb) {
     const checked = new Set([...document.querySelectorAll('input[name="ldDutyCheck"]:checked')].map(x => x.value));
@@ -2458,13 +2506,42 @@ function renderLaborTeamSelector() {
       return `<label class="checkbox-item"><input type="checkbox" name="ldDutyCheck" value="${s.id}" ${checked.has(String(s.id)) ? 'checked' : ''} onchange="updateLdDutyPreview()"> ${i+1}. ${esc(s.name)}${teamTag}</label>`;
     }).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
   }
-  // Team selector for schedule
-  const opts = getTeams().map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
-  const el = document.getElementById('ldScheduleTeam');
-  if (el) { const c = el.value; el.innerHTML = opts || '<option value="">-- Chưa có tổ --</option>'; el.value = c; }
   updateLdDutyPreview();
 }
 
+function renderLaborTeamList() {
+  const box = document.getElementById('ldScheduleView'); if (!box) return;
+  const teams = getTeams();
+  const countEl = document.getElementById('ldTeamCount');
+  if (countEl) countEl.textContent = teams.length ? `(${teams.length} tổ)` : '';
+
+  if (!teams.length) {
+    box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px;font-size:13px;">📭 Chưa có tổ nào. Hãy tạo tổ ở trên!</p>';
+    return;
+  }
+  const students = getStudents();
+  box.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
+    ${teams.map(t => {
+      const leader = students.find(s => String(s.id) === String(t.leaderId));
+      const memberNames = (t.memberIds || []).map(id => students.find(s => String(s.id) === String(id))?.name).filter(Boolean);
+      return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:5px solid ${t.color};border-radius:10px;padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+          <b style="color:${t.color};font-size:15px;">${esc(t.name)}</b>
+          <span style="font-size:11px;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:10px;font-weight:700;">${memberNames.length} TV</span>
+        </div>
+        ${leader ? `<div style="font-size:12px;color:#475569;margin-bottom:4px;">👑 <b>${esc(leader.name)}</b></div>` : ''}
+        <div style="font-size:11px;color:#64748b;line-height:1.5;">${memberNames.map(n => esc(n)).join(', ') || '—'}</div>
+        ${t.note ? `<div style="font-size:11px;color:#94a3b8;margin-top:6px;font-style:italic;">📝 ${esc(t.note)}</div>` : ''}
+        ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="btn-act btn-warning btn-mini" onclick="editLaborTeam('${t.id}')">✏️ Sửa</button>
+          <button class="btn-act btn-danger btn-mini" onclick="deleteLaborTeam('${t.id}')">🗑️ Xóa</button>
+        </div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ───── Tạo nhiệm vụ trực (pending) ───── */
 function updateLdDutyPreview() {
   const box = document.getElementById('ldDutyTeamsPreview');
   if (!box) return;
@@ -2480,7 +2557,7 @@ function updateLdDutyPreview() {
   });
   const arr = Object.values(teamsInvolved);
   if (!arr.length) {
-    box.innerHTML = '⚠️ Các HS được chọn chưa thuộc tổ nào → điểm sẽ không được cộng cho tổ.';
+    box.innerHTML = '⚠️ Các HS được chọn chưa thuộc tổ nào → điểm sẽ không cộng cho tổ.';
     return;
   }
   box.innerHTML = '🏷️ <b>Tổ được cộng điểm:</b> ' + arr.map(t =>
@@ -2488,90 +2565,17 @@ function updateLdDutyPreview() {
   ).join('');
 }
 
-function editLaborTeam(id) {
-  if (!canEdit()) return;
-  const t = getTeams().find(x => String(x.id) === String(id)); if (!t) return;
-  const newName = prompt('Tên mới:', t.name);
-  if (newName && newName.trim()) { t.name = newName.trim(); saveData(); toast('✏️ Đã sửa!'); }
-}
-function deleteLaborTeam(id) {
-  if (!canEdit()) return;
-  const t = getTeams().find(x => String(x.id) === String(id)); if (!t) return;
-  if (!confirm(`Xóa tổ "${t.name}"?\nLịch trực và điểm danh của tổ cũng sẽ bị xóa.`)) return;
-  setTeams(getTeams().filter(x => String(x.id) !== String(id)));
-  setSchedules(getSchedules().filter(s => String(s.teamId) !== String(id)));
-  setDuties(getDuties().filter(d => String(d.teamId) !== String(id)));
-  logActivity(`Xóa tổ: ${t.name}`);
-  saveData();
-  toast('🗑️ Đã xóa!');
-}
-
-function saveLaborSchedule() {
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const day = parseInt(document.getElementById('ldScheduleDay').value);
-  const teamId = document.getElementById('ldScheduleTeam').value;
-  const shift = document.getElementById('ldScheduleShift').value;
-  const task = document.getElementById('ldScheduleTask').value.trim();
-  if (!teamId) { toast('⚠️ Chọn tổ!', '#ef4444'); return; }
-  if (!task) { toast('⚠️ Nhập nhiệm vụ!', '#ef4444'); return; }
-  const schedules = getSchedules();
-  const existing = schedules.find(s => s.day === day && String(s.teamId) === String(teamId) && s.shift === shift);
-  if (existing) {
-    if (!confirm('Lịch này đã tồn tại. Ghi đè?')) return;
-    existing.task = task;
-  } else {
-    schedules.push({ id: uid(), day, teamId, shift, task });
-  }
-  setSchedules(schedules);
-  logActivity(`Lưu lịch trực Thứ ${day}`);
-  saveData();
-  toast('✅ Đã lưu lịch trực!');
-}
-
-function renderLaborSchedule() {
-  const box = document.getElementById('ldScheduleView'); if (!box) return;
-  const schedules = getSchedules();
-  if (!schedules.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có lịch</p>'; return; }
-  const dayNames = { 2: 'Thứ 2', 3: 'Thứ 3', 4: 'Thứ 4', 5: 'Thứ 5', 6: 'Thứ 6', 7: 'Thứ 7', 8: 'Chủ nhật' };
-  const shiftNames = { sang: '🌅 Sáng', chieu: '🌇 Chiều', full: '☀️ Cả ngày' };
-  const sorted = schedules.slice().sort((a, b) => a.day - b.day);
-  box.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">
-    ${sorted.map(s => {
-      const t = getTeams().find(x => String(x.id) === String(s.teamId));
-      return `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid ${t?.color || '#3b82f6'};border-radius:8px;padding:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
-          <b>${dayNames[s.day]}</b><span style="font-size:11px;color:#64748b;">${shiftNames[s.shift]}</span>
-        </div>
-        <div style="font-size:14px;font-weight:bold;color:${t?.color || '#1e40af'};">${esc(t?.name || '—')}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:4px;">📋 ${esc(s.task)}</div>
-        ${canEdit() ? `<button class="btn-act btn-danger btn-mini" style="margin-top:6px;" onclick="deleteLaborSchedule('${s.id}')">🗑️ Xóa</button>` : ''}
-      </div>`;
-    }).join('')}
-  </div>`;
-}
-function deleteLaborSchedule(id) {
-  if (!canEdit()) return;
-  if (!confirm('Xóa lịch này?')) return;
-  setSchedules(getSchedules().filter(s => String(s.id) !== String(id)));
-  saveData();
-  toast('🗑️ Đã xóa!');
-}
-
-function saveLaborDuty() {
+function createLaborDuty() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const date = document.getElementById('ldDutyDate').value;
   const task = document.getElementById('ldDutyTask').value.trim();
-  const status = document.getElementById('ldDutyStatus').value;
-  const score = parseFloat(document.getElementById('ldDutyScore').value) || 0;
   const note = document.getElementById('ldDutyNote').value.trim();
   const memberIds = [...document.querySelectorAll('input[name="ldDutyCheck"]:checked')].map(c => c.value);
 
   if (!date) { toast('⚠️ Chọn ngày!', '#ef4444'); return; }
-  if (!memberIds.length) { toast('⚠️ Chọn ít nhất 1 HS trực!', '#ef4444'); return; }
+  if (!memberIds.length) { toast('⚠️ Chọn ít nhất 1 HS!', '#ef4444'); return; }
   if (!task) { toast('⚠️ Nhập nhiệm vụ!', '#ef4444'); return; }
-  if (score < 0 || score > 10) { toast('⚠️ Điểm 0-10!', '#ef4444'); return; }
 
-  // Tự động xác định tổ tham gia
   const teamIds = [];
   memberIds.forEach(stId => {
     const team = getTeams().find(t => t.memberIds.some(id => String(id) === String(stId)));
@@ -2580,42 +2584,113 @@ function saveLaborDuty() {
 
   const duties = getDuties();
   duties.push({
-    id: uid(), date, task, status, score, note,
-    memberIds,          // HS trực hôm nay
-    teamIds             // Tổ được cộng điểm (tự động)
+    id: uid(), date, task, note,
+    memberIds, teamIds,
+    status: 'pending',
+    score: 0,
+    createdAt: new Date().toISOString()
   });
   setDuties(duties);
+
   document.getElementById('ldDutyTask').value = '';
   document.getElementById('ldDutyNote').value = '';
-  document.getElementById('ldDutyScore').value = 10;
   document.querySelectorAll('input[name="ldDutyCheck"]').forEach(c => c.checked = false);
   updateLdDutyPreview();
-  logActivity(`Điểm danh trực nhật ngày ${date} cho ${memberIds.length} HS`);
+  logActivity(`Tạo nhiệm vụ trực ngày ${date} cho ${memberIds.length} HS`);
   saveData();
-  const teamsStr = teamIds.length ? ` → cộng điểm cho ${teamIds.length} tổ` : '';
-  toast(`✅ Đã lưu ${memberIds.length} HS trực${teamsStr}!`);
+  toast(`📝 Đã tạo nhiệm vụ cho ${memberIds.length} HS (Đang chờ)`);
 }
 
+/* ───── Render pending ───── */
+function renderLdPending() {
+  const box = document.getElementById('ldPendingList'); if (!box) return;
+  const students = getStudents();
+  const search = (document.getElementById('searchLdPending')?.value || '').toLowerCase().trim();
+  let pending = getDuties().filter(d => d.status === 'pending');
+
+  if (search) {
+    pending = pending.filter(d => {
+      const names = (d.memberIds || []).map(id => students.find(s => String(s.id) === String(id))?.name || '').join(' ').toLowerCase();
+      return names.includes(search) || (d.task || '').toLowerCase().includes(search);
+    });
+  }
+  pending.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  const countEl = document.getElementById('ldPendingCount');
+  if (countEl) countEl.textContent = `(${pending.length} nhiệm vụ)`;
+
+  if (!pending.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:20px;font-weight:bold;">🎉 Không có nhiệm vụ nào đang chờ!</div>';
+    return;
+  }
+
+  box.innerHTML = pending.map(d => {
+    const memberNames = (d.memberIds || []).map(id => {
+      const st = students.find(s => String(s.id) === String(id));
+      if (!st) return '';
+      const team = getTeams().find(t => t.memberIds.some(mid => String(mid) === String(st.id)));
+      const tag = team ? ` <span style="color:${team.color};font-size:10px;font-weight:700;">[${esc(team.name)}]</span>` : '';
+      return `${esc(st.name)}${tag}`;
+    }).filter(Boolean).join(', ') || '—';
+
+    return `<div class="collect-card" style="border:2px dashed #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff);margin-bottom:10px;">
+      <div class="collect-name">
+        <span style="font-size:14px;">⏳ <b>${esc(d.task)}</b></span>
+        <span style="background:#fef3c7;color:#92400e;border:1px solid #fbbf24;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:bold;">📅 ${esc(d.date)}</span>
+      </div>
+      <div style="font-size:13px;color:#475569;margin-top:8px;">👥 <b>HS trực:</b> ${memberNames}</div>
+      ${d.note ? `<div style="font-size:12px;color:#64748b;margin-top:4px;">📝 ${esc(d.note)}</div>` : ''}
+      ${canEdit() ? `
+      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+        <select id="status_${d.id}" style="flex:1;min-width:130px;padding:7px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;font-weight:600;">
+          <option value="done">✅ Hoàn thành tốt</option>
+          <option value="late">⚠️ Hoàn thành muộn</option>
+          <option value="partial">🟡 Làm chưa đủ</option>
+          <option value="missed">❌ Bỏ trực</option>
+        </select>
+        <input type="number" id="score_${d.id}" min="0" max="10" step="0.5" value="10" style="width:70px;padding:7px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;text-align:center;font-weight:600;">
+        <button class="btn-act btn-success" onclick="completeDuty('${d.id}')">💾 Hoàn Thành</button>
+        <button class="btn-act btn-danger btn-mini" onclick="deleteDutyLog('${d.id}')">🗑️</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function completeDuty(id) {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const duties = getDuties();
+  const d = duties.find(x => String(x.id) === String(id)); if (!d) return;
+  const statusEl = document.getElementById('status_' + id);
+  const scoreEl = document.getElementById('score_' + id);
+  const status = statusEl ? statusEl.value : 'done';
+  const score = scoreEl ? (parseFloat(scoreEl.value) || 0) : 0;
+  if (score < 0 || score > 10) { toast('⚠️ Điểm 0-10!', '#ef4444'); return; }
+  d.status = status;
+  d.score = score;
+  d.completedAt = new Date().toISOString();
+  setDuties(duties);
+  logActivity(`Cập nhật trực nhật: ${status} (${score}đ)`);
+  saveData();
+  toast('✅ Đã cập nhật kết quả trực!');
+}
+
+/* ───── Lịch sử ───── */
 function renderDutyLogTable() {
   const tb = document.getElementById('tbDutyLog'); if (!tb) return;
+  const students = getStudents();
   const keyword = (document.getElementById('searchDutyLog')?.value || '').toLowerCase().trim();
-  let sorted = getDuties().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-  // Tương thích dữ liệu cũ (chỉ có teamId)
+  let sorted = getDuties().filter(d => d.status !== 'pending').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   sorted = sorted.map(d => {
     if (d.memberIds) return d;
-    // Data cũ: chỉ có teamId → lấy tổ viên
     const team = getTeams().find(t => String(t.id) === String(d.teamId));
     return { ...d, memberIds: team ? team.memberIds : [], teamIds: d.teamId ? [String(d.teamId)] : [] };
   });
 
   if (keyword) {
     sorted = sorted.filter(d => {
-      const memberNames = (d.memberIds || []).map(id => {
-        const st = getStudents().find(s => String(s.id) === String(id));
-        return st?.name || '';
-      }).join(' ');
-      return memberNames.toLowerCase().includes(keyword) || (d.date || '').includes(keyword);
+      const names = (d.memberIds || []).map(id => students.find(s => String(s.id) === String(id))?.name || '').join(' ').toLowerCase();
+      return names.includes(keyword) || (d.date || '').includes(keyword) || (d.task || '').toLowerCase().includes(keyword);
     });
   }
 
@@ -2628,10 +2703,10 @@ function renderDutyLogTable() {
 
   tb.innerHTML = sorted.map(l => {
     const members = (l.memberIds || []).map(id => {
-      const st = getStudents().find(s => String(s.id) === String(id));
+      const st = students.find(s => String(s.id) === String(id));
       if (!st) return '';
       const team = getTeams().find(t => t.memberIds.some(mid => String(mid) === String(st.id)));
-      const tag = team ? ` <span style="color:${team.color};font-size:10px;">[${esc(team.name)}]</span>` : '';
+      const tag = team ? ` <span style="color:${team.color};font-size:10px;font-weight:600;">[${esc(team.name)}]</span>` : '';
       return `${esc(st.name)}${tag}`;
     }).filter(Boolean).join(', ') || '—';
     return `<tr>
@@ -2640,27 +2715,43 @@ function renderDutyLogTable() {
       <td>${esc(l.task)}</td>
       <td style="text-align:center;">${statusLabels[l.status] || ''}</td>
       <td style="text-align:center;"><b style="color:${l.score >= 8 ? '#10b981' : l.score >= 5 ? '#f59e0b' : '#ef4444'};">${l.score}</b></td>
-      <td>${esc(l.note || '')}</td>
-      <td style="text-align:center;">${canEdit() ? `<button class="btn-act btn-danger btn-mini" onclick="deleteDutyLog('${l.id}')">🗑️</button>` : '—'}</td>
+      <td style="text-align:center;white-space:nowrap;">${canEdit() ?
+        `<button class="btn-act btn-warning btn-mini" onclick="reopenDuty('${l.id}')" title="Mở lại">↩️</button>
+        <button class="btn-act btn-danger btn-mini" onclick="deleteDutyLog('${l.id}')">🗑️</button>` : '—'}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">Chưa có dữ liệu</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có dữ liệu</td></tr>';
 }
- 
+
+function reopenDuty(id) {
+  if (!canEdit()) return;
+  if (!confirm('Mở lại nhiệm vụ này (về trạng thái Đang chờ)?')) return;
+  const duties = getDuties();
+  const d = duties.find(x => String(x.id) === String(id)); if (!d) return;
+  d.status = 'pending';
+  d.score = 0;
+  d.completedAt = null;
+  setDuties(duties);
+  logActivity('Mở lại nhiệm vụ trực');
+  saveData();
+  toast('↩️ Đã mở lại!');
+}
+
 function deleteDutyLog(id) {
   if (!canEdit()) return;
-  if (!confirm('Xóa lượt trực này?')) return;
+  if (!confirm('Xóa nhiệm vụ trực này?')) return;
   setDuties(getDuties().filter(l => String(l.id) !== String(id)));
+  logActivity('Xóa 1 nhiệm vụ trực');
   saveData();
   toast('🗑️ Đã xóa!');
 }
 
+/* ───── Xếp hạng ───── */
 function renderLaborRanking() {
   const box = document.getElementById('ldRanking'); if (!box) return;
   const teams = getTeams();
   if (!teams.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có tổ nào</p>'; return; }
 
-  // Chuẩn hóa dữ liệu cũ
-  const duties = getDuties().map(d => {
+  const duties = getDuties().filter(d => d.status !== 'pending').map(d => {
     if (d.teamIds) return d;
     const team = getTeams().find(t => String(t.id) === String(d.teamId));
     return { ...d, teamIds: team ? [String(team.id)] : [] };
@@ -2668,40 +2759,40 @@ function renderLaborRanking() {
 
   const stats = teams.map(t => {
     const tDuties = duties.filter(d => (d.teamIds || []).some(tid => String(tid) === String(t.id)));
-    const totalScore = tDuties.reduce((s, d) => s + d.score, 0);
+    const totalScore = tDuties.reduce((s, d) => s + (d.score || 0), 0);
     const avgScore = tDuties.length ? totalScore / tDuties.length : 0;
     const doneCount = tDuties.filter(d => d.status === 'done').length;
     const missedCount = tDuties.filter(d => d.status === 'missed').length;
     return { team: t, totalScore, avgScore, doneCount, missedCount, count: tDuties.length };
-  }).sort((a, b) => b.totalScore - a.totalScore);
+  }).sort((a, b) => b.totalScore - a.totalScore || b.avgScore - a.avgScore);
 
   const maxScore = Math.max(1, ...stats.map(s => s.totalScore));
   box.innerHTML = stats.map((s, i) => {
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
     const pct = (s.totalScore / maxScore) * 100;
-    return `<div style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
         <span><b style="font-size:16px;">${medal}</b> <span style="color:${s.team.color};font-weight:bold;">${esc(s.team.name)}</span></span>
         <span><b style="color:#8b5cf6;">${s.totalScore.toFixed(1)} điểm</b></span>
       </div>
       <div class="chart-bar-bg" style="height:14px;">
         <div class="chart-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${s.team.color},${s.team.color}90);"></div>
       </div>
-      <div style="font-size:11px;color:#64748b;margin-top:2px;">
+      <div style="font-size:11px;color:#64748b;margin-top:3px;">
         📊 TB: <b>${s.avgScore.toFixed(1)}</b>/10 • ${s.count} lượt • ✅ ${s.doneCount} tốt • ❌ ${s.missedCount} bỏ
       </div>
     </div>`;
   }).join('');
 }
- 
+
 function renderAllLabor() {
   renderLaborTeamSelector();
   renderLaborTeamList();
-  renderLaborSchedule();
+  renderLdPending();
   renderDutyLogTable();
   renderLaborRanking();
 }
-
+ 
 /* ═══════════════ PHẠT ═══════════════ */
 const PT_TYPE_NAMES = {
   nhac_nho: '💬 Bị Nhắc Nhở',
@@ -3314,14 +3405,13 @@ function exportToExcel(type) {
     });
     XLSX.utils.book_append_sheet(wb, makeSheet('BÁO CÁO THU QUỸ', headersCol, rowsCol, [6, 25, 12, 14, 10, 12, 15, 15, 15]), 'Thu Quỹ');
 
-    const headersDuty = ['STT', 'Ngày', 'Tổ', 'Nhiệm vụ', 'Trạng thái', 'Điểm', 'Ghi chú'];
-    const stMap = { done: 'Tốt', late: 'Muộn', missed: 'Bỏ', partial: 'Chưa đủ' };
+        const headersDuty = ['STT', 'Ngày', 'HS Trực', 'Nhiệm vụ', 'Trạng thái', 'Điểm', 'Ghi chú'];
+    const stMap = { pending: 'Đang chờ', done: 'Tốt', late: 'Muộn', missed: 'Bỏ', partial: 'Chưa đủ' };
     const rowsDuty = getDuties().map((d,i)=>{
-      const t = getTeams().find(x=>String(x.id)===String(d.teamId));
-      return [i+1, d.date, t?.name || '', d.task, stMap[d.status] || d.status, d.score, d.note || ''];
+      const names = (d.memberIds || []).map(id => getStudents().find(s => String(s.id) === String(id))?.name).filter(Boolean).join('; ');
+      return [i+1, d.date, names, d.task, stMap[d.status] || d.status, d.score || 0, d.note || ''];
     });
-    XLSX.utils.book_append_sheet(wb, makeSheet('LỊCH SỬ TRỰC NHẬT', headersDuty, rowsDuty, [6, 12, 18, 30, 12, 8, 25]), 'Lao Động');
-  }
+    XLSX.utils.book_append_sheet(wb, makeSheet('LỊCH SỬ TRỰC NHẬT', headersDuty, rowsDuty, [6, 12, 28, 28, 12, 8, 25]), 'Lao Động');
 
   XLSX.writeFile(wb, `BaoCao_${className}_${todayStr()}.xlsx`);
   toast('📊 Đã xuất Excel!', '#217346');
@@ -3720,12 +3810,12 @@ function exportToCSV(type){
       const st = students.find(s => String(s.id) === String(p.stId));
       csv += `${i+1},${q(st?.name||'')},${q(PT_TYPE_NAMES[p.type]||'')},${q(lvlMap[p.level]||'')},${q(p.reason)},${q(p.start)},${q(p.deadline)},${p.status==='done'?'Đã xong':'Đang phạt'},${q(p.completedAt?new Date(p.completedAt).toLocaleDateString('vi-VN'):'')},${q(getElapsedTime(p))}\r\n`;
     });
-  } else if (type === 'labor') {
-    csv += "STT,Ngày,Tổ,Nhiệm Vụ,Trạng Thái,Điểm,Ghi Chú\r\n";
-    const stMap = { done: 'Tốt', late: 'Muộn', missed: 'Bỏ', partial: 'Chưa đủ' };
+    } else if (type === 'labor') {
+    csv += "STT,Ngày,HS Trực,Nhiệm Vụ,Trạng Thái,Điểm,Ghi Chú\r\n";
+    const stMap = { pending: 'Đang chờ', done: 'Tốt', late: 'Muộn', missed: 'Bỏ', partial: 'Chưa đủ' };
     getDuties().forEach((d,i)=>{
-      const t = getTeams().find(x=>String(x.id)===String(d.teamId));
-      csv += `${i+1},${q(d.date)},${q(t?.name||'')},${q(d.task)},${q(stMap[d.status]||d.status)},${d.score},${q(d.note||'')}\r\n`;
+      const names = (d.memberIds || []).map(id => getStudents().find(s => String(s.id) === String(id))?.name).filter(Boolean).join('; ');
+      csv += `${i+1},${q(d.date)},${q(names)},${q(d.task)},${q(stMap[d.status]||d.status)},${d.score || 0},${q(d.note||'')}\r\n`;
     });
   }
   downloadFile(fname, csv, 'text/csv;charset=utf-8');
