@@ -959,7 +959,7 @@
   <div class="card" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn-act btn-word" style="flex:1;padding:14px;" onclick="exportSelectedReports('word')">📥 Word</button>
-      <button class="btn-act btn-pdf" style="flex:1;padding:14px;" onclick="exportSelectedReports('pdf')">🖨️ In / PDF</button>
+      <button class="btn-act btn-pdf" style="flex:1;padding:14px;" onclick="exportSelectedReports('pdf')">📥 Tải PDF</button>
       <button class="btn-act btn-excel" style="flex:1;padding:14px;" onclick="exportSelectedReports('excel')">📊 Excel</button>
     </div>
   </div>
@@ -1446,6 +1446,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 /* ═══════════════ FIREBASE CONFIG ═══════════════ */
@@ -4192,13 +4194,82 @@ function exportSelectedReports(mode){
   if (mode === 'excel') { exportToExcel('all'); return; }
   const body = buildCombinedReport(kinds); if (!body) return;
   if (mode === 'word') downloadWord(`${fname}.doc`, fname, body);
-  else openPrint(buildWordHTML(fname, body));
+  else downloadPDF(`${fname}.pdf`, fname, body);
 }
-function openPrint(html){
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => { w.focus(); w.print(); }, 500);
+
+ async function downloadPDF(filename, title, bodyHtml) {
+  if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+    toast('⚠️ Thư viện PDF chưa tải xong, vui lòng thử lại!', '#f59e0b');
+    return;
+  }
+  toast('⏳ Đang tạo PDF...', '#3b82f6');
+
+  // Tạo container ẩn để render HTML
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:21cm;background:#fff;padding:1.5cm 2cm;font-family:"Times New Roman",serif;font-size:12pt;color:#000;line-height:1.35;';
+  container.innerHTML = bodyHtml;
+  document.body.appendChild(container);
+
+  try {
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      windowWidth: container.scrollWidth,
+      windowHeight: container.scrollHeight
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+    const pageW = 210;   // A4 width (mm)
+    const pageH = 297;   // A4 height (mm)
+    const imgW = pageW;
+
+    // Tỷ lệ pixel ↔ mm
+    const pxPerMM = canvas.width / imgW;
+    const totalImgH_mm = (canvas.height) / pxPerMM;
+
+    let yOffsetMM = 0;
+    let pageIdx = 0;
+
+    while (yOffsetMM < totalImgH_mm - 0.5) {
+      if (pageIdx > 0) pdf.addPage();
+
+      const remainingMM = totalImgH_mm - yOffsetMM;
+      const thisPageH_mm = Math.min(pageH, remainingMM);
+      const thisPageH_px = Math.round(thisPageH_mm * pxPerMM);
+      const srcY_px = Math.round(yOffsetMM * pxPerMM);
+
+      // Tạo canvas cho trang này
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = thisPageH_px;
+      const ctx = pageCanvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      ctx.drawImage(
+        canvas,
+        0, srcY_px, canvas.width, thisPageH_px,   // source
+        0, 0, pageCanvas.width, thisPageH_px      // dest
+      );
+
+      const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.92);
+      pdf.addImage(pageImgData, 'JPEG', 0, 0, imgW, thisPageH_mm);
+
+      yOffsetMM += pageH;
+      pageIdx++;
+    }
+
+    pdf.save(filename);
+    toast('✅ Đã tải PDF!', '#217346');
+  } catch (err) {
+    console.error('PDF error:', err);
+    toast('❌ Lỗi tạo PDF: ' + err.message, '#ef4444');
+  } finally {
+    document.body.removeChild(container);
+  }
 }
 
 /* ═══════════════ CSV ═══════════════ */
