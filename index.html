@@ -191,19 +191,34 @@
     <div style="font-size:44px;margin-bottom:8px;">🏫</div>
     <h2>Quản Lý Lớp Học</h2>
     <p class="sub">Đăng nhập để đồng bộ trên mọi thiết bị</p>
-    <div class="auth-tabs">
+        <div class="auth-tabs">
       <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">🔑 Đăng Nhập</button>
       <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">📝 Đăng Ký</button>
     </div>
     <div id="authMsg" class="auth-msg"></div>
+
     <input type="email" id="authEmail" placeholder="📧 Email..." autocomplete="email">
     <input type="password" id="authPassword" placeholder="🔒 Mật khẩu (tối thiểu 6 ký tự)">
-    <div id="signupExtra" style="display:none;">
-      <input type="password" id="authPassword2" placeholder="🔒 Nhập lại mật khẩu">
-      <input type="text" id="authClassName" placeholder="🏫 Tên lớp (VD: 11A1, 12B2...)">
-      <input type="text" id="authSchool" placeholder="🏛️ Tên trường (không bắt buộc)">
-      <input type="text" id="authTeacher" placeholder="👩‍🏫 Tên GVCN (không bắt buộc)">
+    <input type="password" id="authPassword2" placeholder="🔒 Nhập lại mật khẩu" style="display:none;">
+
+    <div id="signupModeBox" style="display:none;">
+      <div style="display:flex;gap:8px;margin:6px 0 14px;background:#f1f5f9;padding:4px;border-radius:10px;">
+        <button type="button" id="signupModeJoin" class="auth-tab active" onclick="switchSignupMode('join')" style="font-size:12px;">🔗 Vào lớp có sẵn</button>
+        <button type="button" id="signupModeNew" class="auth-tab" onclick="switchSignupMode('new')" style="font-size:12px;">➕ Tạo lớp mới</button>
+      </div>
+
+      <div id="signupFormJoin">
+        <input type="text" id="authJoinClassId" placeholder="MÃ LỚP (6 KÝ TỰ)" maxlength="8" style="text-align:center;letter-spacing:8px;font-size:22px;font-weight:bold;text-transform:uppercase;font-family:monospace;padding:14px;">
+        <div style="font-size:11px;color:#64748b;text-align:center;margin:-4px 0 12px;">💡 Nhập mã lớp mà chủ lớp đã gửi cho bạn</div>
+      </div>
+
+      <div id="signupFormNew" style="display:none;">
+        <input type="text" id="authClassName" placeholder="🏫 Tên lớp (VD: 11A1, 12B2...)">
+        <input type="text" id="authSchool" placeholder="🏛️ Tên trường (không bắt buộc)">
+        <input type="text" id="authTeacher" placeholder="👩‍🏫 Tên GVCN (không bắt buộc)">
+      </div>
     </div>
+
     <button class="btn-auth" id="btnAuth" onclick="handleAuth()">🔑 ĐĂNG NHẬP</button>
     <div style="text-align:center;margin-bottom:10px;">
       <a href="#" onclick="event.preventDefault();forgotPassword()" style="color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;">🔑 Quên mật khẩu?</a>
@@ -1552,14 +1567,27 @@ function collapseAllGuides() {
 
 /* ═══════════════ AUTH ═══════════════ */
 let authMode = 'login';
+let signupMode = 'join';   // 'join' = vào lớp có sẵn | 'new' = tạo lớp mới
+
 function switchAuthTab(mode) {
   authMode = mode;
   document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
   document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
-  document.getElementById('signupExtra').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('authPassword2').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('signupModeBox').style.display = mode === 'signup' ? 'block' : 'none';
   document.getElementById('btnAuth').textContent = mode === 'login' ? '🔑 ĐĂNG NHẬP' : '📝 ĐĂNG KÝ';
   document.getElementById('authMsg').className = 'auth-msg';
 }
+
+function switchSignupMode(mode) {
+  signupMode = mode;
+  document.getElementById('signupModeJoin').classList.toggle('active', mode === 'join');
+  document.getElementById('signupModeNew').classList.toggle('active', mode === 'new');
+  document.getElementById('signupFormJoin').style.display = mode === 'join' ? 'block' : 'none';
+  document.getElementById('signupFormNew').style.display = mode === 'new' ? 'block' : 'none';
+  document.getElementById('authMsg').className = 'auth-msg';
+}
+
 function showAuthMsg(text, type) {
   const el = document.getElementById('authMsg');
   el.textContent = text;
@@ -1572,22 +1600,65 @@ async function handleAuth() {
   if (!email || !password) { showAuthMsg('❌ Nhập email và mật khẩu!', 'error'); return; }
   if (password.length < 6) { showAuthMsg('❌ Mật khẩu từ 6 ký tự!', 'error'); return; }
   document.getElementById('authMsg').className = 'auth-msg';
+
   try {
     if (authMode === 'signup') {
       const password2 = document.getElementById('authPassword2').value;
       if (password !== password2) { showAuthMsg('❌ Mật khẩu nhập lại không khớp!', 'error'); return; }
-      const className = document.getElementById('authClassName').value.trim() || 'Lớp của tôi';
-      const school = document.getElementById('authSchool').value.trim();
-      const teacher = document.getElementById('authTeacher').value.trim();
+
       const userCred = await auth.createUserWithEmailAndPassword(email, password);
       const userUid = userCred.user.uid;
-      const classId = await createClassDoc(userUid, email, className, school, teacher, '');
-      await db.collection('users').doc(userUid).set({
-        email, displayName: '', currentClassId: classId, myClasses: [classId],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      showAuthMsg(`✅ Đăng ký thành công! Lớp "${className}" đã sẵn sàng.`, 'success');
+
+      if (signupMode === 'join') {
+        // ═══════ VÀO LỚP CÓ SẴN ═══════
+        const joinClassId = document.getElementById('authJoinClassId').value.trim().toLowerCase();
+        if (!joinClassId) {
+          showAuthMsg('⚠️ Bạn chưa nhập mã lớp!\n\nVào web → nhấn "🔗 Vào lớp" để nhập lại sau.', 'error');
+          await db.collection('users').doc(userUid).set({
+            email, displayName: '', currentClassId: null, myClasses: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          return;
+        }
+
+        const classDoc = await db.collection('classes').doc(joinClassId).get();
+        if (!classDoc.exists) {
+          showAuthMsg(`❌ Không tìm thấy lớp có mã "${joinClassId.toUpperCase()}"!\n\nKiểm tra lại mã với chủ lớp, hoặc vào web → nhấn "🔗 Vào lớp" để thử lại.`, 'error');
+          await db.collection('users').doc(userUid).set({
+            email, displayName: '', currentClassId: null, myClasses: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          return;
+        }
+
+        const classData = classDoc.data();
+        const newMembers = { ...(classData.members || {}) };
+        newMembers[userUid] = { role: 'view', email };
+        await db.collection('classes').doc(joinClassId).update({ members: newMembers });
+
+        await db.collection('users').doc(userUid).set({
+          email, displayName: '', currentClassId: joinClassId, myClasses: [joinClassId],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showAuthMsg(`✅ Đăng ký thành công!\n👉 Đã vào lớp "${classData.config?.className || joinClassId}".`, 'success');
+
+      } else {
+        // ═══════ TẠO LỚP MỚI ═══════
+        const className = document.getElementById('authClassName').value.trim() || 'Lớp của tôi';
+        const school = document.getElementById('authSchool').value.trim();
+        const teacher = document.getElementById('authTeacher').value.trim();
+        const classId = await createClassDoc(userUid, email, className, school, teacher, '');
+        await db.collection('users').doc(userUid).set({
+          email, displayName: '', currentClassId: classId, myClasses: [classId],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showAuthMsg(`✅ Đăng ký thành công!\n👉 Lớp "${className}" đã sẵn sàng.`, 'success');
+      }
     } else {
       await auth.signInWithEmailAndPassword(email, password);
     }
@@ -1606,6 +1677,8 @@ async function handleAuth() {
   }
 }
 document.getElementById('authPassword')?.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
+document.getElementById('authPassword2')?.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
+document.getElementById('authJoinClassId')?.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
 
 async function loginWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -1755,11 +1828,23 @@ auth.onAuthStateChanged(async user => {
     const profileDoc = await db.collection('users').doc(user.uid).get();
     userProfile = profileDoc.exists ? profileDoc.data() : { email: user.email, currentClassId: null, myClasses: [] };
     if (!userProfile.myClasses) userProfile.myClasses = [];
-    if (!userProfile.currentClassId || userProfile.myClasses.length === 0) {
-      const classId = await createClassDoc(user.uid, user.email, 'Lớp của tôi', '', '', '');
-      userProfile.currentClassId = classId;
-      userProfile.myClasses = [classId];
-      await db.collection('users').doc(user.uid).set(userProfile, { merge: true });
+        if (!userProfile.currentClassId || userProfile.myClasses.length === 0) {
+      // User chưa có lớp nào (do nhập sai mã hoặc chưa join)
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('userBar').style.display = 'flex';
+      document.getElementById('classSwitcher').style.display = 'flex';
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = (user.email || '?')[0].toUpperCase();
+      document.getElementById('syncBadge').style.display = 'none';
+
+      setTimeout(() => {
+        if (confirm('👋 Bạn chưa có lớp nào!\n\n➕ Nhấn OK để TẠO LỚP MỚI\n🔗 Nhấn Cancel để VÀO LỚP CÓ SẴN (nhập mã)')) {
+          openCreateClassModal();
+        } else {
+          openJoinClassModal();
+        }
+      }, 500);
+      return;
     }
     const ok = await loadClassFromCloud(userProfile.currentClassId);
     if (!ok) { toast('⚠️ Lỗi tải lớp!', '#ef4444'); return; }
