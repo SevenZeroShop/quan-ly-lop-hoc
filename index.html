@@ -305,10 +305,11 @@
   <button class="nav-btn" onclick="showTab('danhsach',this)">👥 Danh Sách</button>
   <button class="nav-btn" onclick="showTab('thuquy',this)">💰 Thu Quỹ</button>
   <button class="nav-btn" onclick="showTab('ungquy',this)">💸 Chi Quỹ</button>
-  <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
   <button class="nav-btn" onclick="showTab('thanhvien',this)">👨‍👩‍👧 Thành Viên</button>
+   <button class="nav-btn" onclick="showTab('pheduyet',this)" id="navPheduyet" style="display:none;">⏳ Phê Duyệt <span id="pendingBadge" style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:2px;display:none;">0</span></button>
   <button class="nav-btn" onclick="showTab('laodong',this)">🧹 Lao Động</button>
   <button class="nav-btn" onclick="showTab('phat',this)">⚖️ Phạt</button>
+  <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
   <button class="nav-btn" onclick="showTab('thungrac',this)">🗑️ Thùng Rác</button>
   <button class="nav-btn" onclick="showTab('saoluu',this)">⚙️ Sao Lưu</button>
 </div>
@@ -1165,6 +1166,17 @@
   </div>
 </div>
 
+ <!-- PHÊ DUYỆT -->
+<div id="sec-pheduyet" class="section-pane">
+  <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+    <h3 style="color:#92400e;">⏳ Yêu Cầu Chờ Duyệt</h3>
+    <p style="font-size:13px;color:#78350f;line-height:1.7;">
+      Đây là các yêu cầu sửa thông tin HS từ thành viên. Chỉ <b>GVCN</b> / <b>Lớp trưởng</b> / <b>Chủ lớp</b> mới duyệt được.
+    </p>
+  </div>
+  <div id="pendingList"></div>
+</div>
+ 
 <!-- THÙNG RÁC -->
 <div id="sec-thungrac" class="section-pane">
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
@@ -1446,10 +1458,22 @@
     <div class="modal-body">
       <div class="form-group"><label>Email:</label>
         <input type="email" id="inviteEmail" placeholder="example@gmail.com"></div>
-      <div class="form-group"><label>Quyền:</label>
+            <div class="form-group"><label>Quyền (hệ thống):</label>
         <select id="inviteRole">
           <option value="view">👁️ Chỉ xem</option>
           <option value="edit" selected>✏️ Chỉnh sửa</option>
+        </select></div>
+      <div class="form-group"><label>Chức danh lớp:</label>
+        <select id="inviteChucDanh">
+          <option value="">-- Không --</option>
+          <option value="GVCN">👩‍🏫 Giáo viên chủ nhiệm</option>
+          <option value="Lớp trưởng">👑 Lớp trưởng</option>
+          <option value="Lớp phó học tập">⭐ Lớp phó học tập</option>
+          <option value="Lớp phó lao động">⭐ Lớp phó lao động</option>
+          <option value="Bí thư">📘 Bí thư</option>
+          <option value="Thủ quỹ">💰 Thủ quỹ</option>
+          <option value="Tổ trưởng">🧑‍🤝‍🧑 Tổ trưởng</option>
+          <option value="Cán sự lớp">📌 Cán sự lớp</option>
         </select></div>
       <button class="btn-act btn-success btn-full" onclick="inviteMember()">🚀 Thêm</button>
     </div>
@@ -1513,6 +1537,14 @@ function setScores(v)   { if (currentClass) currentClass.scores = v; }
 function setCollects(v) { if (currentClass) currentClass.collects = v; }
 function setPunishments(v) { if (currentClass) currentClass.punishments = v; }
 function setTrash(v)    { if (currentClass) currentClass.trash = v; }
+
+function canApprove() {
+  if (isOwner()) return true;
+  const me = currentClass?.members?.[currentUser?.uid];
+  return me?.chucDanh === 'GVCN' || me?.chucDanh === 'Lớp trưởng';
+}
+function getPendingChanges() { return currentClass?.pendingChanges || []; }
+function setPendingChanges(v) { if (currentClass) currentClass.pendingChanges = v; }
 
 function canEdit() { return currentRole === 'owner' || currentRole === 'edit'; }
 function isOwner() { return currentRole === 'owner'; }
@@ -1793,6 +1825,9 @@ async function loadClassFromCloud(classId) {
     currentClass = { id: classId, ...doc.data() };
     currentClass.students = currentClass.students || [];
     currentClass.punishments = currentClass.punishments || [];
+   currentClass.timetable = currentClass.timetable || {};
+    currentClass.customSubjects = currentClass.customSubjects || [];
+    currentClass.pendingChanges = currentClass.pendingChanges || [];
     currentClass.teams = currentClass.teams || [];
     currentClass.schedules = currentClass.schedules || [];
     currentClass.duties = currentClass.duties || [];
@@ -1909,6 +1944,7 @@ function renderAllUI() {
   renderAllPunish();
   renderAllLabor();
   renderAllTimetable();
+  renderPending();
   updateReportCount();
 }
 
@@ -2233,14 +2269,36 @@ function saveEditStudent(){
   const st = getStudents().find(s=>String(s.id)===String(id)); if (!st) return;
   const name = document.getElementById('editStudentName').value.trim();
   if (!name) { toast('⚠️ Nhập tên!', '#ef4444'); return; }
-  st.name = name;
-  st.phone = document.getElementById('editStudentPhone').value.trim();
-  st.address = document.getElementById('editStudentAddress').value.trim();
-  st.role = document.getElementById('editStudentRole').value;
-  logActivity(`Sửa HS: ${name}`);
-  saveData();
-  closeEditStudent();
-  toast('✏️ Đã cập nhật!');
+  const newData = {
+    name: name,
+    phone: document.getElementById('editStudentPhone').value.trim(),
+    address: document.getElementById('editStudentAddress').value.trim(),
+    role: document.getElementById('editStudentRole').value
+  };
+  if (canApprove()) {
+    Object.assign(st, newData);
+    logActivity(`Sửa HS: ${name}`);
+    saveData();
+    closeEditStudent();
+    toast('✏️ Đã cập nhật!');
+  } else {
+    const pending = getPendingChanges();
+    pending.push({
+      id: uid(),
+      type: 'edit_student',
+      stId: id,
+      oldData: { name: st.name, phone: st.phone || '', address: st.address || '', role: st.role || '' },
+      newData: newData,
+      byUid: currentUser.uid,
+      byEmail: currentUser.email,
+      at: new Date().toISOString(),
+      status: 'pending'
+    });
+    setPendingChanges(pending);
+    saveData();
+    closeEditStudent();
+    toast('⏳ Đã gửi yêu cầu — chờ GVCN / Lớp trưởng duyệt!', '#f59e0b');
+  }
 }
 
 /* ═══════════════ THU QUỸ ═══════════════ */
@@ -2647,6 +2705,7 @@ function renderMembersList() {
     filtered = ids.filter(u => {
       const m = members[u];
       return (m.email||'').toLowerCase().includes(keyword) || 
+             (m.chucDanh||'').toLowerCase().includes(keyword) ||
              (roleLabels[m.role]||'').toLowerCase().includes(keyword) ||
              u.toLowerCase().includes(keyword);
     });
@@ -2655,17 +2714,31 @@ function renderMembersList() {
     const m = members[u];
     const isMe = u === currentUser.uid;
     const isOwnerMember = m.role === 'owner';
+    const chucDanhBadge = m.chucDanh 
+      ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px;">${esc(m.chucDanh)}</span>` 
+      : '';
     return `
       <div class="member-item">
         <div class="info">
-          <b>${esc(m.email || 'Không rõ')}${isMe ? ' <span style="color:#10b981;">(Bạn)</span>' : ''}</b>
+          <b>${esc(m.email || 'Không rõ')}${chucDanhBadge}${isMe ? ' <span style="color:#10b981;">(Bạn)</span>' : ''}</b>
           <div class="email">UID: ${u.slice(0,8)}...</div>
         </div>
         <span class="badge badge-role-${m.role}">${roleLabels[m.role] || m.role}</span>
         ${isOwner() && !isOwnerMember && !isMe ? `
-          <select onchange="changeMemberRole('${u}', this.value)" style="padding:6px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
-            <option value="view" ${m.role==='view'?'selected':''}>👁️ Chỉ xem</option>
-            <option value="edit" ${m.role==='edit'?'selected':''}>✏️ Chỉnh sửa</option>
+          <select onchange="changeMemberRole('${u}', this.value)" style="padding:6px;border:1px solid #cbd5e1;border-radius:6px;font-size:11px;" title="Quyền hệ thống">
+            <option value="view" ${m.role==='view'?'selected':''}>👁️ Xem</option>
+            <option value="edit" ${m.role==='edit'?'selected':''}>✏️ Sửa</option>
+          </select>
+          <select onchange="changeMemberChucDanh('${u}', this.value)" style="padding:6px;border:1px solid #cbd5e1;border-radius:6px;font-size:11px;" title="Chức danh lớp">
+            <option value="" ${!m.chucDanh?'selected':''}>-- Chức danh --</option>
+            <option value="GVCN" ${m.chucDanh==='GVCN'?'selected':''}>👩‍🏫 GVCN</option>
+            <option value="Lớp trưởng" ${m.chucDanh==='Lớp trưởng'?'selected':''}>👑 Lớp trưởng</option>
+            <option value="Lớp phó học tập" ${m.chucDanh==='Lớp phó học tập'?'selected':''}>⭐ LP học tập</option>
+            <option value="Lớp phó lao động" ${m.chucDanh==='Lớp phó lao động'?'selected':''}>⭐ LP lao động</option>
+            <option value="Bí thư" ${m.chucDanh==='Bí thư'?'selected':''}>📘 Bí thư</option>
+            <option value="Thủ quỹ" ${m.chucDanh==='Thủ quỹ'?'selected':''}>💰 Thủ quỹ</option>
+            <option value="Tổ trưởng" ${m.chucDanh==='Tổ trưởng'?'selected':''}>🧑‍🤝‍🧑 Tổ trưởng</option>
+            <option value="Cán sự lớp" ${m.chucDanh==='Cán sự lớp'?'selected':''}>📌 Cán sự</option>
           </select>
           <button class="btn-act btn-danger btn-mini" onclick="removeMember('${u}')">🗑️</button>
         ` : ''}
@@ -2673,10 +2746,23 @@ function renderMembersList() {
   }).join('') || '<p style="color:#94a3b8;text-align:center;padding:14px;">Không có kết quả</p>';
 }
 
+function changeMemberChucDanh(u, chucDanh) {
+  if (!isOwner()) return;
+  if (currentClass.members[u]) {
+    currentClass.members[u].chucDanh = chucDanh;
+    logActivity(`Đổi chức danh của ${currentClass.members[u].email} thành "${chucDanh || 'không'}"`);
+    saveData();
+    renderMembersList();
+    renderPending();
+    toast('✅ Đã đổi chức danh!');
+  }
+}
+
 function openInviteModal() {
   if (!isOwner()) { toast('⚠️ Chỉ chủ lớp mới mời được!', '#ef4444'); return; }
   document.getElementById('inviteEmail').value = '';
   document.getElementById('inviteRole').value = 'edit';
+  document.getElementById('inviteChucDanh').value = '';
   document.getElementById('inviteMemberModal').classList.add('active');
 }
 function closeInviteModal(){ document.getElementById('inviteMemberModal').classList.remove('active'); }
@@ -2685,6 +2771,7 @@ async function inviteMember() {
   if (!isOwner()) return;
   const email = document.getElementById('inviteEmail').value.trim();
   const role = document.getElementById('inviteRole').value;
+  const chucDanh = document.getElementById('inviteChucDanh').value;
   if (!email) { toast('⚠️ Nhập email!', '#ef4444'); return; }
   try {
     const snap = await db.collection('users').where('email', '==', email).limit(1).get();
@@ -2692,7 +2779,7 @@ async function inviteMember() {
     const targetUid = snap.docs[0].id;
     if (targetUid === currentUser.uid) { toast('⚠️ Bạn đã ở trong lớp!', '#ef4444'); return; }
     if (currentClass.members[targetUid]) { toast('⚠️ Đã là thành viên!', '#ef4444'); return; }
-    currentClass.members[targetUid] = { role, email };
+    currentClass.members[targetUid] = { role, email, chucDanh };
     logActivity(`Mời ${email} vào lớp (${role})`);
     const targetRef = db.collection('users').doc(targetUid);
     const targetDoc = await targetRef.get();
@@ -3130,6 +3217,80 @@ function renderLaborRanking() {
   }).join('');
 }
 
+ /* ═══════════════ PHÊ DUYỆT ═══════════════ */
+function renderPending() {
+  const pending = getPendingChanges().filter(p => p.status === 'pending');
+  const badge = document.getElementById('pendingBadge');
+  if (badge) {
+    badge.textContent = pending.length;
+    badge.style.display = pending.length > 0 ? 'inline-block' : 'none';
+  }
+  const navBtn = document.getElementById('navPheduyet');
+  if (navBtn) navBtn.style.display = canApprove() ? '' : 'none';
+
+  const box = document.getElementById('pendingList'); if (!box) return;
+  if (!canApprove()) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#64748b;padding:24px;">👁️ Bạn không có quyền duyệt.</div>';
+    return;
+  }
+  if (!pending.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:30px;font-weight:bold;">✅ Không có yêu cầu nào đang chờ!</div>';
+    return;
+  }
+  const students = getStudents();
+  box.innerHTML = pending.map(p => {
+    if (p.type !== 'edit_student') return '';
+    const st = students.find(s => String(s.id) === String(p.stId));
+    const oldD = p.oldData, newD = p.newData;
+    const diff = [];
+    if (oldD.name !== newD.name) diff.push(`<div>Tên: <s style="color:#94a3b8;">${esc(oldD.name)}</s> → <b style="color:#10b981;">${esc(newD.name)}</b></div>`);
+    if ((oldD.phone||'') !== (newD.phone||'')) diff.push(`<div>SĐT: <s style="color:#94a3b8;">${esc(oldD.phone || '—')}</s> → <b style="color:#10b981;">${esc(newD.phone || '—')}</b></div>`);
+    if ((oldD.address||'') !== (newD.address||'')) diff.push(`<div>Địa chỉ: <s style="color:#94a3b8;">${esc(oldD.address || '—')}</s> → <b style="color:#10b981;">${esc(newD.address || '—')}</b></div>`);
+    if ((oldD.role||'') !== (newD.role||'')) diff.push(`<div>Chức danh: <s style="color:#94a3b8;">${esc(oldD.role || '—')}</s> → <b style="color:#10b981;">${esc(newD.role || '—')}</b></div>`);
+    return `
+      <div class="collect-card" style="border:2px solid #f59e0b;">
+        <div class="collect-name">
+          <span>✏️ <b>Sửa HS:</b> ${esc(st?.name || '(Đã xóa)')}</span>
+          <span style="font-size:11px;color:#64748b;">${new Date(p.at).toLocaleString('vi-VN')}</span>
+        </div>
+        <div style="font-size:13px;color:#78350f;margin-top:4px;">👤 Người gửi: <b>${esc(p.byEmail || 'Không rõ')}</b></div>
+        <div style="background:#fff;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;line-height:1.8;">
+          ${diff.join('') || '<i style="color:#94a3b8;">Không có thay đổi</i>'}
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn-act btn-success" style="flex:1;" onclick="approveChange('${p.id}')">✅ Duyệt</button>
+          <button class="btn-act btn-danger" style="flex:1;" onclick="rejectChange('${p.id}')">❌ Từ chối</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function approveChange(id) {
+  if (!canApprove()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const pending = getPendingChanges();
+  const p = pending.find(x => String(x.id) === String(id)); if (!p) return;
+  if (p.type === 'edit_student') {
+    const st = getStudents().find(s => String(s.id) === String(p.stId));
+    if (!st) { toast('⚠️ HS đã bị xóa!', '#ef4444'); return; }
+    Object.assign(st, p.newData);
+    logActivity(`Duyệt yêu cầu sửa HS "${p.newData.name}" của ${p.byEmail}`);
+  }
+  setPendingChanges(pending.filter(x => String(x.id) !== String(id)));
+  saveData();
+  toast('✅ Đã duyệt!');
+}
+
+function rejectChange(id) {
+  if (!canApprove()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!confirm('Từ chối yêu cầu này?')) return;
+  const pending = getPendingChanges();
+  const p = pending.find(x => String(x.id) === String(id)); if (!p) return;
+  setPendingChanges(pending.filter(x => String(x.id) !== String(id)));
+  logActivity(`Từ chối yêu cầu sửa của ${p.byEmail}`);
+  saveData();
+  toast('❌ Đã từ chối!');
+}
+ 
 function renderAllLabor() {
   renderLaborTeamSelector();
   renderLaborTeamList();
@@ -3757,6 +3918,20 @@ function exportToExcel(type) {
       return [i+1, d.date, names, d.task, stMap[d.status] || d.status, d.score || 0, d.note || ''];
     });
     XLSX.utils.book_append_sheet(wb, makeSheet('LỊCH SỬ TRỰC NHẬT', headersDuty, rowsDuty, [6, 12, 28, 28, 12, 8, 25]), 'Lao Động');
+  }
+   // Sheet TKB
+  const tt = getTimetable();
+  if (tt && Object.keys(tt).length > 0) {
+    const headers = ['Tiết', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+    const rows = [];
+    for (let p = 0; p < PERIODS; p++) {
+      const row = [`Tiết ${p+1}`];
+      ['2','3','4','5','6','7','8'].forEach(d => {
+        row.push((tt[d] && tt[d][p]) ? tt[d][p] : '');
+      });
+      rows.push(row);
+    }
+    XLSX.utils.book_append_sheet(wb, makeSheet('THỜI KHÓA BIỂU', headers, rows, [10, 14, 14, 14, 14, 14, 14, 14]), 'Thời Khóa Biểu');
   }
   XLSX.writeFile(wb, `BaoCao_${className}_${todayStr()}.xlsx`);
   toast('📊 Đã xuất Excel!', '#217346');
@@ -4448,6 +4623,7 @@ function showTab(id, btn){
   if (id === 'thongke') renderCharts();
   if (id === 'phat') renderAllPunish();
   if (id === 'laodong') renderAllLabor();
+  if (id === 'pheduyet') renderPending();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
   if (id === 'thanhvien') renderMembersList();
   if (id === 'thungrac') renderTrashList();
@@ -4622,6 +4798,10 @@ const DAYS = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 
 const DAY_KEYS = ['2', '3', '4', '5', '6', '7', '8'];
 const PERIODS = 5;
 
+function getAllSubjects() {
+  return [...defaultSubjects, ...(currentClass?.customSubjects || [])];
+}
+
 function getTimetable() { return currentClass?.timetable || {}; }
 function setTimetable(v) { if (currentClass) currentClass.timetable = v; }
 
@@ -4629,40 +4809,66 @@ function renderTimetableInput() {
   const body = document.getElementById('timetableBody');
   if (!body) return;
   const tt = getTimetable();
+  const allSubs = getAllSubjects();
+
+  let datalist = document.getElementById('ttSubjectsList');
+  if (!datalist) {
+    datalist = document.createElement('datalist');
+    datalist.id = 'ttSubjectsList';
+    document.body.appendChild(datalist);
+  }
+  datalist.innerHTML = allSubs.map(s => `<option value="${esc(s)}"></option>`).join('');
+
   let html = '';
   for (let p = 1; p <= PERIODS; p++) {
     html += `<tr><td style="text-align:center;font-weight:bold;background:#f1f5f9;">Tiết ${p}</td>`;
     DAY_KEYS.forEach(d => {
       const val = (tt[d] && tt[d][p-1]) ? tt[d][p-1] : '';
       html += `<td style="padding:3px;">
-        <select class="tt-cell" data-day="${d}" data-period="${p-1}"
-          style="width:100%;padding:5px 3px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;">
-          ${['', ...defaultSubjects].map(s =>
-            `<option value="${esc(s)}" ${val === s ? 'selected' : ''}>${s || '-- Trống --'}</option>`
-          ).join('')}
-        </select>
+        <input type="text" class="tt-cell" data-day="${d}" data-period="${p-1}"
+          value="${esc(val)}"
+          list="ttSubjectsList"
+          placeholder="-- Trống --"
+          style="width:100%;padding:6px 4px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;text-align:center;font-weight:500;">
       </td>`;
     });
     html += `</tr>`;
   }
   body.innerHTML = html;
 }
-
+ 
 function saveTimetable() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const cells = document.querySelectorAll('.tt-cell');
   const tt = {};
-  cells.forEach(sel => {
-    const day = sel.dataset.day;
-    const period = parseInt(sel.dataset.period);
+  const newSubjects = new Set();
+
+  cells.forEach(inp => {
+    const day = inp.dataset.day;
+    const period = parseInt(inp.dataset.period);
     if (!tt[day]) tt[day] = Array(PERIODS).fill('');
-    tt[day][period] = sel.value;
+    const val = inp.value.trim();
+    tt[day][period] = val;
+    if (val && !defaultSubjects.includes(val) && !(currentClass.customSubjects || []).includes(val)) {
+      newSubjects.add(val);
+    }
   });
+
+  if (newSubjects.size > 0) {
+    if (!currentClass.customSubjects) currentClass.customSubjects = [];
+    newSubjects.forEach(s => currentClass.customSubjects.push(s));
+  }
+
   setTimetable(tt);
   logActivity('Cập nhật thời khóa biểu');
   saveData();
   renderTimetableView();
-  toast('✅ Đã lưu thời khóa biểu!');
+
+  if (newSubjects.size > 0) {
+    toast(`✅ Đã lưu TKB + thêm ${newSubjects.size} môn mới!`);
+  } else {
+    toast('✅ Đã lưu thời khóa biểu!');
+  }
 }
 
 function renderTimetableView() {
@@ -4679,11 +4885,14 @@ function renderTimetableView() {
     const subjects = periods.filter(s => s && s.trim());
     html += `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
       <div style="font-weight:bold;color:#1e40af;font-size:14px;margin-bottom:6px;">📅 ${DAYS[idx]}</div>
-      ${subjects.length ? subjects.map((s, i) =>
-        `<div style="font-size:12px;padding:3px 0;border-bottom:1px dashed #f1f5f9;">
-          <span style="color:#64748b;">Tiết ${i+1}:</span> <b>${esc(s)}</b>
-        </div>`
-      ).join('') : '<div style="font-size:12px;color:#94a3b8;">-- Trống --</div>'}
+            ${subjects.length 
+        ? periods.map((s, i) => s && s.trim() 
+            ? `<div style="font-size:12px;padding:3px 0;border-bottom:1px dashed #f1f5f9;">
+                <span style="color:#64748b;">Tiết ${i+1}:</span> <b>${esc(s)}</b>
+              </div>` 
+            : ''
+          ).join('') 
+        : '<div style="font-size:12px;color:#94a3b8;">-- Trống --</div>'}
     </div>`;
   });
   html += `</div>`;
