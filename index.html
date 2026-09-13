@@ -286,6 +286,7 @@
   <button class="nav-btn" onclick="showTab('diemdanh',this)">📋 Chuyên Cần</button>
   <button class="nav-btn" onclick="showTab('bangdiem',this)">💯 Sổ Điểm</button>
   <button class="nav-btn" onclick="showTab('thongke',this)">📊 Biểu Đồ</button>
+  <button class="nav-btn" onclick="showTab('thoikhoabieu',this)">📅 TKB</button>
   <button class="nav-btn" onclick="showTab('danhsach',this)">👥 Danh Sách</button>
   <button class="nav-btn" onclick="showTab('thuquy',this)">💰 Thu Quỹ</button>
   <button class="nav-btn" onclick="showTab('ungquy',this)">💸 Chi Quỹ</button>
@@ -450,6 +451,7 @@
   </div>
 </div>
 
+ 
 <!-- CHUYÊN CẦN -->
 <div id="sec-diemdanh" class="section-pane">
   <div class="card">
@@ -542,6 +544,39 @@
   <div class="card"><h3>📈 ĐTB HS</h3><div class="chart-container"><canvas id="chartScores"></canvas></div></div>
   <div class="card"><h3>📚 ĐTB Theo Môn</h3><div class="chart-container"><canvas id="chartSubjects"></canvas></div></div>
   <div class="card"><h3>🎯 Xếp Loại Học Kỳ</h3><div class="chart-container"><canvas id="chartClassification"></canvas></div></div>
+</div>
+
+ <!-- THỜI KHÓA BIỂU -->
+<div id="sec-thoikhoabieu" class="section-pane">
+  <div class="card" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;">
+    <h3 style="color:#1e40af;margin:0;">📅 THỜI KHÓA BIỂU</h3>
+    <p style="font-size:13px;color:#1e3a8a;line-height:1.7;margin-top:6px;">Nhập môn học cho từng tiết. Nhấn <b>💾 Lưu TKB</b> để lưu lại.</p>
+  </div>
+  <div class="card">
+    <h3>📝 Nhập Thời Khóa Biểu</h3>
+    <div class="table-wrapper" style="overflow-x:auto;">
+      <table id="timetableInput" style="min-width:700px;">
+        <thead>
+          <tr>
+            <th style="width:70px;text-align:center;">Tiết</th>
+            <th style="text-align:center;">Thứ 2</th>
+            <th style="text-align:center;">Thứ 3</th>
+            <th style="text-align:center;">Thứ 4</th>
+            <th style="text-align:center;">Thứ 5</th>
+            <th style="text-align:center;">Thứ 6</th>
+            <th style="text-align:center;">Thứ 7</th>
+            <th style="text-align:center;">Chủ nhật</th>
+          </tr>
+        </thead>
+        <tbody id="timetableBody"></tbody>
+      </table>
+    </div>
+    <button class="btn-act btn-success btn-full" style="margin-top:10px;" onclick="saveTimetable()">💾 Lưu TKB</button>
+  </div>
+  <div class="card">
+    <h3>👁️ Xem Thời Khóa Biểu</h3>
+    <div id="timetableView"></div>
+  </div>
 </div>
 
 <!-- DANH SÁCH -->
@@ -1564,6 +1599,7 @@ function renderAllUI() {
   renderTrashList();
   renderAllPunish();
   renderAllLabor();
+  renderAllTimetable();
   updateReportCount();
 }
 
@@ -3467,16 +3503,153 @@ function downloadFile(filename, content, mimeType){
 function buildWordHTML(title, body){
   return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
   <head><meta charset='utf-8'><title>${esc(title)}</title>
-  <style>@page{size:A4;margin:1.5cm 2cm}body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.4}
-  h1{font-size:16pt;text-align:center;text-transform:uppercase;margin:0 0 4pt}h2{font-size:13pt;margin:14pt 0 6pt;border-bottom:1.5pt solid #333;padding-bottom:3pt;color:#1e3a8a}
-  .subtitle{text-align:center;font-size:11pt;font-style:italic;margin-bottom:10pt}.header-info{text-align:center;margin-bottom:12pt}
-  .header-info p{margin:2pt 0;font-size:11pt}table{border-collapse:collapse;width:100%;margin:6pt 0}
-  th,td{border:1pt solid #333;padding:4pt 5pt;font-size:10pt}th{background:#dbeafe;text-align:center;font-weight:bold}
-  .center{text-align:center}.bold{font-weight:bold}.small{font-size:10pt;color:#555}
-  .sign{margin-top:36pt;text-align:right}.sign .who{font-style:italic;margin-bottom:8pt}
-  .overview td{border:none;padding:2pt 6pt}.overview td:first-child{font-weight:bold;width:45%}
-  .good{color:#166534}.warn{color:#92400e}.bad{color:#991b1b}.pagebreak{page-break-after:always}</style></head><body>${body}</body></html>`;
+  <style>
+    /* ═══ PAGE SETUP ═══ */
+    @page {
+      size: A4;
+      margin: 1.5cm 2cm 1.5cm 2cm;
+      mso-page-orientation: portrait;
+      mso-header-margin: 1cm;
+      mso-footer-margin: 1cm;
+    }
+    
+    /* ═══ RESET SPACING ═══ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Times New Roman', serif;
+      font-size: 12pt;
+      line-height: 1.35;
+      color: #000;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    
+    /* ═══ HEADINGS ═══ */
+    h1 {
+      font-size: 15pt;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin: 0 0 3pt 0;
+      line-height: 1.3;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 12.5pt;
+      margin: 10pt 0 5pt 0;
+      border-bottom: 1pt solid #333;
+      padding-bottom: 2pt;
+      color: #1e3a8a;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 12pt;
+      margin: 8pt 0 4pt 0;
+      page-break-after: avoid;
+    }
+    
+    /* ═══ PARAGRAPHS (Chống Word thêm 8pt after spacing) ═══ */
+    p {
+      margin: 0 0 3pt 0;
+      padding: 0;
+      line-height: 1.35;
+      mso-margin-top-alt: 0;
+      mso-margin-bottom-alt: 3pt;
+    }
+    
+    /* ═══ TABLES (Chống khoảng cách xa) ═══ */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 4pt 0;
+      page-break-inside: avoid;
+      mso-table-lspace: 0;
+      mso-table-rspace: 0;
+    }
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+    th, td {
+      border: 0.75pt solid #333;
+      padding: 2pt 4pt;
+      font-size: 10pt;
+      line-height: 1.25;
+      vertical-align: middle;
+      mso-line-height-rule: exactly;
+    }
+    th {
+      background: #dbeafe;
+      text-align: center;
+      font-weight: bold;
+      font-size: 10pt;
+    }
+    
+    /* ═══ OVERVIEW TABLE (Không viền) ═══ */
+    .overview {
+      border: none;
+      width: 100%;
+      margin: 3pt 0;
+    }
+    .overview td {
+      border: none;
+      padding: 1pt 4pt;
+      font-size: 11pt;
+    }
+    .overview td:first-child {
+      font-weight: bold;
+      width: 45%;
+    }
+    
+    /* ═══ UTILITY ═══ */
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .small { font-size: 10pt; color: #444; }
+    .good { color: #166534; }
+    .warn { color: #92400e; }
+    .bad { color: #991b1b; }
+    
+    /* ═══ SIGNATURES ═══ */
+    .sign {
+      margin-top: 30pt;
+      text-align: right;
+      page-break-inside: avoid;
+    }
+    .sign .who {
+      font-style: italic;
+      margin-bottom: 8pt;
+    }
+    
+    /* ═══ PAGE BREAK ═══ */
+    .pagebreak {
+      page-break-after: always;
+      height: 0;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* ═══ HEADER BLOCK ═══ */
+    .header-table {
+      border: none;
+      width: 100%;
+      margin-bottom: 8pt;
+    }
+    .header-table td {
+      border: none;
+      padding: 0 8pt;
+      vertical-align: top;
+    }
+    .header-table p {
+      margin: 0 0 2pt 0;
+      font-size: 11pt;
+      line-height: 1.3;
+    }
+  </style>
+  </head>
+  <body>${body}</body></html>`;
 }
+ 
 function downloadWord(filename, title, bodyHtml){ downloadFile(filename, buildWordHTML(title, bodyHtml), 'application/msword;charset=utf-8'); }
 
 function reportHeaderBlock(t=''){
@@ -3542,31 +3715,59 @@ function classifyAtt(t){ if(t===0)return{txt:'Tốt',cls:'good'}; if(t<=2)return
 
 function buildSummaryReport(){
   const students = getStudents(), scores = getScores(), logs = getLogs();
+  const cfg = currentClass.config || {};
   const avgAll = scores.length ? (scores.reduce((a,b)=>a+b.val,0)/scores.length).toFixed(2) : '—';
+  const totalLogs = logs.length;
+  const excellentCount = students.filter(st => {
+    const stScores = scores.filter(s=>String(s.stId)===String(st.id));
+    if (!stScores.length) return false;
+    return stScores.reduce((a,b)=>a+b.val,0)/stScores.length >= 8.0;
+  }).length;
+  const weakCount = students.filter(st => {
+    const stScores = scores.filter(s=>String(s.stId)===String(st.id));
+    if (!stScores.length) return false;
+    return stScores.reduce((a,b)=>a+b.val,0)/stScores.length < 5.0;
+  }).length;
+
   const attRows = students.map((st,i)=>{
     const stLogs = logs.filter(l=>String(l.stId)===String(st.id));
     const c = {v_khongphep:0,di_muon:0,so_daubai:0,v_cophep:0};
     stLogs.forEach(l=>{ if(c[l.type]!==undefined) c[l.type]++; });
-    const total = stLogs.length; const cls = classifyAtt(total);
+    const total = stLogs.length;
+    const cls = classifyAtt(total);
     return `<tr><td class="center">${i+1}</td><td>${esc(st.name)}</td><td class="center">${c.v_khongphep||''}</td><td class="center">${c.di_muon||''}</td><td class="center">${c.so_daubai||''}</td><td class="center">${c.v_cophep||''}</td><td class="center bold">${total||''}</td><td class="center ${cls.cls}">${cls.txt}</td></tr>`;
   }).join('');
+
   const scRows = students.map((st,i)=>{
     const stScores = scores.filter(s=>String(s.stId)===String(st.id));
     const avg = stScores.length ? stScores.reduce((a,b)=>a+b.val,0)/stScores.length : 0;
     const cls = stScores.length ? classifyScore(avg) : { label: '—', cls: '' };
     return `<tr><td class="center">${i+1}</td><td>${esc(st.name)}</td><td class="center">${stScores.length}</td><td class="center bold">${stScores.length?avg.toFixed(2):'—'}</td><td class="center">${cls.label}</td></tr>`;
   }).join('');
-  return `${reportHeaderBlock()}
-    <h2>I. CHUYÊN CẦN</h2>
-    <table><thead><tr><th>STT</th><th>Họ và tên</th><th>Nghỉ KP</th><th>Đi muộn</th><th>SĐB</th><th>Nghỉ phép</th><th>Tổng</th><th>XL</th></tr></thead><tbody>${attRows||'<tr><td colspan="8" class="center">Chưa có</td></tr>'}</tbody></table>
-    <h2>II. KẾT QUẢ HỌC TẬP</h2>
-    <table><thead><tr><th>STT</th><th>Họ và tên</th><th>Số đầu điểm</th><th>ĐTB</th><th>XL</th></tr></thead><tbody>${scRows||'<tr><td colspan="5" class="center">Chưa có</td></tr>'}</tbody></table>
-    <h2>III. TỔNG QUAN</h2>
+
+  return `${reportHeaderBlock('BÁO CÁO TỔNG HỢP LỚP ' + (cfg.className||''))}
+    <h2>I. ĐẶC ĐIỂM TÌNH HÌNH</h2>
     <table class="overview">
-      <tr><td>Tổng HS</td><td>${students.length}</td></tr>
-      <tr><td>Tổng vi phạm</td><td>${logs.length}</td></tr>
-      <tr><td>ĐTB lớp</td><td><b>${avgAll}</b></td></tr>
-    </table>${signBlock()}`;
+      <tr><td>Tổng số học sinh</td><td><b>${students.length}</b></td></tr>
+      <tr><td>Tổng số vi phạm</td><td><b>${totalLogs}</b></td></tr>
+      <tr><td>Điểm trung bình lớp</td><td><b>${avgAll}</b></td></tr>
+      <tr><td>Số HS xếp loại Giỏi</td><td><b>${excellentCount}</b></td></tr>
+      <tr><td>Số HS xếp loại Yếu</td><td><b>${weakCount}</b></td></tr>
+    </table>
+    <p style="margin:0;padding:0;font-size:1pt;line-height:1pt;">&nbsp;</p>
+    <h2>II. CHUYÊN CẦN</h2>
+    <table><thead><tr><th>STT</th><th>Họ và tên</th><th>Nghỉ KP</th><th>Đi muộn</th><th>SĐB</th><th>Nghỉ phép</th><th>Tổng</th><th>XL</th></tr></thead><tbody>${attRows||'<tr><td colspan="8" class="center">Chưa có</td></tr>'}</tbody></table>
+    <p style="margin:0;padding:0;font-size:1pt;line-height:1pt;">&nbsp;</p>
+    <h2>III. KẾT QUẢ HỌC TẬP</h2>
+    <table><thead><tr><th>STT</th><th>Họ và tên</th><th>Số đầu điểm</th><th>ĐTB</th><th>XL</th></tr></thead><tbody>${scRows||'<tr><td colspan="5" class="center">Chưa có</td></tr>'}</tbody></table>
+    <p style="margin:0;padding:0;font-size:1pt;line-height:1pt;">&nbsp;</p>
+    <h2>IV. ĐÁNH GIÁ CHUNG</h2>
+    <p style="font-size:11pt;line-height:1.6;margin:3pt 0;">
+      <b>1. Ưu điểm:</b> Lớp duy trì sĩ số ${students.length} HS; tỷ lệ chuyên cần tốt; nhiều em đạt kết quả học tập cao.${excellentCount > 0 ? ` Có ${excellentCount} HS xếp loại Giỏi.` : ''}<br>
+      <b>2. Hạn chế:</b> ${weakCount > 0 ? `Còn ${weakCount} HS xếp loại Yếu cần phụ đạo thêm.` : 'Kết quả học tập tương đối đồng đều.'} Tổng số vi phạm: ${totalLogs} lượt.<br>
+      <b>3. Phương hướng:</b> Tiếp tục duy trì nề nếp, đẩy mạnh phong trào thi đua, quan tâm HS yếu kém.
+    </p>
+    ${signBlock()}`;
 }
 
 function buildScoresReport(){
@@ -3868,6 +4069,7 @@ function showTab(id, btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('sec-'+id).classList.add('active');
   btn.classList.add('active');
+  if (id === 'thoikhoabieu') renderAllTimetable();
   if (id === 'thongke') renderCharts();
   if (id === 'phat') renderAllPunish();
   if (id === 'laodong') renderAllLabor();
@@ -4038,6 +4240,84 @@ function resetAll() {
   logActivity('Reset toàn bộ');
   saveData();
   toast('🧹 Đã reset!', '#ef4444');
+}
+
+ /* ═══════════════ THỜI KHÓA BIỂU ═══════════════ */
+const DAYS = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+const DAY_KEYS = ['2', '3', '4', '5', '6', '7', '8'];
+const PERIODS = 5;
+
+function getTimetable() { return currentClass?.timetable || {}; }
+function setTimetable(v) { if (currentClass) currentClass.timetable = v; }
+
+function renderTimetableInput() {
+  const body = document.getElementById('timetableBody');
+  if (!body) return;
+  const tt = getTimetable();
+  let html = '';
+  for (let p = 1; p <= PERIODS; p++) {
+    html += `<tr><td style="text-align:center;font-weight:bold;background:#f1f5f9;">Tiết ${p}</td>`;
+    DAY_KEYS.forEach(d => {
+      const val = (tt[d] && tt[d][p-1]) ? tt[d][p-1] : '';
+      html += `<td style="padding:3px;">
+        <select class="tt-cell" data-day="${d}" data-period="${p-1}"
+          style="width:100%;padding:5px 3px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;">
+          ${['', ...defaultSubjects].map(s =>
+            `<option value="${esc(s)}" ${val === s ? 'selected' : ''}>${s || '-- Trống --'}</option>`
+          ).join('')}
+        </select>
+      </td>`;
+    });
+    html += `</tr>`;
+  }
+  body.innerHTML = html;
+}
+
+function saveTimetable() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const cells = document.querySelectorAll('.tt-cell');
+  const tt = {};
+  cells.forEach(sel => {
+    const day = sel.dataset.day;
+    const period = parseInt(sel.dataset.period);
+    if (!tt[day]) tt[day] = Array(PERIODS).fill('');
+    tt[day][period] = sel.value;
+  });
+  setTimetable(tt);
+  logActivity('Cập nhật thời khóa biểu');
+  saveData();
+  renderTimetableView();
+  toast('✅ Đã lưu thời khóa biểu!');
+}
+
+function renderTimetableView() {
+  const box = document.getElementById('timetableView');
+  if (!box) return;
+  const tt = getTimetable();
+  if (!tt || Object.keys(tt).length === 0) {
+    box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có thời khóa biểu.</p>';
+    return;
+  }
+  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">`;
+  DAY_KEYS.forEach((d, idx) => {
+    const periods = tt[d] || [];
+    const subjects = periods.filter(s => s && s.trim());
+    html += `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+      <div style="font-weight:bold;color:#1e40af;font-size:14px;margin-bottom:6px;">📅 ${DAYS[idx]}</div>
+      ${subjects.length ? subjects.map((s, i) =>
+        `<div style="font-size:12px;padding:3px 0;border-bottom:1px dashed #f1f5f9;">
+          <span style="color:#64748b;">Tiết ${i+1}:</span> <b>${esc(s)}</b>
+        </div>`
+      ).join('') : '<div style="font-size:12px;color:#94a3b8;">-- Trống --</div>'}
+    </div>`;
+  });
+  html += `</div>`;
+  box.innerHTML = html;
+}
+
+function renderAllTimetable() {
+  renderTimetableInput();
+  renderTimetableView();
 }
 
 /* ═══════════════ INIT ═══════════════ */
