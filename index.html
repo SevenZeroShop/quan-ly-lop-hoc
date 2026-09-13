@@ -3412,7 +3412,7 @@ function exportToExcel(type) {
       return [i+1, d.date, names, d.task, stMap[d.status] || d.status, d.score || 0, d.note || ''];
     });
     XLSX.utils.book_append_sheet(wb, makeSheet('LỊCH SỬ TRỰC NHẬT', headersDuty, rowsDuty, [6, 12, 28, 28, 12, 8, 25]), 'Lao Động');
-
+  }
   XLSX.writeFile(wb, `BaoCao_${className}_${todayStr()}.xlsx`);
   toast('📊 Đã xuất Excel!', '#217346');
 }
