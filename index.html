@@ -271,6 +271,7 @@
   <button class="nav-btn" onclick="showTab('ungquy',this)">💸 Chi Quỹ</button>
   <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
   <button class="nav-btn" onclick="showTab('thanhvien',this)">👨‍👩‍👧 Thành Viên</button>
+  <button class="nav-btn" onclick="showTab('laodong',this)">🧹 Lao Động</button>
   <button class="nav-btn" onclick="showTab('phat',this)">⚖️ Phạt</button>
   <button class="nav-btn" onclick="showTab('thungrac',this)">🗑️ Thùng Rác</button>
   <button class="nav-btn" onclick="showTab('saoluu',this)">⚙️ Sao Lưu</button>
@@ -681,6 +682,118 @@
   </div>
 </div>
 
+ <!-- LAO ĐỘNG -->
+<div id="sec-laodong" class="section-pane">
+  <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #10b981;">
+    <h3 style="color:#166534;">🧹 PHÂN CÔNG LAO ĐỘNG - TRỰC NHẬT</h3>
+    <p style="font-size:13px;color:#166534;line-height:1.7;">Chia tổ → lên lịch trực → điểm danh hàng ngày → thống kê thi đua.</p>
+  </div>
+
+  <!-- Tạo tổ -->
+  <div class="card" style="border:2px solid #3b82f6;background:linear-gradient(135deg,#eff6ff,#dbeafe);">
+    <h3 style="color:#1e40af;">➕ Tạo Tổ Lao Động Mới</h3>
+    <div class="grid-2">
+      <div class="form-group"><label>Tên tổ:</label>
+        <input type="text" id="ldTeamName" placeholder="VD: Tổ 1, Tổ 2, Tổ 3"></div>
+      <div class="form-group"><label>Tổ trưởng:</label>
+        <select id="ldTeamLeader"><option value="">-- Chọn --</option></select></div>
+    </div>
+    <div class="form-group">
+      <label>Thành viên:</label>
+      <input type="text" class="search-input" id="searchLdMember" onkeyup="filterChecklist('searchLdMember','ldMemberChecklist')" placeholder="🔍 Tìm tên..." style="margin-bottom:6px;">
+      <div class="checkbox-toolbar">
+        <button class="btn-act btn-mini" onclick="toggleAll('ldMember',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('ldMember',false)">✖ Bỏ</button>
+        <button class="btn-act btn-mini" onclick="autoAssignLaborTeams()">🎲 Chia Đều Tự Động</button>
+      </div>
+      <div class="checkbox-group" id="ldMemberChecklist" style="max-height:200px;"></div>
+    </div>
+    <div class="form-group"><label>Ghi chú:</label>
+      <input type="text" id="ldTeamNote" placeholder="VD: Tổ trực tuần chẵn"></div>
+    <button class="btn-act btn-success btn-full" onclick="createLaborTeam()">🚀 Tạo Tổ</button>
+  </div>
+
+  <!-- Danh sách tổ -->
+  <div class="card">
+    <h3>👥 Danh Sách Tổ Lao Động</h3>
+  </div>
+  <div id="ldTeamList"></div>
+
+  <!-- Lịch trực cố định -->
+  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+    <h3 style="color:#166534;">📅 Lịch Trực Nhật Cố Định (lặp tuần)</h3>
+    <div class="grid-3">
+      <div class="form-group"><label>Thứ:</label>
+        <select id="ldScheduleDay">
+          <option value="2">Thứ 2</option><option value="3">Thứ 3</option>
+          <option value="4">Thứ 4</option><option value="5">Thứ 5</option>
+          <option value="6">Thứ 6</option><option value="7">Thứ 7</option>
+          <option value="8">Chủ nhật</option>
+        </select></div>
+      <div class="form-group"><label>Tổ trực:</label><select id="ldScheduleTeam"></select></div>
+      <div class="form-group"><label>Ca:</label>
+        <select id="ldScheduleShift">
+          <option value="sang">🌅 Sáng</option>
+          <option value="chieu">🌇 Chiều</option>
+          <option value="full">☀️ Cả ngày</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label>Nhiệm vụ:</label>
+      <input type="text" id="ldScheduleTask" value="Quét lớp, lau bảng, đổ rác, sắp xếp bàn ghế"></div>
+    <button class="btn-act btn-success btn-full" onclick="saveLaborSchedule()">💾 Lưu Lịch Trực</button>
+  </div>
+
+  <!-- Lịch đã tạo -->
+  <div class="card"><h3>📋 Lịch Trực Đã Tạo</h3><div id="ldScheduleView"></div></div>
+
+  <!-- Điểm danh trực -->
+  <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+    <h3 style="color:#92400e;">✅ Điểm Danh Trực Nhật Hôm Nay</h3>
+    <div class="grid-2">
+      <div class="form-group"><label>Ngày:</label><input type="date" id="ldDutyDate"></div>
+      <div class="form-group"><label>Tổ trực:</label><select id="ldDutyTeam"></select></div>
+    </div>
+    <div class="form-group"><label>Nhiệm vụ đã giao:</label>
+      <input type="text" id="ldDutyTask" placeholder="Quét lớp, lau bảng..."></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Trạng thái:</label>
+        <select id="ldDutyStatus">
+          <option value="done">✅ Hoàn thành tốt</option>
+          <option value="late">⚠️ Hoàn thành muộn</option>
+          <option value="partial">🟡 Làm chưa đủ</option>
+          <option value="missed">❌ Bỏ trực</option>
+        </select></div>
+      <div class="form-group"><label>Điểm thi đua (0-10):</label>
+        <input type="number" id="ldDutyScore" min="0" max="10" step="0.5" value="10"></div>
+    </div>
+    <div class="form-group"><label>Ghi chú:</label>
+      <input type="text" id="ldDutyNote" placeholder="VD: Lớp sạch sẽ, bàn ghế ngay ngắn"></div>
+    <button class="btn-act btn-warning btn-full" onclick="saveLaborDuty()">💾 Lưu Điểm Danh</button>
+  </div>
+
+  <!-- Lịch sử -->
+  <div class="card">
+    <h3>📜 Lịch Sử Trực Nhật
+      <button class="btn-act btn-export" onclick="exportToCSV('labor')">📥 CSV</button></h3>
+    <input type="text" class="search-input" id="searchDutyLog" onkeyup="renderDutyLogTable()" placeholder="🔍 Tìm theo tổ hoặc ngày..." style="margin-bottom:8px;">
+  </div>
+  <div class="table-wrapper"><table><thead><tr>
+    <th style="width:11%;">Ngày</th>
+    <th style="width:16%;">Tổ</th>
+    <th style="width:30%;">Nhiệm Vụ</th>
+    <th style="width:13%;text-align:center;">Trạng Thái</th>
+    <th style="width:8%;text-align:center;">Điểm</th>
+    <th style="width:14%;">Ghi Chú</th>
+    <th style="width:8%;text-align:center;">Xóa</th>
+  </tr></thead><tbody id="tbDutyLog"></tbody></table></div>
+
+  <!-- Xếp hạng -->
+  <div class="card" style="margin-top:12px;">
+    <h3>🏆 Bảng Xếp Hạng Thi Đua Tổ</h3>
+    <div id="ldRanking"></div>
+  </div>
+</div>
+ 
 <!-- PHẠT -->
 <div id="sec-phat" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">
@@ -696,8 +809,15 @@
   <div id="ptAlertBox"></div>
   <div class="card" style="border:2px solid #ef4444;background:linear-gradient(135deg,#fff1f2,#ffe4e6);">
     <h3 style="color:#991b1b;">➕ Tạo Phiếu Phạt Mới</h3>
-    <div class="form-group"><label>Học Sinh Bị Phạt:</label>
-      <select id="ptStudent"><option value="">-- Chọn HS --</option></select></div>
+      <div class="form-group">
+      <label>Học Sinh Bị Phạt (chọn nhiều được):</label>
+      <input type="text" class="search-input" id="searchPtStudent" onkeyup="filterChecklist('searchPtStudent','ptStudentChecklist')" placeholder="🔍 Tìm tên HS..." style="margin-bottom:6px;">
+      <div class="checkbox-toolbar">
+        <button class="btn-act btn-mini" onclick="toggleAll('ptStudentCheck',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('ptStudentCheck',false)">✖ Bỏ</button>
+      </div>
+      <div class="checkbox-group" id="ptStudentChecklist" style="max-height:180px;"></div>
+    </div>
     <div class="grid-2">
       <div class="form-group"><label>Hình Thức:</label>
         <select id="ptType">
@@ -1089,7 +1209,7 @@ function toast(msg,color='#10b981'){ const t=document.getElementById('toast'); t
 function toggleTheme(){ const d=document.body.classList.toggle('dark'); document.getElementById('themeToggle').textContent=d?'☀️':'🌙'; localStorage.setItem('11A1_theme',d?'dark':'light'); }
 (function(){ if (localStorage.getItem('11A1_theme') === 'dark') { document.body.classList.add('dark'); document.getElementById('themeToggle').textContent='☀️'; } })();
 
-['exDate','ddDate','scDate','colDate','hoDate','ptStart'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayStr(); });
+['exDate','ddDate','scDate','colDate','hoDate','ptStart','ldDutyDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayStr(); });
 
 function classifyScore(avg) {
   if (avg >= 8.0) return { label: 'Giỏi', cls: 'badge-excellent' };
@@ -1289,6 +1409,9 @@ async function loadClassFromCloud(classId) {
     currentClass = { id: classId, ...doc.data() };
     currentClass.students = currentClass.students || [];
     currentClass.punishments = currentClass.punishments || [];
+    currentClass.teams = currentClass.teams || [];
+    currentClass.schedules = currentClass.schedules || [];
+    currentClass.duties = currentClass.duties || [];
     currentClass.exps = currentClass.exps || [];
     currentClass.logs = currentClass.logs || [];
     currentClass.scores = currentClass.scores || [];
@@ -1367,6 +1490,7 @@ function renderAllUI() {
   renderMembersList();
   renderTrashList();
   renderAllPunish();
+  renderAllLabor();
   updateReportCount();
 }
 
@@ -2171,6 +2295,267 @@ function removeMember(u) {
   toast('🗑️ Đã xóa!');
 }
 
+ /* ═══════════════ LAO ĐỘNG / TRỰC NHẬT ═══════════════ */
+function getTeams() { return currentClass?.teams || []; }
+function setTeams(v) { if (currentClass) currentClass.teams = v; }
+function getSchedules() { return currentClass?.schedules || []; }
+function setSchedules(v) { if (currentClass) currentClass.schedules = v; }
+function getDuties() { return currentClass?.duties || []; }
+function setDuties(v) { if (currentClass) currentClass.duties = v; }
+
+const TEAM_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+
+function renderLaborTeamSelector() {
+  const leaderSel = document.getElementById('ldTeamLeader');
+  if (leaderSel) {
+    const cur = leaderSel.value;
+    leaderSel.innerHTML = '<option value="">-- Chọn --</option>' +
+      getStudents().map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    leaderSel.value = cur;
+  }
+  // Member checklist
+  const cb = document.getElementById('ldMemberChecklist');
+  if (cb) {
+    const checked = new Set([...document.querySelectorAll('input[name="ldMember"]:checked')].map(x => x.value));
+    cb.innerHTML = getStudents().map((s, i) =>
+      `<label class="checkbox-item"><input type="checkbox" name="ldMember" value="${s.id}" ${checked.has(String(s.id)) ? 'checked' : ''}> ${i+1}. ${esc(s.name)}</label>`
+    ).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
+  }
+  // Team selectors
+  const opts = getTeams().map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  ['ldScheduleTeam','ldDutyTeam'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { const c = el.value; el.innerHTML = opts || '<option value="">-- Chưa có tổ --</option>'; el.value = c; }
+  });
+}
+
+function autoAssignLaborTeams() {
+  const n = parseInt(prompt('Chia thành bao nhiêu tổ?', getTeams().length || 4));
+  if (!n || n < 2) return;
+  const students = getStudents();
+  if (!students.length) { toast('⚠️ Chưa có HS!', '#ef4444'); return; }
+  document.querySelectorAll('input[name="ldMember"]').forEach(cb => cb.checked = false);
+  toast(`💡 Gợi ý: chia ${students.length} HS thành ${n} tổ (~${Math.ceil(students.length/n)} em/tổ). Hãy tạo từng tổ.`, '#f59e0b');
+}
+
+function createLaborTeam() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const name = document.getElementById('ldTeamName').value.trim();
+  const leaderId = document.getElementById('ldTeamLeader').value;
+  const note = document.getElementById('ldTeamNote').value.trim();
+  if (!name) { toast('⚠️ Nhập tên tổ!', '#ef4444'); return; }
+  const memberIds = [...document.querySelectorAll('input[name="ldMember"]:checked')].map(c => c.value);
+  if (!memberIds.length) { toast('⚠️ Chọn thành viên!', '#ef4444'); return; }
+  const teams = getTeams();
+  teams.push({
+    id: uid(), name, leaderId, memberIds, note,
+    color: TEAM_COLORS[teams.length % TEAM_COLORS.length],
+    createdAt: new Date().toISOString()
+  });
+  setTeams(teams);
+  document.getElementById('ldTeamName').value = '';
+  document.getElementById('ldTeamNote').value = '';
+  document.getElementById('ldTeamLeader').value = '';
+  document.querySelectorAll('input[name="ldMember"]').forEach(c => c.checked = false);
+  logActivity(`Tạo tổ lao động: ${name}`);
+  saveData();
+  toast(`✅ Đã tạo "${name}" (${memberIds.length} TV)!`);
+}
+
+function renderLaborTeamList() {
+  const box = document.getElementById('ldTeamList'); if (!box) return;
+  const teams = getTeams();
+  if (!teams.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:24px;">Chưa có tổ nào.</div>'; return; }
+  box.innerHTML = teams.map(t => {
+    const leader = getStudents().find(s => String(s.id) === String(t.leaderId));
+    const members = t.memberIds.map(id => getStudents().find(s => String(s.id) === String(id))).filter(Boolean);
+    return `
+      <div class="collect-card" style="border-left:6px solid ${t.color};">
+        <div class="collect-name">
+          <span>📁 ${esc(t.name)}</span>
+          <span style="font-size:13px;color:#1e40af;font-weight:bold;">${members.length} thành viên</span>
+        </div>
+        ${leader ? `<div style="font-size:13px;color:#92400e;margin-top:4px;">👑 Tổ trưởng: <b>${esc(leader.name)}</b></div>` : ''}
+        ${t.note ? `<div class="collect-meta">📝 ${esc(t.note)}</div>` : ''}
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;">
+          ${members.map(m => `<span style="background:${t.color}20;color:${t.color};border:1px solid ${t.color}50;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;">${esc(m.name)}</span>`).join('')}
+        </div>
+        ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:12px;">
+          <button class="btn-act btn-warning btn-mini" onclick="editLaborTeam('${t.id}')">✏️ Sửa</button>
+          <button class="btn-act btn-danger btn-mini" onclick="deleteLaborTeam('${t.id}')">🗑️ Xóa</button>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function editLaborTeam(id) {
+  if (!canEdit()) return;
+  const t = getTeams().find(x => String(x.id) === String(id)); if (!t) return;
+  const newName = prompt('Tên mới:', t.name);
+  if (newName && newName.trim()) { t.name = newName.trim(); saveData(); toast('✏️ Đã sửa!'); }
+}
+function deleteLaborTeam(id) {
+  if (!canEdit()) return;
+  const t = getTeams().find(x => String(x.id) === String(id)); if (!t) return;
+  if (!confirm(`Xóa tổ "${t.name}"?\nLịch trực và điểm danh của tổ cũng sẽ bị xóa.`)) return;
+  setTeams(getTeams().filter(x => String(x.id) !== String(id)));
+  setSchedules(getSchedules().filter(s => String(s.teamId) !== String(id)));
+  setDuties(getDuties().filter(d => String(d.teamId) !== String(id)));
+  logActivity(`Xóa tổ: ${t.name}`);
+  saveData();
+  toast('🗑️ Đã xóa!');
+}
+
+function saveLaborSchedule() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const day = parseInt(document.getElementById('ldScheduleDay').value);
+  const teamId = document.getElementById('ldScheduleTeam').value;
+  const shift = document.getElementById('ldScheduleShift').value;
+  const task = document.getElementById('ldScheduleTask').value.trim();
+  if (!teamId) { toast('⚠️ Chọn tổ!', '#ef4444'); return; }
+  if (!task) { toast('⚠️ Nhập nhiệm vụ!', '#ef4444'); return; }
+  const schedules = getSchedules();
+  const existing = schedules.find(s => s.day === day && String(s.teamId) === String(teamId) && s.shift === shift);
+  if (existing) {
+    if (!confirm('Lịch này đã tồn tại. Ghi đè?')) return;
+    existing.task = task;
+  } else {
+    schedules.push({ id: uid(), day, teamId, shift, task });
+  }
+  setSchedules(schedules);
+  logActivity(`Lưu lịch trực Thứ ${day}`);
+  saveData();
+  toast('✅ Đã lưu lịch trực!');
+}
+
+function renderLaborSchedule() {
+  const box = document.getElementById('ldScheduleView'); if (!box) return;
+  const schedules = getSchedules();
+  if (!schedules.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có lịch</p>'; return; }
+  const dayNames = { 2: 'Thứ 2', 3: 'Thứ 3', 4: 'Thứ 4', 5: 'Thứ 5', 6: 'Thứ 6', 7: 'Thứ 7', 8: 'Chủ nhật' };
+  const shiftNames = { sang: '🌅 Sáng', chieu: '🌇 Chiều', full: '☀️ Cả ngày' };
+  const sorted = schedules.slice().sort((a, b) => a.day - b.day);
+  box.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">
+    ${sorted.map(s => {
+      const t = getTeams().find(x => String(x.id) === String(s.teamId));
+      return `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid ${t?.color || '#3b82f6'};border-radius:8px;padding:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+          <b>${dayNames[s.day]}</b><span style="font-size:11px;color:#64748b;">${shiftNames[s.shift]}</span>
+        </div>
+        <div style="font-size:14px;font-weight:bold;color:${t?.color || '#1e40af'};">${esc(t?.name || '—')}</div>
+        <div style="font-size:11px;color:#64748b;margin-top:4px;">📋 ${esc(s.task)}</div>
+        ${canEdit() ? `<button class="btn-act btn-danger btn-mini" style="margin-top:6px;" onclick="deleteLaborSchedule('${s.id}')">🗑️ Xóa</button>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function deleteLaborSchedule(id) {
+  if (!canEdit()) return;
+  if (!confirm('Xóa lịch này?')) return;
+  setSchedules(getSchedules().filter(s => String(s.id) !== String(id)));
+  saveData();
+  toast('🗑️ Đã xóa!');
+}
+
+function saveLaborDuty() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const date = document.getElementById('ldDutyDate').value;
+  const teamId = document.getElementById('ldDutyTeam').value;
+  const task = document.getElementById('ldDutyTask').value.trim();
+  const status = document.getElementById('ldDutyStatus').value;
+  const score = parseFloat(document.getElementById('ldDutyScore').value) || 0;
+  const note = document.getElementById('ldDutyNote').value.trim();
+  if (!date) { toast('⚠️ Chọn ngày!', '#ef4444'); return; }
+  if (!teamId) { toast('⚠️ Chọn tổ!', '#ef4444'); return; }
+  if (!task) { toast('⚠️ Nhập nhiệm vụ!', '#ef4444'); return; }
+  if (score < 0 || score > 10) { toast('⚠️ Điểm 0-10!', '#ef4444'); return; }
+  const duties = getDuties();
+  duties.push({ id: uid(), date, teamId, task, status, score, note });
+  setDuties(duties);
+  document.getElementById('ldDutyTask').value = '';
+  document.getElementById('ldDutyNote').value = '';
+  document.getElementById('ldDutyScore').value = 10;
+  logActivity(`Điểm danh trực nhật ngày ${date}`);
+  saveData();
+  toast('✅ Đã lưu điểm danh!');
+}
+
+function renderDutyLogTable() {
+  const tb = document.getElementById('tbDutyLog'); if (!tb) return;
+  const keyword = (document.getElementById('searchDutyLog')?.value || '').toLowerCase().trim();
+  let sorted = getDuties().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  if (keyword) {
+    sorted = sorted.filter(d => {
+      const t = getTeams().find(x => String(x.id) === String(d.teamId));
+      return (t?.name || '').toLowerCase().includes(keyword) || (d.date || '').includes(keyword);
+    });
+  }
+  const statusLabels = {
+    done: '<span class="badge badge-paid">✅ Tốt</span>',
+    late: '<span class="badge badge-late">⚠️ Muộn</span>',
+    missed: '<span class="badge badge-pending">❌ Bỏ</span>',
+    partial: '<span class="badge badge-perm">🟡 Chưa đủ</span>'
+  };
+  tb.innerHTML = sorted.map(l => {
+    const t = getTeams().find(x => String(x.id) === String(l.teamId));
+    return `<tr>
+      <td><b>${esc(l.date)}</b></td>
+      <td><span style="color:${t?.color || '#1e3a8a'};font-weight:bold;">${esc(t?.name || '—')}</span></td>
+      <td>${esc(l.task)}</td>
+      <td style="text-align:center;">${statusLabels[l.status] || ''}</td>
+      <td style="text-align:center;"><b style="color:${l.score >= 8 ? '#10b981' : l.score >= 5 ? '#f59e0b' : '#ef4444'};">${l.score}</b></td>
+      <td>${esc(l.note || '')}</td>
+      <td style="text-align:center;">${canEdit() ? `<button class="btn-act btn-danger btn-mini" onclick="deleteDutyLog('${l.id}')">🗑️</button>` : '—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">Chưa có dữ liệu</td></tr>';
+}
+function deleteDutyLog(id) {
+  if (!canEdit()) return;
+  if (!confirm('Xóa lượt trực này?')) return;
+  setDuties(getDuties().filter(l => String(l.id) !== String(id)));
+  saveData();
+  toast('🗑️ Đã xóa!');
+}
+
+function renderLaborRanking() {
+  const box = document.getElementById('ldRanking'); if (!box) return;
+  const teams = getTeams();
+  if (!teams.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có tổ nào</p>'; return; }
+  const stats = teams.map(t => {
+    const tDuties = getDuties().filter(d => String(d.teamId) === String(t.id));
+    const totalScore = tDuties.reduce((s, d) => s + d.score, 0);
+    const avgScore = tDuties.length ? totalScore / tDuties.length : 0;
+    const doneCount = tDuties.filter(d => d.status === 'done').length;
+    const missedCount = tDuties.filter(d => d.status === 'missed').length;
+    return { team: t, totalScore, avgScore, doneCount, missedCount, count: tDuties.length };
+  }).sort((a, b) => b.totalScore - a.totalScore);
+  const maxScore = Math.max(1, ...stats.map(s => s.totalScore));
+  box.innerHTML = stats.map((s, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+    const pct = (s.totalScore / maxScore) * 100;
+    return `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+        <span><b style="font-size:16px;">${medal}</b> <span style="color:${s.team.color};font-weight:bold;">${esc(s.team.name)}</span></span>
+        <span><b style="color:#8b5cf6;">${s.totalScore.toFixed(1)} điểm</b></span>
+      </div>
+      <div class="chart-bar-bg" style="height:14px;">
+        <div class="chart-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${s.team.color},${s.team.color}90);"></div>
+      </div>
+      <div style="font-size:11px;color:#64748b;margin-top:2px;">
+        📊 TB: <b>${s.avgScore.toFixed(1)}</b>/10 • ${s.count} lượt • ✅ ${s.doneCount} tốt • ❌ ${s.missedCount} bỏ
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAllLabor() {
+  renderLaborTeamSelector();
+  renderLaborTeamList();
+  renderLaborSchedule();
+  renderDutyLogTable();
+  renderLaborRanking();
+}
+
 /* ═══════════════ PHẠT ═══════════════ */
 const PT_TYPE_NAMES = {
   chep_phat: '📝 Chép Phạt', ve_sinh: '🧹 Vệ Sinh', kiem_diem: '📄 Kiểm Điểm',
@@ -2253,43 +2638,46 @@ function renderPunishStats() {
 }
 
 function renderPunishStudentSelector() {
-  const sel = document.getElementById('ptStudent'); if (!sel) return;
-  const cur = sel.value;
+  const box = document.getElementById('ptStudentChecklist');
+  if (!box) return;
+  const checkedIds = new Set([...document.querySelectorAll('input[name="ptStudentCheck"]:checked')].map(c => c.value));
   const activeCounts = {};
   getPunishments().filter(p => p.status !== 'done').forEach(p => { activeCounts[p.stId] = (activeCounts[p.stId] || 0) + 1; });
-  sel.innerHTML = '<option value="">-- Chọn HS --</option>' + getStudents().map(s => {
+  box.innerHTML = getStudents().map((s, i) => {
     const count = activeCounts[s.id] || 0;
     const marker = count > 0 ? ` ⚠️ (${count})` : '';
-    return `<option value="${s.id}">${esc(s.name)}${marker}</option>`;
-  }).join('');
-  sel.value = cur;
+    return `<label class="checkbox-item"><input type="checkbox" name="ptStudentCheck" value="${s.id}" ${checkedIds.has(String(s.id)) ? 'checked' : ''}> ${i+1}. ${esc(s.name)}${marker}</label>`;
+  }).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
 }
 
 function createPunishment() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const stId = document.getElementById('ptStudent').value;
+  const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
   const type = document.getElementById('ptType').value;
   const level = document.getElementById('ptLevel').value;
   const reason = document.getElementById('ptReason').value.trim();
   const start = document.getElementById('ptStart').value;
   const deadline = document.getElementById('ptDeadline').value;
   const note = document.getElementById('ptNote').value.trim();
-  if (!stId) { toast('⚠️ Chọn HS!', '#ef4444'); return; }
+
+  if (!checked.length) { toast('⚠️ Chọn ít nhất 1 HS!', '#ef4444'); return; }
   if (!reason) { toast('⚠️ Nhập nội dung!', '#ef4444'); return; }
   if (!start) { toast('⚠️ Chọn ngày bắt đầu!', '#ef4444'); return; }
+
   const arr = getPunishments();
-  arr.push({ id: uid(), stId, type, level, reason, start, deadline: deadline || '', note, status: 'active', createdAt: new Date().toISOString() });
+  checked.forEach(cb => {
+    arr.push({ id: uid(), stId: cb.value, type, level, reason, start, deadline: deadline || '', note, status: 'active', createdAt: new Date().toISOString() });
+  });
   setPunishments(arr);
   document.getElementById('ptReason').value = '';
   document.getElementById('ptNote').value = '';
-  document.getElementById('ptStudent').value = '';
   document.getElementById('ptDeadline').value = '';
-  const st = getStudents().find(s => String(s.id) === String(stId));
-  logActivity(`Tạo phiếu phạt cho ${st?.name || '?'}`);
+  document.querySelectorAll('input[name="ptStudentCheck"]').forEach(c => c.checked = false);
+  logActivity(`Tạo ${checked.length} phiếu phạt`);
   saveData();
-  toast('⚖️ Đã tạo phiếu phạt!');
+  toast(`⚖️ Đã tạo ${checked.length} phiếu phạt!`);
 }
-
+ 
 function renderPunishActive() {
   const box = document.getElementById('ptListActive'); if (!box) return;
   const students = getStudents();
@@ -2690,51 +3078,107 @@ function exportToExcel(type) {
   if (!window.XLSX) { toast('⚠️ Thư viện Excel chưa tải!', '#ef4444'); return; }
   const wb = XLSX.utils.book_new();
   const className = currentClass.config?.className || 'Lop';
+  const school = currentClass.config?.school || '';
+  const teacher = currentClass.config?.teacher || '';
+  const year = currentClass.config?.year || '';
   const students = getStudents(), scores = getScores(), logs = getLogs(), exps = getExps(), collects = getCollects();
-  if (type === 'students' || type === 'all') {
-    const data = [['STT', 'Họ và tên']];
-    students.forEach((s, i) => data.push([i + 1, s.name]));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), 'Danh sách HS');
+  const today = new Date();
+  const dateStr = `Ngày ${today.getDate()} tháng ${today.getMonth()+1} năm ${today.getFullYear()}`;
+
+  // Helper: tạo sheet có tiêu đề + bảng đẹp
+  function makeSheet(title, headers, rows, colWidths) {
+    const data = [
+      [school ? `TRƯỜNG ${school.toUpperCase()}` : 'TRƯỜNG: ..............................'],
+      [`LỚP: ${className.toUpperCase()}${year ? ' — NĂM HỌC ' + year : ''}`],
+      [title.toUpperCase()],
+      [dateStr],
+      [],
+      headers,
+      ...rows
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    // Merge tiêu đề
+    ws['!merges'] = [
+      { s: {r:0,c:0}, e: {r:0,c:headers.length-1} },
+      { s: {r:1,c:0}, e: {r:1,c:headers.length-1} },
+      { s: {r:2,c:0}, e: {r:2,c:headers.length-1} },
+      { s: {r:3,c:0}, e: {r:3,c:headers.length-1} }
+    ];
+    // Độ rộng cột
+    ws['!cols'] = colWidths.map(w => ({ wch: w }));
+    // Độ cao hàng tiêu đề
+    ws['!rows'] = [{ hpt: 20 }, { hpt: 20 }, { hpt: 24 }, { hpt: 18 }, { hpt: 6 }, { hpt: 22 }];
+    return ws;
   }
+
+  // Sheet 1: Danh sách HS
+  if (type === 'students' || type === 'all') {
+    const headers = ['STT', 'Họ và Tên', 'Ngày sinh', 'Ký nhận'];
+    const rows = students.map((s,i) => [i+1, s.name, '', '']);
+    XLSX.utils.book_append_sheet(wb, makeSheet('DANH SÁCH HỌC SINH', headers, rows, [6, 30, 15, 20]), 'DS Học Sinh');
+  }
+
+  // Sheet 2: Bảng điểm
   if (type === 'scores' || type === 'all') {
     const subjects = [...new Set(scores.map(s => s.sub))];
-    const data = [['STT', 'Họ tên', ...subjects, 'ĐTB']];
-    students.forEach((st, i) => {
-      const row = [i + 1, st.name];
+    const headers = ['STT', 'Họ và Tên', ...subjects, 'ĐTB', 'Xếp loại'];
+    const rows = students.map((st,i) => {
+      const row = [i+1, st.name];
       subjects.forEach(sub => {
         const vals = scores.filter(s => String(s.stId) === String(st.id) && s.sub === sub).map(s => s.val);
         row.push(vals.join('; '));
       });
       const stScores = scores.filter(s => String(s.stId) === String(st.id));
-      row.push(stScores.length ? (stScores.reduce((a, b) => a + b.val, 0) / stScores.length).toFixed(2) : '');
-      data.push(row);
+      const avg = stScores.length ? stScores.reduce((a,b) => a + b.val, 0) / stScores.length : 0;
+      row.push(stScores.length ? avg.toFixed(2) : '—');
+      row.push(stScores.length ? classifyScore(avg).label : '—');
+      return row;
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), 'Bảng điểm');
+    XLSX.utils.book_append_sheet(wb, makeSheet('BẢNG ĐIỂM CHI TIẾT', headers, rows, [6, 25, ...subjects.map(()=>12), 10, 14]), 'Bảng Điểm');
   }
+
+  // Sheet 3: Chuyên cần
   if (type === 'attendance' || type === 'all') {
-    const data = [['STT', 'Họ tên', 'Nghỉ KP', 'Đi muộn', 'SĐB', 'Nghỉ phép', 'Tổng']];
-    students.forEach((st, i) => {
+    const headers = ['STT', 'Họ và Tên', 'Nghỉ KP', 'Đi muộn', 'SĐB', 'Nghỉ phép', 'Tổng', 'Xếp loại'];
+    const rows = students.map((st,i) => {
       const stLogs = logs.filter(l => String(l.stId) === String(st.id));
       const c = { v_khongphep: 0, di_muon: 0, so_daubai: 0, v_cophep: 0 };
       stLogs.forEach(l => { if (c[l.type] !== undefined) c[l.type]++; });
-      data.push([i + 1, st.name, c.v_khongphep, c.di_muon, c.so_daubai, c.v_cophep, stLogs.length]);
+      const total = stLogs.length;
+      const xl = total === 0 ? 'Tốt' : total <= 2 ? 'Cần chú ý' : 'Yếu';
+      return [i+1, st.name, c.v_khongphep, c.di_muon, c.so_daubai, c.v_cophep, total, xl];
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), 'Chuyên cần');
+    XLSX.utils.book_append_sheet(wb, makeSheet('BẢNG CHUYÊN CẦN', headers, rows, [6, 25, 10, 10, 10, 12, 8, 14]), 'Chuyên Cần');
   }
+
+  // Sheet 4 + 5: Chi/Thu quỹ
   if (type === 'all') {
-    const dataExp = [['Ngày', 'Nội dung', 'ĐV', 'SL', 'Đơn giá', 'Thành tiền', 'Đã trả']];
-    exps.forEach(e => dataExp.push([e.date, e.title, e.unit || '', e.qty || 1, e.price || 0, e.amt, e.paid ? 'Đã trả' : 'Chưa']));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataExp), 'Chi quỹ');
-    const dataCol = [['Tên đợt', 'Ngày', 'Số tiền/HS', 'Đã đóng', 'Chưa đóng', 'Đã thu', 'Còn giữ']];
-    collects.forEach(c => {
+    const headersExp = ['STT', 'Ngày', 'Nội dung', 'ĐV', 'SL', 'Đơn giá', 'Thành tiền', 'Trạng thái'];
+    const rowsExp = exps.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map((e,i) => [
+      i+1, e.date, e.title, e.unit || '', e.qty || 1, e.price || 0, e.amt, e.paid ? 'Đã trả' : 'Chưa'
+    ]);
+    XLSX.utils.book_append_sheet(wb, makeSheet('BÁO CÁO CHI QUỸ', headersExp, rowsExp, [6, 12, 30, 10, 8, 12, 15, 12]), 'Chi Quỹ');
+
+    const headersCol = ['STT', 'Tên đợt', 'Ngày', 'Số tiền/HS', 'Đã đóng', 'Chưa đóng', 'Đã thu', 'Bàn giao', 'Còn giữ'];
+    const rowsCol = collects.map((c,i) => {
       const s = calcCollectStats(c);
-      dataCol.push([c.name, c.date, c.amount, s.paidCount, s.unpaidCount, s.collected, s.balance]);
+      return [i+1, c.name, c.date, c.amount, s.paidCount, s.unpaidCount, s.collected, s.handovered, s.balance];
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dataCol), 'Thu quỹ');
+    XLSX.utils.book_append_sheet(wb, makeSheet('BÁO CÁO THU QUỸ', headersCol, rowsCol, [6, 25, 12, 14, 10, 12, 15, 15, 15]), 'Thu Quỹ');
+
+    const headersDuty = ['STT', 'Ngày', 'Tổ', 'Nhiệm vụ', 'Trạng thái', 'Điểm', 'Ghi chú'];
+    const stMap = { done: 'Tốt', late: 'Muộn', missed: 'Bỏ', partial: 'Chưa đủ' };
+    const rowsDuty = getDuties().map((d,i)=>{
+      const t = getTeams().find(x=>String(x.id)===String(d.teamId));
+      return [i+1, d.date, t?.name || '', d.task, stMap[d.status] || d.status, d.score, d.note || ''];
+    });
+    XLSX.utils.book_append_sheet(wb, makeSheet('LỊCH SỬ TRỰC NHẬT', headersDuty, rowsDuty, [6, 12, 18, 30, 12, 8, 25]), 'Lao Động');
   }
+
   XLSX.writeFile(wb, `BaoCao_${className}_${todayStr()}.xlsx`);
   toast('📊 Đã xuất Excel!', '#217346');
 }
+     
 function importFromExcel() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   document.getElementById('excelInput').click();
@@ -2771,7 +3215,10 @@ function handleExcelImport(event) {
 
 /* ═══════════════ WORD/PDF ═══════════════ */
 function downloadFile(filename, content, mimeType){
-  const blob = new Blob([content], { type: mimeType });
+  // Thêm BOM UTF-8 để Excel mở đúng tiếng Việt
+  const needsBom = mimeType.includes('csv') || mimeType.includes('excel');
+  const finalContent = needsBom ? '\uFEFF' + content : content;
+  const blob = new Blob([finalContent], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename;
@@ -2799,32 +3246,60 @@ function reportHeaderBlock(t=''){
   const school = currentClass.config?.school || '';
   const year = currentClass.config?.year || '';
   const d = new Date();
-  return `<div class="header-info"><p class="small bold">${school ? 'TRƯỜNG ' + esc(school.toUpperCase()) : 'TRƯỜNG ..........................'}</p><p class="small bold">LỚP ${esc(className.toUpperCase())}${year?' — NĂM HỌC '+esc(year):''}</p></div>
-    <h1>${esc(t||'BÁO CÁO LỚP ' + className)}</h1>
-    <p class="subtitle">Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</p>`;
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return `
+  <table style="width:100%;border:none;border-collapse:collapse;margin-bottom:14pt;">
+    <tr>
+      <td style="border:none;width:45%;vertical-align:top;text-align:center;padding:0;">
+        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">${school ? esc(school.toUpperCase()) : 'TRƯỜNG ..........................'}</p>
+        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">LỚP ${esc(className.toUpperCase())}</p>
+        <p style="font-size:10pt;margin:0;">${year ? 'Năm học: ' + esc(year) : ''}</p>
+        <p style="font-size:10pt;font-style:italic;margin:6pt 0 0 0;letter-spacing:2pt;">─────────</p>
+      </td>
+      <td style="border:none;width:55%;vertical-align:top;text-align:center;padding:0;">
+        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+        <p style="font-size:11pt;font-weight:bold;margin:0 0 2pt 0;">Độc lập - Tự do - Hạnh phúc</p>
+        <p style="font-size:10pt;font-style:italic;margin:6pt 0 0 0;letter-spacing:2pt;">─────────</p>
+        <p style="font-size:10pt;margin:6pt 0 0 0;"><i>${className}, ngày ${dd} tháng ${mm} năm ${yyyy}</i></p>
+      </td>
+    </tr>
+  </table>
+
+  <h1 style="font-size:16pt;text-align:center;font-weight:bold;text-transform:uppercase;margin:18pt 0 4pt 0;line-height:1.4;">
+    ${esc(t || ('BÁO CÁO LỚP ' + className))}
+  </h1>
+  <p style="text-align:center;font-size:11pt;font-style:italic;margin:0 0 16pt 0;">
+    (Về tình hình học tập, chuyên cần và các hoạt động của lớp)
+  </p>
+  <p style="font-size:11pt;margin:0 0 8pt 0;"><b>Kính gửi:</b> Ban Giám hiệu Nhà trường</p>
+  <p style="font-size:11pt;margin:0 0 14pt 0;padding-left:60pt;">Giáo viên chủ nhiệm lớp ${esc(className)}</p>`;
 }
+ 
 function signBlock(){
   const teacher = currentClass.config?.teacher || '..........................';
   const d = new Date();
-  return `<div style="margin-top:30pt;page-break-inside:avoid;">
-  <table style="width:100%;border:none;">
+  return `<div style="margin-top:40pt;page-break-inside:avoid;">
+  <table style="width:100%;border:none;border-collapse:collapse;">
   <tr>
-  <td style="border:none;width:50%;vertical-align:top;text-align:center;">
-    <p style="font-style:italic;font-size:11pt;margin:0 0 4pt 0;">Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</p>
-    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">NGƯỜI LẬP BẢNG</p>
-    <p style="font-style:italic;font-size:10pt;margin:0 0 60pt 0;">(Ký, ghi rõ họ tên)</p>
-    <p style="font-weight:bold;font-size:12pt;margin:0;">Bùi Sỹ Hòa</p>
-  </td>
-  <td style="border:none;width:50%;vertical-align:top;text-align:center;">
-    <p style="font-style:italic;font-size:11pt;margin:0 0 4pt 0;">Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</p>
-    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">GIÁO VIÊN CHỦ NHIỆM</p>
-    <p style="font-style:italic;font-size:10pt;margin:0 0 60pt 0;">(Ký, ghi rõ họ tên)</p>
+  <td style="border:none;width:50%;vertical-align:top;text-align:center;padding:0 20pt 0 0;">
+    <p style="font-size:11pt;margin:0 0 4pt 0;"><i>Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</i></p>
+    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">DUYỆT CỦA GVCN</p>
+    <p style="font-size:10pt;margin:0 0 70pt 0;"><i>(Ký, ghi rõ họ tên)</i></p>
     <p style="font-weight:bold;font-size:12pt;margin:0;">${esc(teacher)}</p>
+  </td>
+  <td style="border:none;width:50%;vertical-align:top;text-align:center;padding:0 0 0 20pt;">
+    <p style="font-size:11pt;margin:0 0 4pt 0;"><i>Ngày ${d.getDate()} tháng ${d.getMonth()+1} năm ${d.getFullYear()}</i></p>
+    <p style="font-weight:bold;font-size:12pt;margin:0 0 4pt 0;">NGƯỜI LẬP BẢNG</p>
+    <p style="font-size:10pt;margin:0 0 70pt 0;"><i>(Ký, ghi rõ họ tên)</i></p>
+    <p style="font-weight:bold;font-size:12pt;margin:0;">Bùi Sỹ Hòa</p>
   </td>
   </tr>
   </table>
   </div>`;
 }
+ 
 function classifyAtt(t){ if(t===0)return{txt:'Tốt',cls:'good'}; if(t<=2)return{txt:'Cần chú ý',cls:'warn'}; return{txt:'Yếu',cls:'bad'}; }
 
 function buildSummaryReport(){
@@ -3052,21 +3527,38 @@ function openPrint(html){
 /* ═══════════════ CSV ═══════════════ */
 function exportToCSV(type){
   const q = v=>`"${String(v??'').replace(/"/g,'""')}"`;
-  let csv = "", fname = `${type}_${todayStr()}.csv`;
+  let csv = "sep=,\r\n";
+  let fname = `${type}_${todayStr()}.csv`;
   const students = getStudents(), logs = getLogs(), scores = getScores();
-  if (type === 'stList') { csv += "STT,Họ và Tên\n"; students.forEach((s,i)=>csv += `${i+1},${q(s.name)}\n`); }
-  else if (type === 'attendance') {
-    csv += "STT,Học Sinh,Ngày,Môn,Loại Vi Phạm,Ghi Chú\n";
-    logs.forEach((l,i)=>{ const st = students.find(s=>String(s.id)===String(l.stId)); csv += `${i+1},${q(st?.name||'')},${q(l.date)},${q(l.sub)},${q(getLogName(l.type).replace(/[🔴🟡🔵📝]/g,'').trim())},${q(l.note)}\n`; });
+
+  if (type === 'stList') {
+    csv += "STT,Họ và Tên\r\n";
+    students.forEach((s,i)=>csv += `${i+1},${q(s.name)}\r\n`);
+  } else if (type === 'attendance') {
+    csv += "STT,Học Sinh,Ngày,Môn,Loại Vi Phạm,Ghi Chú\r\n";
+    logs.forEach((l,i)=>{
+      const st = students.find(s=>String(s.id)===String(l.stId));
+      csv += `${i+1},${q(st?.name||'')},${q(l.date)},${q(l.sub)},${q(getLogName(l.type).replace(/[🔴🟡🔵📝]/g,'').trim())},${q(l.note)}\r\n`;
+    });
   } else if (type === 'score') {
-    csv += "STT,Học Sinh,Ngày,Môn,Điểm,Ghi Chú\n";
-    scores.forEach((s,i)=>{ const st = students.find(st=>String(st.id)===String(s.stId)); csv += `${i+1},${q(st?.name||'')},${q(s.date)},${q(s.sub)},${s.val},${q(s.note)}\n`; });
+    csv += "STT,Học Sinh,Ngày,Môn,Điểm,Ghi Chú\r\n";
+    scores.forEach((s,i)=>{
+      const st = students.find(st=>String(st.id)===String(s.stId));
+      csv += `${i+1},${q(st?.name||'')},${q(s.date)},${q(s.sub)},${s.val},${q(s.note)}\r\n`;
+    });
   } else if (type === 'punish') {
-    csv += "STT,Học Sinh,Hình Thức,Mức Độ,Nội Dung,Ngày Bắt Đầu,Hạn,Trạng Thái,Hoàn Thành,Thời Gian\n";
+    csv += "STT,Học Sinh,Hình Thức,Mức Độ,Nội Dung,Ngày Bắt Đầu,Hạn,Trạng Thái,Hoàn Thành,Thời Gian\r\n";
     const lvlMap = { nhe: 'Nhẹ', vua: 'Vừa', nang: 'Nặng', nghiem_trong: 'Nghiêm trọng' };
     getPunishments().forEach((p, i) => {
       const st = students.find(s => String(s.id) === String(p.stId));
-      csv += `${i+1},${q(st?.name||'')},${q(PT_TYPE_NAMES[p.type]||'')},${q(lvlMap[p.level]||'')},${q(p.reason)},${q(p.start)},${q(p.deadline)},${p.status==='done'?'Đã xong':'Đang phạt'},${q(p.completedAt?new Date(p.completedAt).toLocaleDateString('vi-VN'):'')},${q(getElapsedTime(p))}\n`;
+      csv += `${i+1},${q(st?.name||'')},${q(PT_TYPE_NAMES[p.type]||'')},${q(lvlMap[p.level]||'')},${q(p.reason)},${q(p.start)},${q(p.deadline)},${p.status==='done'?'Đã xong':'Đang phạt'},${q(p.completedAt?new Date(p.completedAt).toLocaleDateString('vi-VN'):'')},${q(getElapsedTime(p))}\r\n`;
+    });
+  } else if (type === 'labor') {
+    csv += "STT,Ngày,Tổ,Nhiệm Vụ,Trạng Thái,Điểm,Ghi Chú\r\n";
+    const stMap = { done: 'Tốt', late: 'Muộn', missed: 'Bỏ', partial: 'Chưa đủ' };
+    getDuties().forEach((d,i)=>{
+      const t = getTeams().find(x=>String(x.id)===String(d.teamId));
+      csv += `${i+1},${q(d.date)},${q(t?.name||'')},${q(d.task)},${q(stMap[d.status]||d.status)},${d.score},${q(d.note||'')}\r\n`;
     });
   }
   downloadFile(fname, csv, 'text/csv;charset=utf-8');
@@ -3121,6 +3613,7 @@ function showTab(id, btn){
   btn.classList.add('active');
   if (id === 'thongke') renderCharts();
   if (id === 'phat') renderAllPunish();
+  if (id === 'laodong') renderAllLabor();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
   if (id === 'thanhvien') renderMembersList();
   if (id === 'thungrac') renderTrashList();
