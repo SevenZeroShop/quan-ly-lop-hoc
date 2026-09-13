@@ -570,7 +570,6 @@
         </select></div>
     </div>
     <button class="btn-act btn-success btn-full" onclick="quickAddStudent()">➕ Thêm HS</button>
-    </div>
   </div>
   <div class="card">
     <h3>📋 Nhập Hàng Loạt</h3>
@@ -580,7 +579,6 @@
       <button class="btn-act btn-excel btn-full" onclick="importFromExcel()">📥 Import Excel</button>
     </div>
     <input type="file" id="excelInput" accept=".xlsx,.xls" onchange="handleExcelImport(event)" style="display:none;">
-  </div>
     <div class="card">
     <h3><span>👥 DS Lớp (<span id="stCount">0</span> HS)</span>
       <button class="btn-act btn-export" onclick="exportToCSV('stList')">📥 CSV</button></h3>
@@ -594,7 +592,8 @@
     <th style="width:25%;">Địa chỉ</th>
     <th style="width:20%;text-align:center;">Thao tác</th>
   </tr></thead><tbody id="tbStList"></tbody></table></div>
-
+</div>
+ 
 <!-- THU QUỸ -->
 <div id="sec-thuquy" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
