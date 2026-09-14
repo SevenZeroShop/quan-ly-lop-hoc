@@ -219,44 +219,449 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 #ownerFooter{margin-top:20px;background:linear-gradient(135deg,#1e3a8a 0,#2563eb 45%,#7c3aed 100%);color:#fff;text-align:center;padding:14px 16px;border-radius:12px;line-height:1.5;width:100%}
 #ownerFooter .owner-name{display:inline-block;padding:2px 10px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin:0 2px}
 .readonly-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#78350f;font-weight:600;text-align:center}
-/* ═══════════════ JACKPOT MACHINE ═══════════════ */
-.jackpot-machine{display:flex;align-items:center;gap:20px;padding:20px 10px;justify-content:center;flex-wrap:wrap;position:relative}
-.jackpot-reels{display:flex;gap:8px;background:#000;padding:12px;border-radius:12px;border:3px solid #fbbf24;box-shadow:inset 0 0 30px rgba(0,0,0,.8),0 0 30px rgba(251,191,36,.5);position:relative;flex-wrap:wrap;justify-content:center;max-width:100%}
-.jackpot-reel{width:100px;height:100px;background:linear-gradient(180deg,#1e293b,#0f172a);border:2px solid #fbbf24;border-radius:8px;overflow:hidden;position:relative;box-shadow:inset 0 0 15px rgba(0,0,0,.9)}
-.jackpot-reel-inner{position:absolute;top:0;left:0;width:100%;display:flex;flex-direction:column;transition:transform .1s linear}
-.jackpot-reel-item{width:100%;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,.8);padding:6px;text-align:center;line-height:1.15;word-break:break-word}
-.jackpot-reel::before,.jackpot-reel::after{content:'';position:absolute;left:0;right:0;height:20px;z-index:2;pointer-events:none}
-.jackpot-reel::before{top:0;background:linear-gradient(180deg,rgba(0,0,0,.7),transparent)}
-.jackpot-reel::after{bottom:0;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
-.jackpot-lever{cursor:pointer;user-select:none;position:relative;width:60px;height:160px;transition:transform .15s}
-.jackpot-lever:hover{transform:scale(1.05)}
-.jackpot-lever.pulled{animation:leverPull .5s}
-@keyframes leverPull{0%{transform:rotate(0deg)}40%{transform:rotate(-25deg)}100%{transform:rotate(0deg)}}
-.lever-knob{position:absolute;top:0;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fca5a5,#dc2626 60%,#7f1d1d);box-shadow:0 0 20px rgba(220,38,38,.8),inset -3px -3px 10px rgba(0,0,0,.4);z-index:2}
-.lever-arm{position:absolute;top:40px;left:50%;transform:translateX(-50%);width:8px;height:80px;background:linear-gradient(90deg,#94a3b8,#cbd5e1,#94a3b8);border-radius:4px;box-shadow:inset -2px 0 4px rgba(0,0,0,.3)}
-.lever-base{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:50px;height:40px;background:linear-gradient(180deg,#475569,#1e293b);border-radius:8px;border:2px solid #fbbf24;box-shadow:0 0 15px rgba(251,191,36,.4)}
-.jackpot-lights{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;border-radius:12px;overflow:hidden}
-.jackpot-light{position:absolute;width:10px;height:10px;border-radius:50%;background:#fbbf24;box-shadow:0 0 10px #fbbf24;animation:lightBlink 1s infinite}
-@keyframes lightBlink{0%,100%{opacity:.3}50%{opacity:1;box-shadow:0 0 20px #fbbf24,0 0 30px #fbbf24}}
-.jackpot-win-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at center,rgba(251,191,36,.95),rgba(220,38,38,.95),rgba(124,58,237,.95));z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;animation:winFadeIn .5s ease-out;overflow:hidden}
-@keyframes winFadeIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
-.jackpot-win-content{text-align:center;color:#fff;z-index:2;animation:winBounce .6s ease-out;max-width:90vw}
-@keyframes winBounce{0%{transform:scale(.3)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-.jackpot-win-title{font-size:clamp(28px,6vw,56px);font-weight:900;letter-spacing:4px;text-shadow:0 0 20px #fff,0 0 40px #fbbf24,0 4px 8px rgba(0,0,0,.5);margin-bottom:20px;animation:titleGlow 1.5s ease-in-out infinite alternate}
-@keyframes titleGlow{from{text-shadow:0 0 20px #fff,0 0 40px #fbbf24,0 4px 8px rgba(0,0,0,.5)}to{text-shadow:0 0 30px #fff,0 0 60px #fbbf24,0 0 90px #f59e0b,0 4px 8px rgba(0,0,0,.5)}}
-.jackpot-win-name{font-size:clamp(36px,8vw,88px);font-weight:900;color:#fff;text-shadow:0 0 30px #fbbf24,0 0 60px #f59e0b,0 8px 16px rgba(0,0,0,.6);margin:20px 0;padding:20px 40px;background:rgba(0,0,0,.25);border:4px solid #fbbf24;border-radius:20px;letter-spacing:2px;animation:namePulse 1s ease-in-out infinite alternate;word-break:break-word}
-@keyframes namePulse{from{transform:scale(1)}to{transform:scale(1.05)}}
-.jackpot-win-emoji{font-size:clamp(60px,12vw,140px);margin:10px 0;animation:emojiBounce .8s ease-in-out infinite alternate}
-@keyframes emojiBounce{from{transform:translateY(0) rotate(-5deg)}to{transform:translateY(-15px) rotate(5deg)}}
-.jackpot-win-btn{margin-top:30px;padding:16px 40px;background:#fff;color:#dc2626;border:none;border-radius:50px;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 0 30px rgba(255,255,255,.8);transition:transform .2s}
-.jackpot-win-btn:hover{transform:scale(1.1)}
-.jackpot-confetti{position:fixed;width:12px;height:12px;z-index:100000;pointer-events:none;animation:jackpotConfettiFall 4s linear forwards}
-@keyframes jackpotConfettiFall{0%{transform:translateY(-100vh) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(1080deg);opacity:0}}
-@media (max-width:520px){
-  .jackpot-reel{width:70px;height:80px}
-  .jackpot-reel-item{height:80px;font-size:12px}
-  .jackpot-machine{gap:10px;padding:10px 5px}
-  .jackpot-lever{width:50px;height:130px}
+/* ═══════════════ JACKPOT MACHINE (v2) ═══════════════ */
+.jackpot-machine {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 25px 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.jackpot-reels {
+  display: flex;
+  gap: 10px;
+  background: linear-gradient(180deg,#0f172a,#1e1b4b);
+  padding: 16px;
+  border-radius: 16px;
+  position: relative;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  box-shadow:
+    inset 0 0 40px rgba(0,0,0,.9),
+    0 0 40px rgba(251,191,36,.6),
+    0 0 80px rgba(220,38,38,.3);
+}
+
+.jackpot-reels::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  padding: 4px;
+  background: linear-gradient(45deg,#fbbf24,#dc2626,#8b5cf6,#fbbf24,#dc2626);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderGlow 3s linear infinite;
+  pointer-events: none;
+}
+@keyframes borderGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.jackpot-reel {
+  width: 110px;
+  height: 110px;
+  background: linear-gradient(180deg,#1e293b,#0f172a);
+  border: 3px solid #fbbf24;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    inset 0 0 20px rgba(0,0,0,.9),
+    0 0 20px rgba(251,191,36,.4);
+}
+
+.jackpot-reel-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.jackpot-reel-item {
+  width: 100%;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251,191,36,.9), 0 0 20px rgba(251,191,36,.5);
+  padding: 8px;
+  text-align: center;
+  line-height: 1.15;
+  word-break: break-word;
+  letter-spacing: .5px;
+}
+
+.jackpot-reel::before,
+.jackpot-reel::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  z-index: 2;
+  pointer-events: none;
+}
+.jackpot-reel::before {
+  top: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.85), transparent);
+}
+.jackpot-reel::after {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,.85), transparent);
+}
+
+.jackpot-lever {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  width: 70px;
+  height: 180px;
+  transition: transform .15s;
+  filter: drop-shadow(0 0 15px rgba(220,38,38,.8));
+}
+.jackpot-lever:hover { transform: scale(1.08); }
+.jackpot-lever.pulled { animation: leverPull .6s cubic-bezier(.34,1.56,.64,1); }
+@keyframes leverPull {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-30deg) translateX(-5px); }
+  100% { transform: rotate(0deg); }
+}
+
+.lever-knob {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626 55%, #7f1d1d 90%);
+  box-shadow:
+    0 0 25px rgba(220,38,38,1),
+    inset -4px -4px 12px rgba(0,0,0,.5),
+    inset 4px 4px 12px rgba(255,255,255,.3);
+  z-index: 2;
+  animation: knobPulse 1.5s ease-in-out infinite;
+}
+@keyframes knobPulse {
+  0%, 100% { box-shadow: 0 0 25px rgba(220,38,38,1), inset -4px -4px 12px rgba(0,0,0,.5), inset 4px 4px 12px rgba(255,255,255,.3); }
+  50% { box-shadow: 0 0 40px rgba(220,38,38,1), 0 0 60px rgba(220,38,38,.6), inset -4px -4px 12px rgba(0,0,0,.5), inset 4px 4px 12px rgba(255,255,255,.3); }
+}
+
+.lever-arm {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 90px;
+  background: linear-gradient(90deg,#64748b,#cbd5e1 40%,#fff 50%,#cbd5e1 60%,#64748b);
+  border-radius: 5px;
+  box-shadow: inset -2px 0 6px rgba(0,0,0,.4), 0 0 8px rgba(255,255,255,.3);
+}
+
+.lever-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 50px;
+  background: linear-gradient(180deg,#475569,#1e293b);
+  border-radius: 10px;
+  border: 3px solid #fbbf24;
+  box-shadow: 0 0 20px rgba(251,191,36,.6), inset 0 -3px 8px rgba(0,0,0,.6);
+}
+
+.jackpot-lights {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.jackpot-light {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fbbf24;
+  box-shadow: 0 0 12px #fbbf24, 0 0 24px #fbbf24;
+  animation: lightBlink 0.8s infinite;
+}
+@keyframes lightBlink {
+  0%, 100% { opacity: .4; transform: scale(.9); }
+  50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 20px #fbbf24, 0 0 40px #fbbf24, 0 0 60px #dc2626; }
+}
+
+/* ═══════════════ FULL-SCREEN WIN (v2) ═══════════════ */
+.jackpot-win-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, rgba(251,191,36,.98), rgba(220,38,38,.98), rgba(124,58,237,.98));
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+  animation: winFadeIn .4s ease-out;
+  overflow: hidden;
+}
+@keyframes winFadeIn {
+  from { opacity: 0; transform: scale(.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.jackpot-win-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  border: 3px solid #fff;
+  color: #fff;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all .2s;
+  backdrop-filter: blur(10px);
+}
+.jackpot-win-close:hover {
+  background: rgba(255,255,255,.5);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.jackpot-win-countdown {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid rgba(255,255,255,.4);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.jackpot-win-countdown .count-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  color: #dc2626;
+  font-size: 16px;
+  font-weight: 900;
+  animation: countPulse 1s ease-in-out infinite;
+}
+@keyframes countPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.jackpot-win-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  background: linear-gradient(90deg,#fbbf24,#fff,#fbbf24);
+  border-radius: 0;
+  animation: progressBar 5s linear forwards;
+  z-index: 10;
+  box-shadow: 0 0 15px #fbbf24;
+}
+@keyframes progressBar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.jackpot-win-content {
+  text-align: center;
+  color: #fff;
+  z-index: 2;
+  animation: winBounce .5s ease-out;
+  max-width: 90vw;
+  position: relative;
+}
+
+@keyframes winBounce {
+  0% { transform: scale(.3) rotate(-10deg); }
+  60% { transform: scale(1.1) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.jackpot-win-title {
+  font-size: clamp(32px, 7vw, 68px);
+  font-weight: 900;
+  letter-spacing: 6px;
+  margin-bottom: 15px;
+  background: linear-gradient(90deg,#fff,#fbbf24,#fff,#fbbf24,#fff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,.8));
+  animation: titleShine 2s linear infinite;
+}
+@keyframes titleShine {
+  to { background-position: 200% center; }
+}
+
+.jackpot-win-name {
+  font-size: clamp(40px, 9vw, 100px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 30px #fbbf24, 0 0 60px #f59e0b, 0 8px 16px rgba(0,0,0,.6);
+  margin: 20px 0;
+  padding: 24px 48px;
+  background: rgba(0,0,0,.3);
+  border: 5px solid #fbbf24;
+  border-radius: 24px;
+  letter-spacing: 2px;
+  animation: namePulse 0.8s ease-in-out infinite alternate;
+  word-break: break-word;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 40px rgba(251,191,36,.7), inset 0 0 40px rgba(251,191,36,.2);
+}
+@keyframes namePulse {
+  from { transform: scale(1); box-shadow: 0 0 40px rgba(251,191,36,.7), inset 0 0 40px rgba(251,191,36,.2); }
+  to { transform: scale(1.04); box-shadow: 0 0 70px rgba(251,191,36,1), inset 0 0 60px rgba(251,191,36,.4); }
+}
+
+.jackpot-win-emoji {
+  font-size: clamp(70px, 14vw, 160px);
+  margin: 15px 0;
+  animation: emojiBounce 0.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 30px rgba(255,255,255,.9));
+}
+@keyframes emojiBounce {
+  from { transform: translateY(0) rotate(-8deg) scale(1); }
+  to { transform: translateY(-20px) rotate(8deg) scale(1.08); }
+}
+
+.jackpot-win-buttons {
+  margin-top: 30px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.jackpot-win-btn {
+  padding: 16px 36px;
+  background: #fff;
+  color: #dc2626;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255,255,255,.9), 0 6px 0 rgba(0,0,0,.2);
+  transition: transform .2s, box-shadow .2s;
+  letter-spacing: 1px;
+}
+.jackpot-win-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 0 50px rgba(255,255,255,1), 0 8px 0 rgba(0,0,0,.2);
+}
+.jackpot-win-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 30px rgba(255,255,255,.9), 0 4px 0 rgba(0,0,0,.2);
+}
+
+.jackpot-win-btn.secondary {
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,.5);
+  box-shadow: 0 0 15px rgba(255,255,255,.3);
+}
+.jackpot-win-btn.secondary:hover {
+  background: rgba(255,255,255,.35);
+}
+
+.jackpot-win-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 15px 0;
+}
+.jackpot-win-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.4);
+  border: 2px solid rgba(255,255,255,.6);
+  transition: all .3s;
+}
+.jackpot-win-dot.active {
+  background: #fff;
+  transform: scale(1.3);
+  box-shadow: 0 0 15px #fff;
+}
+.jackpot-win-dot.done {
+  background: #10b981;
+  border-color: #10b981;
+}
+
+.jackpot-win-counter {
+  font-size: 16px;
+  font-weight: bold;
+  opacity: .95;
+  margin-top: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.jackpot-confetti {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  z-index: 100000;
+  pointer-events: none;
+  animation: jackpotConfettiFall 4s linear forwards;
+}
+@keyframes jackpotConfettiFall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(1080deg); opacity: 0; }
+}
+
+@media (max-width: 520px) {
+  .jackpot-reel { width: 72px; height: 85px; }
+  .jackpot-reel-item { height: 85px; font-size: 13px; padding: 4px; }
+  .jackpot-machine { gap: 12px; padding: 12px 8px; }
+  .jackpot-lever { width: 55px; height: 140px; }
+  .lever-knob { width: 42px; height: 42px; }
+  .lever-arm { height: 70px; top: 40px; }
+  .lever-base { width: 48px; height: 40px; }
+  .jackpot-win-close { width: 42px; height: 42px; font-size: 22px; }
+  .jackpot-win-btn { padding: 14px 28px; font-size: 14px; }
 }
 </style>
 </head>
