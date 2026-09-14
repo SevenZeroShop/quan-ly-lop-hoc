@@ -1648,7 +1648,7 @@
       <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">
       <h4 style="font-size:14px;color:#1e3a8a;margin-bottom:10px;">🔑 Đổi Mật Khẩu</h4>
       <div class="form-group"><label>Mật khẩu cũ:</label><input type="password" id="pwOld"></div>
-      <div class="form-group"><label>Mật khẩu mới (≥6 ký tự):</label><input type="password" id="pwNew"></div>
+      <div class="form-group"><label>Mật khẩu mới (≥8 ký tự, có HOA + số + ký tự đặc biệt):</label><input type="password" id="pwNew"></div>
       <div class="form-group"><label>Nhập lại:</label><input type="password" id="pwNew2"></div>
       <button class="btn-act btn-success btn-full" onclick="changePassword()">💾 Đổi Mật Khẩu</button>
       <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">
@@ -1719,24 +1719,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
- /* ═══════════════ GIỚI HẠN TẦN SUẤT ═══════════════ */
-const RateLimiter = {
-  checks: {},
-  check(action, maxPerMinute = 30) {
-    const now = Date.now();
-    if (!this.checks[action]) this.checks[action] = [];
-    this.checks[action] = this.checks[action].filter(t => now - t < 60000);
-    if (this.checks[action].length >= maxPerMinute) {
-      toast(`⛔ Thao tác quá nhanh! Đợi 1 phút.`, '#ef4444');
-      return false;
-    }
-    this.checks[action].push(now);
-    return true;
-  }
-};
-     
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>   
 <script>
 /* ═══════════════ FIREBASE CONFIG ═══════════════ */
 const firebaseConfig = {
@@ -1761,6 +1744,22 @@ const DONATE_CONFIG = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+ /* ═══════════════ GIỚI HẠN TẦN SUẤT ═══════════════ */
+const RateLimiter = {
+  checks: {},
+  check(action, maxPerMinute = 30) {
+    const now = Date.now();
+    if (!this.checks[action]) this.checks[action] = [];
+    this.checks[action] = this.checks[action].filter(t => now - t < 60000);
+    if (this.checks[action].length >= maxPerMinute) {
+      toast(`⛔ Thao tác quá nhanh! Đợi 1 phút.`, '#ef4444');
+      return false;
+    }
+    this.checks[action].push(now);
+    return true;
+  }
+};
 
  /* ═══════════════ BỘ LỌC NỘI DUNG XẤU ═══════════════ */
 const BANNED_WORDS = [
@@ -1863,7 +1862,7 @@ const uid = () => Date.now()+Math.floor(Math.random()*10000);
 const genClassId = () => {
   const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
   let id = '';
-  for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random()*chars.length)];
+  for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random()*chars.length)];
   return id;
 };
 const defaultSubjects = ['Toán','Ngữ Văn','Lịch Sử','Địa Lý','GDKT & PL','Hóa Học','Vật Lý','Tiếng Anh','Sinh Học','Tin Học'];
@@ -2536,8 +2535,6 @@ function quickAddStudent() {
   if (!RateLimiter.check('addStudent', 30)) return;
   if (getStudents().length >= 200) { toast('⛔ Lớp đã đủ 200 HS!', '#ef4444'); return; }
   const name = document.getElementById('quickName').value.trim();
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const name = document.getElementById('quickName').value.trim();
   const phone = document.getElementById('quickPhone').value.trim();
   const address = document.getElementById('quickAddress').value.trim();
   const role = document.getElementById('quickRole').value;
@@ -2555,16 +2552,13 @@ function quickAddStudent() {
 }
 document.addEventListener('keydown', e=>{ if (e.key==='Enter' && document.activeElement.id==='quickName') quickAddStudent(); });
  
-function importStudents() {
- if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+ function importStudents() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   if (!RateLimiter.check('importStudents', 5)) return;
   const txt = document.getElementById('txtBatch').value.trim();
+  if (!txt) return;
   const lines = txt.split(/[\r\n]+/).filter(l => l.trim());
   if (lines.length > 100) { toast('⛔ Tối đa 100 HS 1 lần!', '#ef4444'); return; }
-  if (!txt) return;
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const txt = document.getElementById('txtBatch').value.trim();
-  if (!txt) return;
   const students = getStudents();
   let count = 0;
   txt.split(/[\r\n]+/).forEach(line=>{ const clean = line.replace(/^\d+[\.\)\-]?\s*/,'').trim(); if (clean) { students.push({ id: uid(), name: clean }); count++; } });
@@ -2672,11 +2666,9 @@ function calcCollectStats(c){
 }
 
 function createCollect() {
- if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   if (!RateLimiter.check('createCollect', 10)) return;
   if (getCollects().length >= 100) { toast('⛔ Đã đủ 100 đợt thu!', '#ef4444'); return; }
-  const name = document.getElementById('colName').value.trim();
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const name = document.getElementById('colName').value.trim();
   const amount = parseInt(document.getElementById('colAmount').value)||0;
   const date = document.getElementById('colDate').value || todayStr();
@@ -3982,10 +3974,8 @@ function renderPunishStudentSelector() {
 }
 
 function createPunishment() {
- if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  if (!RateLimiter.check('createPunish', 30)) return;
-  const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!RateLimiter.check('createPunish', 30)) return;
   const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
   const type = document.getElementById('ptType').value;
   const level = document.getElementById('ptLevel').value;
@@ -4317,7 +4307,11 @@ async function changePassword() {
   const newPw = document.getElementById('pwNew').value;
   const newPw2 = document.getElementById('pwNew2').value;
   if (!oldPw || !newPw || !newPw2) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
-  if (newPw.length < 6) { toast('⚠️ ≥6 ký tự!', '#ef4444'); return; }
+  
+  // ✅ Áp dụng checkStrongPassword cho mật khẩu mới
+  const pwCheck = checkStrongPassword(newPw);
+  if (!pwCheck.ok) { toast('⚠️ ' + pwCheck.msg, '#ef4444'); return; }
+  
   if (newPw !== newPw2) { toast('⚠️ Không khớp!', '#ef4444'); return; }
   try {
     const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, oldPw);
@@ -4339,11 +4333,10 @@ function openCreateClassModal() {
 function closeCreateClassModal(){ document.getElementById('createClassModal').classList.remove('active'); }
 
 async function createNewClass() {
- if ((userProfile.myClasses || []).length >= 5) {
+  if ((userProfile.myClasses || []).length >= 5) {
     toast('⛔ Mỗi tài khoản chỉ được tạo tối đa 5 lớp!', '#ef4444');
     return;
   }
-  const name = document.getElementById('newClassName').value.trim();
   const name = document.getElementById('newClassName').value.trim();
   const school = document.getElementById('newClassSchool').value.trim();
   const teacher = document.getElementById('newClassTeacher').value.trim();
