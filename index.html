@@ -4115,7 +4115,7 @@ function showTab(id, btn) {
   if (id === 'laodong') renderAllLabor();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
   if (id === 'thungrac') renderTrashList();
-  if (id === 'random') setTimeout(() => initWheel(), 50);
+  if (id === 'random') setTimeout(() => initJackpot(), 50);
 }
 
 function filterChecklist(inputId, containerId) {
@@ -4627,61 +4627,150 @@ function spinSingleReel(reelIdx, targetText, allParticipants, partIdx, duration)
   });
 }
 
-// ═══ Chúc mừng TOÀN MÀN HÌNH ═══
-function showFullScreenWin(winners) {
-  // Xóa overlay cũ nếu có
+/* ═══════════════════════════════════════════════════════════════
+   CHÚC MỪNG TOÀN MÀN HÌNH (v2) — Có nút X + tự đóng 5s + ESC
+   ═══════════════════════════════════════════════════════════════ */
+
+let jackpotWinTimers = [];
+let jackpotWinInterval = null;
+
+function clearJackpotWinTimers() {
+  jackpotWinTimers.forEach(t => clearTimeout(t));
+  jackpotWinTimers = [];
+  if (jackpotWinInterval) {
+    clearInterval(jackpotWinInterval);
+    jackpotWinInterval = null;
+  }
+}
+
+function closeAllJackpotWins() {
+  clearJackpotWinTimers();
   document.querySelectorAll('.jackpot-win-overlay').forEach(el => el.remove());
+  window.__jackpotNext__ = null;
+  window.__jackpotDone__ = null;
+}
+
+function showFullScreenWin(winners) {
+  closeAllJackpotWins();
+  window.__jackpotWinners__ = winners;
   
   let currentIdx = 0;
+  const AUTO_CLOSE_SECONDS = 5;
   
   function showNext() {
+    document.querySelectorAll('.jackpot-win-overlay').forEach(el => el.remove());
+    clearJackpotWinTimers();
+    
     if (currentIdx >= winners.length) {
-      // Hết tất cả → hiển thị kết quả list
       showJackpotResult(winners);
+      window.__jackpotNext__ = null;
+      window.__jackpotDone__ = null;
       return;
     }
     
     const winner = winners[currentIdx];
+    const isLast = currentIdx === winners.length - 1;
+    const hasMultiple = winners.length > 1;
+    
     const overlay = document.createElement('div');
     overlay.className = 'jackpot-win-overlay';
     
+    let dotsHtml = '';
+    if (hasMultiple) {
+      dotsHtml = '<div class="jackpot-win-dots">';
+      for (let i = 0; i < winners.length; i++) {
+        const cls = i < currentIdx ? 'done' : i === currentIdx ? 'active' : '';
+        dotsHtml += `<div class="jackpot-win-dot ${cls}"></div>`;
+      }
+      dotsHtml += '</div>';
+    }
+    
     overlay.innerHTML = `
+      <button class="jackpot-win-close" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotWinners__);" title="Đóng (ESC)">✕</button>
+      
+      <div class="jackpot-win-countdown">
+        <span>Tự động đóng sau</span>
+        <span class="count-num" id="jackpotCountNum">${AUTO_CLOSE_SECONDS}</span>
+        <span>giây</span>
+      </div>
+      
+      <div class="jackpot-win-progress"></div>
+      
       <div class="jackpot-win-content">
         <div class="jackpot-win-emoji">🎉🏆🎉</div>
         <div class="jackpot-win-title">CHÚC MỪNG!</div>
         <div class="jackpot-win-name">${esc(winner.name)}</div>
+        ${dotsHtml}
+        ${hasMultiple ? `<div class="jackpot-win-counter">Người ${currentIdx + 1} / ${winners.length}</div>` : ''}
         <div class="jackpot-win-emoji">🥇✨🎊</div>
-        ${winners.length > 1 ? `<div style="font-size:18px;margin-top:10px;font-weight:bold;opacity:.9;">Người ${currentIdx + 1}/${winners.length}</div>` : ''}
-        <button class="jackpot-win-btn" onclick="this.closest('.jackpot-win-overlay').remove(); 
-          ${winners.length > 1 ? `window.__jackpotNext__()` : ''}">
-          ${currentIdx < winners.length - 1 ? '👉 XEM TIẾP' : '✅ HOÀN THÀNH'}
-        </button>
+        
+        <div class="jackpot-win-buttons">
+          ${!isLast ? `
+            <button class="jackpot-win-btn" onclick="window.__jackpotNext__()">
+              👉 XEM TIẾP (${currentIdx + 2}/${winners.length})
+            </button>
+          ` : `
+            <button class="jackpot-win-btn" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotWinners__);">
+              ✅ HOÀN THÀNH
+            </button>
+          `}
+          <button class="jackpot-win-btn secondary" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotWinners__);">
+            ⏭️ BỎ QUA
+          </button>
+        </div>
       </div>
     `;
     
     document.body.appendChild(overlay);
     
-    // Confetti
     triggerJackpotConfetti();
-    
-    // Phát âm thanh win
     playWinSound();
     
-    // Đăng ký callback cho "Xem tiếp"
+    // Đếm ngược
+    let countdown = AUTO_CLOSE_SECONDS;
+    const countEl = document.getElementById('jackpotCountNum');
+    jackpotWinInterval = setInterval(() => {
+      countdown--;
+      if (countEl) countEl.textContent = Math.max(0, countdown);
+    }, 1000);
+    
+    // Tự động chuyển/đóng
+    const autoTimer = setTimeout(() => {
+      clearJackpotWinTimers();
+      if (isLast) {
+        closeAllJackpotWins();
+        showJackpotResult(winners);
+      } else {
+        currentIdx++;
+        showNext();
+      }
+    }, AUTO_CLOSE_SECONDS * 1000);
+    jackpotWinTimers.push(autoTimer);
+    
+    // Callback "Xem tiếp"
     window.__jackpotNext__ = () => {
+      clearJackpotWinTimers();
       currentIdx++;
       showNext();
     };
   }
   
-  // Nếu có nhiều người, hiện từng người 1
   showNext();
 }
 
-// ═══ Kết quả dạng list (sau khi xem full-screen) ═══
+// ═══ Phím ESC để đóng full-screen ═══
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.querySelector('.jackpot-win-overlay')) {
+    closeAllJackpotWins();
+    if (window.__jackpotWinners__) showJackpotResult(window.__jackpotWinners__);
+  }
+});
+
+// ═══ Kết quả dạng list ═══
 function showJackpotResult(winners) {
   const box = document.getElementById('jackpotResultBox');
   const content = document.getElementById('jackpotResultContent');
+  if (!box || !content) return;
   box.style.display = 'block';
   
   content.innerHTML = winners.map((w, i) => {
@@ -4697,7 +4786,8 @@ function showJackpotResult(winners) {
 }
 
 function hideJackpotResult() {
-  document.getElementById('jackpotResultBox').style.display = 'none';
+  const box = document.getElementById('jackpotResultBox');
+  if (box) box.style.display = 'none';
 }
 
 function copyJackpotResults() {
@@ -4710,7 +4800,6 @@ function copyJackpotResults() {
     .catch(() => alert(text));
 }
 
-// ═══ Confetti cho jackpot win ═══
 function triggerJackpotConfetti() {
   const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6','#f59e0b','#fff'];
   for (let i = 0; i < 120; i++) {
@@ -4726,7 +4815,6 @@ function triggerJackpotConfetti() {
   }
 }
 
-// ═══ Âm thanh jackpot ═══
 let jackpotAudioCtx = null;
 let jackpotSoundInterval = null;
 
@@ -4757,8 +4845,7 @@ function stopJackpotSound() {
 function playWinSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // Âm thanh chiến thắng: 3 nốt tăng dần
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    const notes = [523.25, 659.25, 783.99, 1046.50];
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -4775,7 +4862,6 @@ function playWinSound() {
   } catch (e) {}
 }
 
-// ═══ Lịch sử ═══
 function saveJackpotHistory(winners) {
   const entry = {
     id: uid(),
@@ -4822,7 +4908,6 @@ function clearJackpotHistory() {
   toast('🗑️ Đã xóa lịch sử!');
 }
 
-// ═══ Hook vào showTab ═══
 const _origShowTabJackpot = showTab;
 showTab = function(id, btn) {
   _origShowTabJackpot(id, btn);
@@ -4831,7 +4916,6 @@ showTab = function(id, btn) {
   }
 };
 
-// ═══ Hook vào renderAllUI để refresh ═══
 const _origRenderAllUIJackpot = renderAllUI;
 renderAllUI = function() {
   _origRenderAllUIJackpot();
@@ -4841,11 +4925,11 @@ renderAllUI = function() {
   }
 };
 
-// ═══ Phím Space để quay ═══
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' && 
       document.getElementById('sec-random')?.classList.contains('active') &&
       !jackpotState.spinning &&
+      !document.querySelector('.jackpot-win-overlay') &&
       document.activeElement.tagName !== 'INPUT' &&
       document.activeElement.tagName !== 'SELECT' &&
       document.activeElement.tagName !== 'TEXTAREA') {
@@ -4853,7 +4937,7 @@ document.addEventListener('keydown', (e) => {
     pullJackpotLever();
   }
 });
-
+  
 /* ═══════════════ INIT ═══════════════ */
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
 document.getElementById('exPrice')?.addEventListener('input', calcExpAmt);
