@@ -1461,21 +1461,20 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ SECTION: JACKPOT ═══════════════ -->
+<!-- ═══════════════ JACKPOT — KING SLOT ═══════════════ -->
 <div id="sec-random" class="section-pane">
-  <div class="card" style="background:linear-gradient(135deg,#f59e0b,#dc2626,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
-    <div style="font-size:46px;margin-bottom:8px;">🎰</div>
-    <h2 style="font-size:20px;text-transform:uppercase;letter-spacing:2px;">JACKPOT MAY MẮN</h2>
+  <div class="card" style="background:linear-gradient(135deg,#7f1d1d,#dc2626,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
+    <div style="font-size:52px;margin-bottom:8px;">🎰</div>
+    <h2 style="font-size:22px;text-transform:uppercase;letter-spacing:3px;">JACKPOT MAY MẮN</h2>
     <p style="font-size:13px;opacity:.95;margin-top:6px;">Kéo cần gạt → Quay số → Trúng thưởng!</p>
   </div>
 
-  <!-- Cài đặt -->
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
     <h3 style="color:#92400e;">⚙️ Cài Đặt</h3>
     <div class="form-group">
       <label>👥 Người tham gia:</label>
-      <input type="text" class="search-input" id="searchJackpotParticipants" 
-             onkeyup="filterChecklist('searchJackpotParticipants','jackpotChecklist')" 
+      <input type="text" class="search-input" id="searchJackpotParticipants"
+             onkeyup="filterChecklist('searchJackpotParticipants','jackpotChecklist')"
              placeholder="🔍 Tìm tên..." style="margin-bottom:6px;">
       <div class="checkbox-toolbar">
         <button class="btn-act btn-mini" onclick="toggleAll('jackpotCheck',true)">✔ Tất cả</button>
@@ -1506,34 +1505,76 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
     </div>
   </div>
 
-  <!-- MÁY JACKPOT -->
-  <div class="card" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border:4px solid #fbbf24;padding:20px;position:relative;">
-    <!-- Đèn nhấp nháy quanh máy -->
-    <div class="jackpot-lights" id="jackpotLights"></div>
-    
-    <!-- Khung máy -->
-    <div class="jackpot-machine">
-      <!-- Reels -->
-      <div class="jackpot-reels" id="jackpotReels"></div>
-      
-      <!-- Lever (cần gạt) -->
-      <div class="jackpot-lever" id="jackpotLever" onclick="pullJackpotLever()" title="Nhấn để quay!">
-        <div class="lever-knob"></div>
-        <div class="lever-arm"></div>
-        <div class="lever-base"></div>
+  <button class="btn-act" onclick="toggleJackpotFullscreen()" id="btnJackpotFullscreen"
+          style="width:100%;padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
+    📺 BẬT TOÀN MÀN HÌNH (chiếu TV)
+  </button>
+
+  <!-- ═══ MÁY JACKPOT ═══ -->
+  <div class="king-slot" id="jackpotCabinet">
+    <div class="king-crown">
+      <div class="crown-top">
+        <div class="crown-spike"></div>
+        <div class="crown-spike"></div>
+        <div class="crown-spike"></div>
+      </div>
+      <div class="crown-band">
+        <span class="gem gem-red"></span>
+        <span class="gem gem-blue"></span>
+        <span class="gem gem-green"></span>
+        <span class="gem gem-red"></span>
+        <span class="gem gem-blue"></span>
+      </div>
+      <div class="crown-base"></div>
+    </div>
+
+    <div class="king-body">
+      <div class="king-screen">
+        <div class="slot-reels" id="jackpotReels"></div>
+        <div class="screen-glass"></div>
+        <div class="screen-payline"></div>
+      </div>
+
+      <div class="king-lever" id="jackpotLever" onclick="pullJackpotLever()" title="KÉO CẦN GẠT">
+        <div class="lever-pole"></div>
+        <div class="lever-ball"><div class="ball-shine"></div></div>
+        <div class="lever-mount"></div>
       </div>
     </div>
-    
-    <!-- Nút quay dự phòng (cho mobile) -->
-    <button class="btn-act" id="btnJackpotSpin" onclick="pullJackpotLever()" 
-            style="width:100%;margin-top:20px;padding:16px;font-size:16px;font-weight:bold;
-                   background:linear-gradient(135deg,#f59e0b,#dc2626);color:#fff;
-                   border:3px solid #fbbf24;border-radius:12px;box-shadow:0 0 20px rgba(251,191,36,.5);">
+
+    <div class="king-buttons">
+      <div class="king-btn"></div>
+      <div class="king-btn"></div>
+      <div class="king-btn"></div>
+    </div>
+
+    <button class="king-spin-btn" id="btnJackpotSpin" onclick="pullJackpotLever()">
       🎰 QUAY NGAY 🎰
     </button>
+
+    <div class="king-leds">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="flying-coins">
+      <div class="coin coin-1">💰</div>
+      <div class="coin coin-2">💵</div>
+      <div class="coin coin-3">🪙</div>
+      <div class="coin coin-4">💰</div>
+      <div class="coin coin-5">💵</div>
+    </div>
   </div>
 
-  <!-- Kết quả -->
+  <!-- Hàng chờ -->
+  <div class="card" id="jackpotPendingBox" style="display:none;border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+    <h3 style="color:#92400e;">🎯 Đang bốc thăm... <span id="jackpotPendingProgress" style="font-size:12px;font-weight:400;"></span></h3>
+    <div id="jackpotPendingList" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:10px;"></div>
+    <p style="text-align:center;font-size:12px;color:#78350f;font-style:italic;margin-top:8px;">
+      ⏳ Sẽ bung tên người trúng sau khi quay đủ số
+    </p>
+  </div>
+
   <div class="card" id="jackpotResultBox" style="display:none;border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
     <h3 style="color:#166534;">🏆 Kết Quả</h3>
     <div id="jackpotResultContent"></div>
@@ -1543,7 +1584,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
     </div>
   </div>
 
-  <!-- Lịch sử -->
   <div class="card">
     <h3>📜 Lịch Sử Quay
       <button class="btn-act btn-danger btn-mini" onclick="clearJackpotHistory()">🗑️ Xóa</button>
