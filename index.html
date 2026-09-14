@@ -1804,8 +1804,8 @@ function toggleTheme(){ const d=document.body.classList.toggle('dark'); document
 
  /* ═══ KIỂM TRA MẬT KHẨU MẠNH ═══ */
 function checkStrongPassword(pw) {
-  if (typeof pw !== 'string' || pw.length < 10)
-    return { ok: false, msg: 'Mật khẩu cần ít nhất 10 ký tự!' };
+  if (typeof pw !== 'string' || pw.length < 8)
+    return { ok: false, msg: 'Mật khẩu cần ít nhất 8 ký tự!' };
   if (!/[a-z]/.test(pw)) return { ok: false, msg: 'Cần ít nhất 1 chữ thường!' };
   if (!/[A-Z]/.test(pw)) return { ok: false, msg: 'Cần ít nhất 1 chữ HOA!' };
   if (!/[0-9]/.test(pw)) return { ok: false, msg: 'Cần ít nhất 1 số!' };
@@ -1879,8 +1879,13 @@ async function handleAuth() {
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
   if (!email || !password) { showAuthMsg('❌ Nhập email và mật khẩu!', 'error'); return; }
-  const pwCheck = checkStrongPassword(password);
-  if (!pwCheck.ok) { showAuthMsg('❌ ' + pwCheck.msg, 'error'); return; }
+
+  // ✅ CHỈ kiểm tra mật khẩu mạnh khi ĐĂNG KÝ (không check khi đăng nhập)
+  if (authMode === 'signup') {
+    const pwCheck = checkStrongPassword(password);
+    if (!pwCheck.ok) { showAuthMsg('❌ ' + pwCheck.msg, 'error'); return; }
+  }
+
   document.getElementById('authMsg').className = 'auth-msg';
 
   try {
@@ -1888,7 +1893,7 @@ async function handleAuth() {
       const password2 = document.getElementById('authPassword2').value;
       if (password !== password2) { showAuthMsg('❌ Mật khẩu nhập lại không khớp!', 'error'); return; }
 
-            const userCred = await auth.createUserWithEmailAndPassword(email, password);
+      const userCred = await auth.createUserWithEmailAndPassword(email, password);
       const userUid = userCred.user.uid;
 
       // ✅ Gửi email xác thực
@@ -1907,7 +1912,7 @@ async function handleAuth() {
       showAuthMsg('✅ Đăng ký thành công!\n📧 Vào email (kể cả Spam) bấm link xác nhận, rồi quay lại đăng nhập.', 'success');
       await auth.signOut();
       return;
-   
+
     } else {
       await auth.signInWithEmailAndPassword(email, password);
     }
@@ -1980,7 +1985,7 @@ async function forgotPassword() {
 }
 
 function logout() { if (!confirm('Đăng xuất?')) return; auth.signOut(); }
-
+ 
 /* ═══════════════ CREATE CLASS ═══════════════ */
 async function createClassDoc(ownerId, ownerEmail, className, school, teacher, year) {
   let classId, attempts = 0;
