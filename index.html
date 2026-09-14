@@ -198,7 +198,7 @@
     <div id="authMsg" class="auth-msg"></div>
 
     <input type="email" id="authEmail" placeholder="📧 Email..." autocomplete="email">
-    <input type="password" id="authPassword" placeholder="🔒 Mật khẩu (tối thiểu 6 ký tự)">
+    <input type="password" id="authPassword" placeholder="🔒 (tối thiểu 10 ký tự, có HOA + số + ký tự đặc biệt)">
     <input type="password" id="authPassword2" placeholder="🔒 Nhập lại mật khẩu" style="display:none;">
 
     <div id="signupModeBox" style="display:none;">
@@ -1790,7 +1790,7 @@ const uid = () => Date.now()+Math.floor(Math.random()*10000);
 const genClassId = () => {
   const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
   let id = '';
-  for (let i = 0; i < 6; i++) id += chars[Math.floor(Math.random()*chars.length)];
+  for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random()*chars.length)];
   return id;
 };
 const defaultSubjects = ['Toán','Ngữ Văn','Lịch Sử','Địa Lý','GDKT & PL','Hóa Học','Vật Lý','Tiếng Anh','Sinh Học','Tin Học'];
@@ -1802,7 +1802,23 @@ function toggleTheme(){ const d=document.body.classList.toggle('dark'); document
 
 ['exDate','ddDate','scDate','colDate','hoDate','ptStart','ldDutyDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayStr(); });
 
-function classifyScore(avg) {
+ /* ═══ KIỂM TRA MẬT KHẨU MẠNH ═══ */
+function checkStrongPassword(pw) {
+  if (typeof pw !== 'string' || pw.length < 10)
+    return { ok: false, msg: 'Mật khẩu cần ít nhất 10 ký tự!' };
+  if (!/[a-z]/.test(pw)) return { ok: false, msg: 'Cần ít nhất 1 chữ thường!' };
+  if (!/[A-Z]/.test(pw)) return { ok: false, msg: 'Cần ít nhất 1 chữ HOA!' };
+  if (!/[0-9]/.test(pw)) return { ok: false, msg: 'Cần ít nhất 1 số!' };
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw))
+    return { ok: false, msg: 'Cần ít nhất 1 ký tự đặc biệt (!@#$...)!' };
+  const weak = ['123456','12345678','password','qwerty','abc123','111111',
+                '123456789','admin','letmein','welcome'];
+  if (weak.some(w => pw.toLowerCase().includes(w)))
+    return { ok: false, msg: 'Mật khẩu quá dễ đoán!' };
+  return { ok: true };
+}
+
+ function classifyScore(avg) {
   if (avg >= 8.0) return { label: 'Giỏi', cls: 'badge-excellent' };
   if (avg >= 6.5) return { label: 'Khá', cls: 'badge-good' };
   if (avg >= 5.0) return { label: 'Trung bình', cls: 'badge-average' };
@@ -1863,7 +1879,8 @@ async function handleAuth() {
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
   if (!email || !password) { showAuthMsg('❌ Nhập email và mật khẩu!', 'error'); return; }
-  if (password.length < 6) { showAuthMsg('❌ Mật khẩu từ 6 ký tự!', 'error'); return; }
+  const pwCheck = checkStrongPassword(password);
+  if (!pwCheck.ok) { showAuthMsg('❌ ' + pwCheck.msg, 'error'); return; }
   document.getElementById('authMsg').className = 'auth-msg';
 
   try {
@@ -1871,10 +1888,26 @@ async function handleAuth() {
       const password2 = document.getElementById('authPassword2').value;
       if (password !== password2) { showAuthMsg('❌ Mật khẩu nhập lại không khớp!', 'error'); return; }
 
-      const userCred = await auth.createUserWithEmailAndPassword(email, password);
+            const userCred = await auth.createUserWithEmailAndPassword(email, password);
       const userUid = userCred.user.uid;
 
-      if (signupMode === 'join') {
+      // ✅ Gửi email xác thực
+      await userCred.user.sendEmailVerification();
+
+      // Tạo profile user (chưa join lớp)
+      await db.collection('users').doc(userUid).set({
+        email,
+        displayName: '',
+        currentClassId: null,
+        myClasses: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      showAuthMsg('✅ Đăng ký thành công!\n📧 Vào email (kể cả Spam) bấm link xác nhận, rồi quay lại đăng nhập.', 'success');
+      await auth.signOut();
+      return;
+     
         // ═══════ VÀO LỚP CÓ SẴN ═══════
         const joinClassId = document.getElementById('authJoinClassId').value.trim().toLowerCase();
         if (!joinClassId) {
@@ -2087,6 +2120,17 @@ async function loadClassFromCloud(classId) {
 /* ═══════════════ AUTH STATE ═══════════════ */
 auth.onAuthStateChanged(async user => {
   if (user) {
+   // ✅ Chặn user chưa verify email
+    if (!user.emailVerified) {
+      document.getElementById('authScreen').style.display = 'flex';
+      document.getElementById('userBar').style.display = 'none';
+      document.getElementById('syncBadge').style.display = 'none';
+      document.getElementById('classSwitcher').style.display = 'none';
+      showAuthMsg('⚠️ Email chưa xác thực!\n📧 Vào hộp thư (kể cả Spam) bấm link xác nhận rồi đăng nhập lại.', 'error');
+      await auth.signOut();
+      return;
+    }
+   
     currentUser = user;
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('userBar').style.display = 'flex';
@@ -5963,7 +6007,25 @@ document.addEventListener('keydown', (e) => {
 });
 
 if (!DONATE_CONFIG.enabled) document.getElementById('donateBtn').style.display = 'none';
-console.log('%c✅ App v8.1 — Full features','color:#10b981;font-size:16px;font-weight:bold;');
+/* ═══ TỰ ĐỘNG ĐĂNG XUẤT SAU 30 PHÚT ═══ */
+let sessionLastActivity = Date.now();
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 phút
+
+['click','keydown','mousemove','touchstart','scroll'].forEach(evt => {
+  document.addEventListener(evt, () => { sessionLastActivity = Date.now(); }, { passive: true });
+});
+
+setInterval(() => {
+  if (currentUser && Date.now() - sessionLastActivity > SESSION_TIMEOUT_MS) {
+    if (confirm('⏰ Phiên đã hết hạn sau 30 phút không hoạt động.\n\nĐăng nhập lại?')) {
+      auth.signOut();
+      location.reload();
+    } else {
+      sessionLastActivity = Date.now();
+    }
+  }
+}, 60000); // kiểm tra mỗi phút
+ console.log('%c✅ App v8.1 — Full features','color:#10b981;font-size:16px;font-weight:bold;');
  /* ═══════════════ BẢNG 5 NGÀY GẦN NHẤT ═══════════════ */
 function renderDD5Days() {
   const students = getStudents();
