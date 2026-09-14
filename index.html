@@ -140,7 +140,6 @@ th{background:#1e3a8a;color:#fff;font-size:12px;font-weight:600}
 .sync-dot.syncing{background:#f59e0b;animation:pulse 1s infinite}
 .sync-dot.error{background:#ef4444}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .user-bar{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 .user-bar .user-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .user-bar .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;flex-shrink:0;border:2px solid #fff}
@@ -188,334 +187,56 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 #ownerFooter{margin-top:20px;background:linear-gradient(135deg,#1e3a8a 0,#2563eb 45%,#7c3aed 100%);color:#fff;text-align:center;padding:14px 16px;border-radius:12px;line-height:1.5;width:100%}
 #ownerFooter .owner-name{display:inline-block;padding:2px 10px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin:0 2px}
 .readonly-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#78350f;font-weight:600;text-align:center}
+
 /* ═══════════════ SLOT MACHINE — 3 Ô SỐ HÀNG NGANG ═══════════════ */
-.slot-machine {
-  background: linear-gradient(180deg, #7f1d1d, #991b1b, #7f1d1d);
-  border: 6px solid #fbbf24;
-  border-radius: 24px;
-  padding: 20px;
-  margin: 20px auto 16px;
-  max-width: 720px;
-  box-shadow:
-    inset 0 0 50px rgba(0,0,0,.6),
-    0 0 60px rgba(251,191,36,.5),
-    0 15px 40px rgba(0,0,0,.6);
-  position: relative;
-}
-.slot-machine::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 26px;
-  padding: 3px;
-  background: linear-gradient(45deg,#fbbf24,#dc2626,#fbbf24,#f59e0b,#fbbf24);
-  background-size: 400% 400%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: borderGlow 4s linear infinite;
-  pointer-events: none;
-}
-@keyframes borderGlow {
-  0%,100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
+.slot-machine{background:linear-gradient(180deg,#7f1d1d,#991b1b,#7f1d1d);border:6px solid #fbbf24;border-radius:24px;padding:20px;margin:20px auto 16px;max-width:720px;box-shadow:inset 0 0 50px rgba(0,0,0,.6),0 0 60px rgba(251,191,36,.5),0 15px 40px rgba(0,0,0,.6);position:relative}
+.slot-machine::before{content:'';position:absolute;inset:-3px;border-radius:26px;padding:3px;background:linear-gradient(45deg,#fbbf24,#dc2626,#fbbf24,#f59e0b,#fbbf24);background-size:400% 400%;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:borderGlow 4s linear infinite;pointer-events:none}
+@keyframes borderGlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.slot-crown{display:inline-block;background:linear-gradient(180deg,#fef3c7,#fbbf24,#f59e0b);color:#7f1d1d;padding:8px 32px;border-radius:14px;font-size:clamp(18px,3vw,26px);font-weight:900;letter-spacing:4px;border:3px solid #fff;box-shadow:0 0 30px rgba(251,191,36,1),0 0 60px rgba(251,191,36,.5);text-shadow:1px 1px 0 rgba(255,255,255,.5);animation:crownPulse 2s ease-in-out infinite;margin-bottom:12px;position:relative;left:50%;transform:translateX(-50%)}
+@keyframes crownPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.04)}}
+.slot-lights{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+.slot-lights span{width:14px;height:14px;border-radius:50%;background:#fbbf24;box-shadow:0 0 15px #fbbf24,0 0 30px #fbbf24;animation:lightBlink 0.5s infinite alternate}
+.slot-lights span:nth-child(odd){background:#dc2626;box-shadow:0 0 15px #dc2626,0 0 30px #dc2626;animation-delay:0.25s}
+@keyframes lightBlink{from{opacity:0.3;transform:scale(0.8)}to{opacity:1;transform:scale(1.2)}}
+.slot-body{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:16px;flex-wrap:wrap}
+.slot-screen-frame{position:relative;background:linear-gradient(180deg,#1e293b,#0f172a);border:5px solid #fbbf24;border-radius:16px;padding:16px;box-shadow:inset 0 0 40px rgba(0,0,0,1),0 0 25px rgba(251,191,36,.4)}
+.slot-reels{display:flex;gap:12px;justify-content:center}
+.jackpot-reel{width:120px;height:160px;background:linear-gradient(180deg,#fff,#f1f5f9,#fff);border:4px solid #334155;border-radius:12px;overflow:hidden;position:relative;box-shadow:inset 0 12px 20px rgba(0,0,0,.25),inset 0 -12px 20px rgba(0,0,0,.25)}
+.jackpot-reel-inner{position:absolute;top:0;left:0;width:100%;display:flex;flex-direction:column}
+.jackpot-reel-item{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:90px;font-weight:900;color:#dc2626;font-family:'Courier New',monospace;line-height:1;background:linear-gradient(180deg,#fff,#f1f5f9,#fff);text-shadow:2px 2px 0 #fff,-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,0 0 20px rgba(220,38,38,.5)}
+.jackpot-reel.win{box-shadow:inset 0 12px 20px rgba(0,0,0,.25),0 0 35px #fbbf24,0 0 70px #fbbf24;animation:reelWin .6s ease-out}
+@keyframes reelWin{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.slot-payline{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:3px;background:linear-gradient(90deg,transparent,rgba(220,38,38,.9) 20%,rgba(220,38,38,1) 50%,rgba(220,38,38,.9) 80%,transparent);box-shadow:0 0 15px #dc2626;z-index:3;pointer-events:none;animation:paylineGlow 1.5s ease-in-out infinite}
+@keyframes paylineGlow{0%,100%{opacity:0.5}50%{opacity:1}}
+.slot-glass{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.2) 0%,transparent 20%,transparent 80%,rgba(0,0,0,.35) 100%);pointer-events:none;z-index:4;border-radius:12px}
+.slot-lever{position:relative;width:70px;height:220px;cursor:pointer;user-select:none;transition:transform .15s}
+.slot-lever:hover{transform:scale(1.05)}
+.lever-pole{position:absolute;bottom:45px;left:50%;transform:translateX(-50%);width:14px;height:100px;background:linear-gradient(90deg,#78350f,#fbbf24 25%,#fef3c7 50%,#fbbf24 75%,#78350f);border-radius:7px;transition:height .55s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 12px rgba(251,191,36,.6)}
+.lever-ball{position:absolute;top:0;left:50%;transform:translateX(-50%);width:66px;height:66px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fca5a5,#dc2626 55%,#7f1d1d);box-shadow:0 0 30px rgba(220,38,38,1),0 0 60px rgba(220,38,38,.6),inset -6px -6px 14px rgba(0,0,0,.5),inset 6px 6px 14px rgba(255,255,255,.4);z-index:2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;letter-spacing:2px;text-shadow:0 2px 4px rgba(0,0,0,.7);animation:ballPulse 2s ease-in-out infinite;transition:top .55s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes ballPulse{0%,100%{box-shadow:0 0 30px rgba(220,38,38,1),0 0 60px rgba(220,38,38,.6),inset -6px -6px 14px rgba(0,0,0,.5),inset 6px 6px 14px rgba(255,255,255,.4)}50%{box-shadow:0 0 50px rgba(220,38,38,1),0 0 100px rgba(220,38,38,.9),inset -6px -6px 14px rgba(0,0,0,.5),inset 6px 6px 14px rgba(255,255,255,.4)}}
+.lever-base{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:50px;background:linear-gradient(180deg,#fbbf24,#78350f);border-radius:10px;border:3px solid #451a03;box-shadow:0 0 20px rgba(251,191,36,.7)}
+.slot-lever.pulled .lever-ball{top:90px}
+.slot-lever.pulled .lever-pole{height:55px}
+.slot-spin-btn{display:block;width:100%;max-width:420px;margin:0 auto 12px;padding:18px;background:linear-gradient(180deg,#fef3c7,#fbbf24,#f59e0b,#d97706);color:#7f1d1d;border:4px solid #fff;border-radius:14px;font-size:20px;font-weight:900;letter-spacing:3px;cursor:pointer;box-shadow:0 0 30px rgba(251,191,36,.9),0 6px 0 #78350f,inset 0 -3px 10px rgba(0,0,0,.2),inset 0 3px 10px rgba(255,255,255,.5);transition:all .15s;text-shadow:1px 1px 0 rgba(255,255,255,.6)}
+.slot-spin-btn:hover{transform:translateY(-2px)}
+.slot-spin-btn:active{transform:translateY(4px);box-shadow:0 0 30px rgba(251,191,36,.9),0 2px 0 #78350f}
+.slot-spin-btn:disabled{opacity:.6;cursor:not-allowed}
+.slot-leds{display:flex;justify-content:center;gap:6px}
+.slot-leds span{width:22px;height:8px;border-radius:4px;background:linear-gradient(90deg,#dc2626,#fbbf24,#10b981,#3b82f6,#8b5cf6);animation:ledRun 1.5s linear infinite;box-shadow:0 0 10px rgba(251,191,36,.8)}
+.slot-leds span:nth-child(2){animation-delay:.1s}
+.slot-leds span:nth-child(3){animation-delay:.2s}
+.slot-leds span:nth-child(4){animation-delay:.3s}
+.slot-leds span:nth-child(5){animation-delay:.4s}
+.slot-leds span:nth-child(6){animation-delay:.5s}
+.slot-leds span:nth-child(7){animation-delay:.6s}
+.slot-leds span:nth-child(8){animation-delay:.7s}
+.slot-leds span:nth-child(9){animation-delay:.8s}
+.slot-leds span:nth-child(10){animation-delay:.9s}
+@keyframes ledRun{0%,100%{opacity:.4}50%{opacity:1;box-shadow:0 0 15px #fbbf24,0 0 30px #f59e0b}}
+.jackpot-pending-item{background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border:4px solid #fbbf24;border-radius:12px;padding:10px 22px;font-size:40px;font-weight:900;font-family:'Courier New',monospace;color:#fbbf24;text-shadow:0 0 25px rgba(251,191,36,1);letter-spacing:6px;box-shadow:0 0 25px rgba(251,191,36,.6),inset 0 0 20px rgba(0,0,0,.9);animation:pendingPop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pendingPop{0%{transform:scale(.2) rotate(-15deg);opacity:0}70%{transform:scale(1.15) rotate(5deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@media (max-width:640px){.jackpot-reel{width:80px;height:105px}.jackpot-reel-item{height:105px;font-size:58px}.slot-lever{width:55px;height:175px}.lever-ball{width:50px;height:50px;font-size:10px}.lever-pole{height:75px;width:11px}.slot-lever.pulled .lever-ball{top:70px}.slot-lever.pulled .lever-pole{height:40px}.lever-base{width:48px;height:40px}.slot-machine{padding:14px 10px}.jackpot-pending-item{font-size:30px;padding:8px 16px}}
 
-.slot-crown {
-  display: inline-block;
-  background: linear-gradient(180deg, #fef3c7, #fbbf24, #f59e0b);
-  color: #7f1d1d;
-  padding: 8px 32px;
-  border-radius: 14px;
-  font-size: clamp(18px, 3vw, 26px);
-  font-weight: 900;
-  letter-spacing: 4px;
-  border: 3px solid #fff;
-  box-shadow: 0 0 30px rgba(251,191,36,1), 0 0 60px rgba(251,191,36,.5);
-  text-shadow: 1px 1px 0 rgba(255,255,255,.5);
-  animation: crownPulse 2s ease-in-out infinite;
-  margin-bottom: 12px;
-}
-@keyframes crownPulse {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-}
-
-.slot-lights {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.slot-lights span {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fbbf24;
-  box-shadow: 0 0 15px #fbbf24, 0 0 30px #fbbf24;
-  animation: lightBlink 0.5s infinite alternate;
-}
-.slot-lights span:nth-child(odd) {
-  background: #dc2626;
-  box-shadow: 0 0 15px #dc2626, 0 0 30px #dc2626;
-  animation-delay: 0.25s;
-}
-@keyframes lightBlink {
-  from { opacity: 0.3; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1.2); }
-}
-
-.slot-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.slot-screen-frame {
-  position: relative;
-  background: linear-gradient(180deg, #1e293b, #0f172a);
-  border: 5px solid #fbbf24;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: inset 0 0 40px rgba(0,0,0,1), 0 0 25px rgba(251,191,36,.4);
-}
-
-/* ═══ 3 Ô SỐ HÀNG NGANG ═══ */
-.slot-reels {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.jackpot-reel {
-  width: 120px;
-  height: 160px;
-  background: linear-gradient(180deg, #fff, #f1f5f9, #fff);
-  border: 4px solid #334155;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: inset 0 12px 20px rgba(0,0,0,.25), inset 0 -12px 20px rgba(0,0,0,.25);
-}
-
-.jackpot-reel-inner {
-  position: absolute;
-  top: 0; left: 0; width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.jackpot-reel-item {
-  width: 100%;
-  height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 90px;
-  font-weight: 900;
-  color: #dc2626;
-  font-family: 'Courier New', monospace;
-  line-height: 1;
-  background: linear-gradient(180deg, #fff, #f1f5f9, #fff);
-  text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 0 20px rgba(220,38,38,.5);
-}
-
-.jackpot-reel.win {
-  box-shadow: inset 0 12px 20px rgba(0,0,0,.25), 0 0 35px #fbbf24, 0 0 70px #fbbf24;
-  animation: reelWin .6s ease-out;
-}
-@keyframes reelWin {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.slot-payline {
-  position: absolute;
-  left: 0; right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(220,38,38,.9) 20%, rgba(220,38,38,1) 50%, rgba(220,38,38,.9) 80%, transparent);
-  box-shadow: 0 0 15px #dc2626;
-  z-index: 3;
-  pointer-events: none;
-  animation: paylineGlow 1.5s ease-in-out infinite;
-}
-@keyframes paylineGlow {
-  0%,100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-.slot-glass {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.2) 0%, transparent 20%, transparent 80%, rgba(0,0,0,.35) 100%);
-  pointer-events: none;
-  z-index: 4;
-  border-radius: 12px;
-}
-
-/* ═══ CẦN GẠT ═══ */
-.slot-lever {
-  position: relative;
-  width: 70px;
-  height: 220px;
-  cursor: pointer;
-  user-select: none;
-  transition: transform .15s;
-}
-.slot-lever:hover { transform: scale(1.05); }
-.lever-pole {
-  position: absolute;
-  bottom: 45px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 100px;
-  background: linear-gradient(90deg, #78350f, #fbbf24 25%, #fef3c7 50%, #fbbf24 75%, #78350f);
-  border-radius: 7px;
-  transition: height .55s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 12px rgba(251,191,36,.6);
-}
-.lever-ball {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 66px;
-  height: 66px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626 55%, #7f1d1d);
-  box-shadow: 0 0 30px rgba(220,38,38,1), 0 0 60px rgba(220,38,38,.6), inset -6px -6px 14px rgba(0,0,0,.5), inset 6px 6px 14px rgba(255,255,255,.4);
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 2px;
-  text-shadow: 0 2px 4px rgba(0,0,0,.7);
-  animation: ballPulse 2s ease-in-out infinite;
-  transition: top .55s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes ballPulse {
-  0%,100% { box-shadow: 0 0 30px rgba(220,38,38,1), 0 0 60px rgba(220,38,38,.6), inset -6px -6px 14px rgba(0,0,0,.5), inset 6px 6px 14px rgba(255,255,255,.4); }
-  50% { box-shadow: 0 0 50px rgba(220,38,38,1), 0 0 100px rgba(220,38,38,.9), inset -6px -6px 14px rgba(0,0,0,.5), inset 6px 6px 14px rgba(255,255,255,.4); }
-}
-.lever-base {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 50px;
-  background: linear-gradient(180deg, #fbbf24, #78350f);
-  border-radius: 10px;
-  border: 3px solid #451a03;
-  box-shadow: 0 0 20px rgba(251,191,36,.7);
-}
-.slot-lever.pulled .lever-ball { top: 90px; }
-.slot-lever.pulled .lever-pole { height: 55px; }
-
-/* ═══ NÚT QUAY ═══ */
-.slot-spin-btn {
-  display: block;
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto 12px;
-  padding: 18px;
-  background: linear-gradient(180deg, #fef3c7, #fbbf24, #f59e0b, #d97706);
-  color: #7f1d1d;
-  border: 4px solid #fff;
-  border-radius: 14px;
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: 3px;
-  cursor: pointer;
-  box-shadow: 0 0 30px rgba(251,191,36,.9), 0 6px 0 #78350f, inset 0 -3px 10px rgba(0,0,0,.2), inset 0 3px 10px rgba(255,255,255,.5);
-  transition: all .15s;
-  text-shadow: 1px 1px 0 rgba(255,255,255,.6);
-}
-.slot-spin-btn:hover { transform: translateY(-2px); }
-.slot-spin-btn:active { transform: translateY(4px); box-shadow: 0 0 30px rgba(251,191,36,.9), 0 2px 0 #78350f; }
-.slot-spin-btn:disabled { opacity: .6; cursor: not-allowed; }
-
-.slot-leds {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-.slot-leds span {
-  width: 22px;
-  height: 8px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #dc2626, #fbbf24, #10b981, #3b82f6, #8b5cf6);
-  animation: ledRun 1.5s linear infinite;
-  box-shadow: 0 0 10px rgba(251,191,36,.8);
-}
-.slot-leds span:nth-child(2) { animation-delay: .1s; }
-.slot-leds span:nth-child(3) { animation-delay: .2s; }
-.slot-leds span:nth-child(4) { animation-delay: .3s; }
-.slot-leds span:nth-child(5) { animation-delay: .4s; }
-.slot-leds span:nth-child(6) { animation-delay: .5s; }
-.slot-leds span:nth-child(7) { animation-delay: .6s; }
-.slot-leds span:nth-child(8) { animation-delay: .7s; }
-.slot-leds span:nth-child(9) { animation-delay: .8s; }
-.slot-leds span:nth-child(10) { animation-delay: .9s; }
-@keyframes ledRun {
-  0%,100% { opacity: .4; }
-  50% { opacity: 1; box-shadow: 0 0 15px #fbbf24, 0 0 30px #f59e0b; }
-}
-
-.jackpot-pending-item {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 4px solid #fbbf24;
-  border-radius: 12px;
-  padding: 10px 22px;
-  font-size: 40px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  color: #fbbf24;
-  text-shadow: 0 0 25px rgba(251,191,36,1);
-  letter-spacing: 6px;
-  box-shadow: 0 0 25px rgba(251,191,36,.6), inset 0 0 20px rgba(0,0,0,.9);
-  animation: pendingPop .5s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes pendingPop {
-  0% { transform: scale(.2) rotate(-15deg); opacity: 0; }
-  70% { transform: scale(1.15) rotate(5deg); }
-  100% { transform: scale(1) rotate(0); opacity: 1; }
-}
-
-@media (max-width: 640px) {
-  .jackpot-reel { width: 80px; height: 105px; }
-  .jackpot-reel-item { height: 105px; font-size: 58px; }
-  .slot-lever { width: 55px; height: 175px; }
-  .lever-ball { width: 50px; height: 50px; font-size: 10px; }
-  .lever-pole { height: 75px; width: 11px; }
-  .slot-lever.pulled .lever-ball { top: 70px; }
-  .slot-lever.pulled .lever-pole { height: 40px; }
-  .lever-base { width: 48px; height: 40px; }
-  .slot-machine { padding: 14px 10px; }
-  .jackpot-pending-item { font-size: 30px; padding: 8px 16px; }
-}
-  @media (max-width: 640px) {
-  .lottery-lever { right: -5px; width: 55px; height: 180px; }
-  .lv-ball { width: 54px; height: 54px; }
-  .lv-shine { width: 18px; height: 18px; }
-  .lv-pole { height: 85px; width: 12px; }
-  .lottery-lever.pulled .lv-ball { top: 80px; }
-  .lottery-lever.pulled .lv-pole { height: 45px; }
-  .lv-base { width: 48px; height: 40px; }
-  .lottery-frame { padding: 16px 12px 20px; }
-  .cage-ball { width: 24px; height: 24px; margin-top: -12px; margin-left: -12px; }
-  .jackpot-pending-item { font-size: 34px; padding: 10px 16px; letter-spacing: 5px; }
-  .decor-ball { font-size: 24px; }
-}
 /* ═══════════════ FULL-SCREEN WIN ═══════════════ */
 .jackpot-win-overlay{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(30,27,75,.99),rgba(15,23,42,.995));z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:30px 20px;animation:winFadeIn .5s ease-out;overflow:hidden}
 @keyframes winFadeIn{from{opacity:0}to{opacity:1}}
@@ -567,19 +288,12 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 @keyframes fireworkBurst{0%{transform:translate(0,0) scale(1.8);opacity:1}100%{transform:translate(var(--fx),var(--fy)) scale(.1);opacity:0}}
 .jackpot-confetti{position:fixed;width:14px;height:14px;z-index:100000;pointer-events:none;animation:confettiFall 4.5s linear forwards}
 @keyframes confettiFall{0%{transform:translateY(-10vh) rotate(0) scale(1);opacity:1}100%{transform:translateY(110vh) rotate(1440deg) scale(.3);opacity:0}}
-@media (max-width: 520px) {
-  .jackpot-win-close { width: 46px; height: 46px; font-size: 22px; top: 15px; right: 15px; }
-  .jackpot-win-countdown { padding: 8px 20px; font-size: 12px; }
-  .jackpot-win-countdown .count-num { width: 30px; height: 30px; font-size: 15px; }
-  .jackpot-win-name { padding: 15px 25px; border-width: 3px; border-radius: 18px; }
-  .jackpot-win-btn { padding: 14px 28px; font-size: 14px; }
-  .jackpot-win-dot { width: 12px; height: 12px; }
-}
+@media (max-width:520px){.jackpot-win-close{width:46px;height:46px;font-size:22px;top:15px;right:15px}.jackpot-win-countdown{padding:8px 20px;font-size:12px}.jackpot-win-countdown .count-num{width:30px;height:30px;font-size:15px}.jackpot-win-name{padding:15px 25px;border-width:3px;border-radius:18px}.jackpot-win-btn{padding:14px 28px;font-size:14px}.jackpot-win-dot{width:12px;height:12px}}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
+<!-- AUTH SCREEN -->
 <div id="authScreen">
   <div class="auth-card">
     <div style="font-size:44px;margin-bottom:8px;">🏫</div>
@@ -609,7 +323,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   👁️ Bạn đang ở chế độ CHỈ XEM — Không thể thêm/sửa/xóa dữ liệu
 </div>
 
-<!-- ═══════════════ HEADER ═══════════════ -->
 <div class="header-box">
   <div class="header-top">
     <div class="header-title">🏫 LỚP <span id="hClassName">...</span></div>
@@ -631,7 +344,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ USER BAR ═══════════════ -->
 <div class="user-bar" id="userBar" style="display:none;">
   <div class="user-info">
     <div class="avatar" id="userAvatar">?</div>
@@ -648,7 +360,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 
 <div class="stats-top" id="topStats"></div>
 
-<!-- ═══════════════ NAV GROUPS ═══════════════ -->
 <div class="nav-container">
   <div class="nav-group">
     <span class="nav-group-label">📖 Bắt đầu</span>
@@ -692,7 +403,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ SECTION: HƯỚNG DẪN ═══════════════ -->
+<!-- HƯỚNG DẪN -->
 <div id="sec-huongdan" class="section-pane active">
   <div class="card" style="background:linear-gradient(135deg,#1e3a8a,#2563eb,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
     <div style="font-size:46px;margin-bottom:8px;">🏫</div>
@@ -708,7 +419,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ SECTION: DANH SÁCH ═══════════════ -->
+<!-- DANH SÁCH -->
 <div id="sec-danhsach" class="section-pane">
   <div class="card">
     <h3>➕ Thêm HS Nhanh</h3>
@@ -752,7 +463,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </tr></thead><tbody id="tbStList"></tbody></table></div>
 </div>
 
-<!-- ═══════════════ SECTION: CHUYÊN CẦN ═══════════════ -->
+<!-- CHUYÊN CẦN -->
 <div id="sec-diemdanh" class="section-pane">
   <div class="card">
     <h3>📝 Ghi Vi Phạm Mới</h3>
@@ -791,7 +502,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div id="ddViewContainer"></div>
 </div>
 
-<!-- ═══════════════ SECTION: SỔ ĐIỂM ═══════════════ -->
+<!-- SỔ ĐIỂM -->
 <div id="sec-bangdiem" class="section-pane">
   <div class="card">
     <h3>💯 Nhập Điểm</h3>
@@ -836,7 +547,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </tr></thead><tbody id="tbScore"></tbody></table></div>
 </div>
 
-<!-- ═══════════════ SECTION: BIỂU ĐỒ ═══════════════ -->
+<!-- BIỂU ĐỒ -->
 <div id="sec-thongke" class="section-pane">
   <div class="card"><h3>📊 Chuyên Cần</h3><div class="chart-container"><canvas id="chartAttendance"></canvas></div></div>
   <div class="card"><h3>📈 ĐTB HS</h3><div class="chart-container"><canvas id="chartScores"></canvas></div></div>
@@ -844,7 +555,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div class="card"><h3>🎯 Xếp Loại Học Kỳ</h3><div class="chart-container"><canvas id="chartClassification"></canvas></div></div>
 </div>
 
-<!-- ═══════════════ SECTION: TKB ═══════════════ -->
+<!-- TKB -->
 <div id="sec-thoikhoabieu" class="section-pane">
   <div class="card">
     <h3>📝 Nhập Thời Khóa Biểu</h3>
@@ -865,7 +576,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div class="card"><h3>👁️ Xem Thời Khóa Biểu</h3><div id="timetableView"></div></div>
 </div>
 
-<!-- ═══════════════ SECTION: THU QUỸ ═══════════════ -->
+<!-- THU QUỸ -->
 <div id="sec-thuquy" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
     <div class="stat-box" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#86efac;"><span style="color:#166534;">Tổng Đã Thu</span><b style="color:#166534;" id="colTotalIn">0đ</b></div>
@@ -891,7 +602,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div id="collectList"></div>
 </div>
 
-<!-- ═══════════════ SECTION: CHI QUỸ ═══════════════ -->
+<!-- CHI QUỸ -->
 <div id="sec-ungquy" class="section-pane">
   <div class="grid-2" style="margin-bottom:12px;">
     <div class="card" style="background:#fff1f2;border-color:#fecdd3;text-align:center;margin-bottom:0;"><h4 style="font-size:11px;color:#be123c;">Đang Treo</h4><div style="font-size:20px;font-weight:bold;color:#e11d48;" id="lblPendingAmt">0đ</div></div>
@@ -920,7 +631,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </tr></thead><tbody id="tbExpense"></tbody></table></div>
 </div>
 
-<!-- ═══════════════ SECTION: LAO ĐỘNG ═══════════════ -->
+<!-- LAO ĐỘNG -->
 <div id="sec-laodong" class="section-pane">
   <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #10b981;">
     <h3 style="color:#166534;margin:0;">🧹 CÔNG LAO ĐỘNG - TRỰC NHẬT</h3>
@@ -983,7 +694,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div class="card" style="margin-top:12px;"><h3>🏆 Bảng Xếp Hạng Thi Đua Tổ</h3><div id="ldRanking"></div></div>
 </div>
 
-<!-- ═══════════════ SECTION: PHẠT ═══════════════ -->
+<!-- PHẠT -->
 <div id="sec-phat" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">
     <div class="stat-box" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#fca5a5;"><span style="color:#991b1b;">Đang Phạt</span><b style="color:#991b1b;" id="ptActive">0</b></div>
@@ -1051,7 +762,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div class="card" style="margin-top:12px;"><h3>📊 Thống Kê Phạt Theo HS</h3><div id="ptStatsByStudent"></div></div>
 </div>
 
-<!-- ═══════════════ SECTION: KHEN THƯỞNG ═══════════════ -->
+<!-- KHEN THƯỞNG -->
 <div id="sec-khenthuong" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
     <div class="stat-box" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#fbbf24;"><span style="color:#92400e;">Đang Khen</span><b style="color:#92400e;" id="rwActive">0</b></div>
@@ -1108,7 +819,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div class="card" style="margin-top:12px;"><h3>🏆 Bảng Xếp Hạng</h3><div id="rwRanking"></div></div>
 </div>
 
-<!-- ═══════════════ SECTION: BÁO CÁO ═══════════════ -->
+<!-- BÁO CÁO -->
 <div id="sec-baocao" class="section-pane">
   <div class="card">
     <h3>📄 Chọn Báo Cáo</h3>
@@ -1147,7 +858,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ SECTION: JACKPOT SLOT ═══════════════ -->
+<!-- RANDOM — SLOT 3 Ô SỐ -->
 <div id="sec-random" class="section-pane">
   <div class="card" style="background:linear-gradient(135deg,#7f1d1d,#dc2626,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
     <div style="font-size:52px;margin-bottom:8px;">🎰</div>
@@ -1170,22 +881,16 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
       <div id="jackpotCountDisplay" style="font-size:12px;color:#92400e;font-weight:700;margin-top:6px;text-align:center;"></div>
     </div>
     <div class="grid-2">
-      <div class="form-group"><label>🏆 Số người trúng:</label>
-        <input type="number" id="jackpotWinnerCount" value="1" min="1" max="20"></div>
+      <div class="form-group"><label>🏆 Số người trúng:</label><input type="number" id="jackpotWinnerCount" value="1" min="1" max="20"></div>
       <div class="form-group"><label>🔄 Chế độ:</label>
-        <select id="jackpotMode">
-          <option value="remove">🔄 Loại dần</option>
-          <option value="repeat">♻️ Cho phép lặp</option>
-        </select></div>
+        <select id="jackpotMode"><option value="remove">🔄 Loại dần</option><option value="repeat">♻️ Cho phép lặp</option></select>
+      </div>
     </div>
     <div class="grid-2">
-      <div class="form-group"><label>⏱️ Thời gian quay (giây):</label>
-        <input type="number" id="jackpotDuration" value="4" min="2" max="10" step="0.5"></div>
+      <div class="form-group"><label>⏱️ Thời gian quay (giây):</label><input type="number" id="jackpotDuration" value="4" min="2" max="10" step="0.5"></div>
       <div class="form-group"><label>🔊 Âm thanh:</label>
-        <select id="jackpotSound">
-          <option value="on">🔊 Bật</option>
-          <option value="off">🔇 Tắt</option>
-        </select></div>
+        <select id="jackpotSound"><option value="on">🔊 Bật</option><option value="off">🔇 Tắt</option></select>
+      </div>
     </div>
   </div>
 
@@ -1193,32 +898,25 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
     📺 BẬT TOÀN MÀN HÌNH (chiếu TV)
   </button>
 
-  <!-- MÁY SLOT 3 Ô SỐ HÀNG NGANG -->
   <div class="slot-machine">
     <div class="slot-crown">🎰 JACKPOT 🎰</div>
     <div class="slot-lights">
       <span></span><span></span><span></span><span></span><span></span>
       <span></span><span></span><span></span><span></span><span></span>
     </div>
-
     <div class="slot-body">
       <div class="slot-screen-frame">
         <div class="slot-reels" id="jackpotReels"></div>
         <div class="slot-payline"></div>
         <div class="slot-glass"></div>
       </div>
-
       <div class="slot-lever" id="jackpotLever" onclick="pullJackpotLever()" title="KÉO CẦN GẠT">
         <div class="lever-pole"></div>
         <div class="lever-ball">PULL</div>
         <div class="lever-base"></div>
       </div>
     </div>
-
-    <button class="slot-spin-btn" id="btnJackpotSpin" onclick="pullJackpotLever()">
-      🎰 QUAY NGAY 🎰
-    </button>
-
+    <button class="slot-spin-btn" id="btnJackpotSpin" onclick="pullJackpotLever()">🎰 QUAY NGAY 🎰</button>
     <div class="slot-leds">
       <span></span><span></span><span></span><span></span><span></span>
       <span></span><span></span><span></span><span></span><span></span>
@@ -1245,8 +943,8 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
     <div id="jackpotHistoryList"></div>
   </div>
 </div>
-  
-<!-- ═══════════════ SECTION: THÙNG RÁC ═══════════════ -->
+
+<!-- THÙNG RÁC -->
 <div id="sec-thungrac" class="section-pane">
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
     <h3 style="color:#92400e;">🗑️ Thùng Rác (30 ngày)</h3>
@@ -1262,7 +960,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ SECTION: SAO LƯU ═══════════════ -->
+<!-- SAO LƯU -->
 <div id="sec-saoluu" class="section-pane">
   <div class="card" style="border-color:#93c5fd;background:#eff6ff;">
     <h3 style="color:#1e40af;">⚙️ Thông Tin Lớp</h3>
@@ -1297,7 +995,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══════════════ MODALS ═══════════════ -->
+<!-- MODALS -->
 <div class="modal-overlay" id="editLogModal" onclick="if(event.target===this)closeEditLog()">
   <div class="modal-card" style="max-width:540px;">
     <div class="modal-header"><h3>✏️ Sửa Vi Phạm Chuyên Cần</h3><button class="modal-close" onclick="closeEditLog()">×</button></div>
@@ -1504,7 +1202,8 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 
 <script>
-/* ═══════════════ FIREBASE CONFIG ═══════════════ */
+/* ============================================================
+  /* ═══════════════ FIREBASE CONFIG ═══════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyDNydt3Q5TC-_ze_t-OCmyQ-9iqfDprQEA",
   authDomain: "quanlylophoc-901bc.firebaseapp.com",
@@ -2748,12 +2447,11 @@ function signBlock() {
 }
 function buildSummaryReport() {
   const students = getStudents(), scores = getScores(), logs = getLogs();
-  const cfg = currentClass.config || {};
   const avgAll = scores.length ? (scores.reduce((a,b)=>a+b.val,0)/scores.length).toFixed(2) : '—';
   const excellentCount = students.filter(st => { const s = scores.filter(x => String(x.stId)===String(st.id)); return s.length && s.reduce((a,b)=>a+b.val,0)/s.length >= 8; }).length;
   const weakCount = students.filter(st => { const s = scores.filter(x => String(x.stId)===String(st.id)); return s.length && s.reduce((a,b)=>a+b.val,0)/s.length < 5; }).length;
   const attRows = students.map((st,i) => { const stLogs = logs.filter(l => String(l.stId)===String(st.id)); const c = {v_khongphep:0,di_muon:0,so_daubai:0,v_cophep:0}; stLogs.forEach(l => { if (c[l.type] !== undefined) c[l.type]++; }); return `<tr><td class="center">${i+1}</td><td>${esc(st.name)}</td><td class="center">${c.v_khongphep||''}</td><td class="center">${c.di_muon||''}</td><td class="center">${c.so_daubai||''}</td><td class="center">${c.v_cophep||''}</td><td class="center bold">${stLogs.length||''}</td></tr>`; }).join('');
-  const scRows = students.map((st,i) => { const stScores = scores.filter(s => String(s.stId)===String(st.id)); const avg = stScores.length ? stScores.reduce((a,b)=>a+b.val,0)/stScores.length : 0; const cls = stScores.length ? classifyScore(avg) : { label: '—' }; return `<tr><td class="center">${i+1}</td><td>${esc(st.name)}</td><td class="center">${stScores.length}</td><td class="center bold">${stScores.length?avg.toFixed(2):'—'}</td><td class="center">${cls.label}</td></tr>`; }).join('');
+  const scRows = students.map((st,i) => { const stScores = scores.filter(s => String(s.stId)===String(st.id)); const avg = stScores.length ? stScores.reduce((a,b) => a+b.val,0)/stScores.length : 0; const cls = stScores.length ? classifyScore(avg) : { label: '—' }; return `<tr><td class="center">${i+1}</td><td>${esc(st.name)}</td><td class="center">${stScores.length}</td><td class="center bold">${stScores.length?avg.toFixed(2):'—'}</td><td class="center">${cls.label}</td></tr>`; }).join('');
   return `${reportHeaderBlock('BÁO CÁO TỔNG HỢP')}<h2>I. ĐẶC ĐIỂM TÌNH HÌNH</h2><table class="overview"><tr><td>Tổng số HS</td><td><b>${students.length}</b></td></tr><tr><td>Tổng vi phạm</td><td><b>${logs.length}</b></td></tr><tr><td>ĐTB lớp</td><td><b>${avgAll}</b></td></tr><tr><td>HS Giỏi</td><td><b>${excellentCount}</b></td></tr><tr><td>HS Yếu</td><td><b>${weakCount}</b></td></tr></table><h2>II. CHUYÊN CẦN</h2><table><thead><tr><th>STT</th><th>Họ và tên</th><th>Nghỉ KP</th><th>Muộn</th><th>SĐB</th><th>Phép</th><th>Tổng</th></tr></thead><tbody>${attRows||'<tr><td colspan="7" class="center">Chưa có</td></tr>'}</tbody></table><h2>III. KẾT QUẢ HỌC TẬP</h2><table><thead><tr><th>STT</th><th>Họ và tên</th><th>Số điểm</th><th>ĐTB</th><th>XL</th></tr></thead><tbody>${scRows||'<tr><td colspan="5" class="center">Chưa có</td></tr>'}</tbody></table><h2>IV. ĐÁNH GIÁ CHUNG</h2><p style="font-size:11pt;line-height:1.6;"><b>1. Ưu điểm:</b> Lớp duy trì sĩ số ${students.length} HS.${excellentCount > 0 ? ` Có ${excellentCount} HS xếp loại Giỏi.` : ''}<br><b>2. Hạn chế:</b> ${weakCount > 0 ? `Còn ${weakCount} HS xếp loại Yếu.` : 'Kết quả tương đối đồng đều.'} Tổng vi phạm: ${logs.length} lượt.<br><b>3. Phương hướng:</b> Tiếp tục duy trì nề nếp, đẩy mạnh thi đua.</p>${signBlock()}`;
 }
 function buildScoresReport() {
@@ -3018,7 +2716,7 @@ function renderTimetableView() {
 function renderAllTimetable() { renderTimetableInput(); renderTimetableView(); }
 
 /* ═══════════════════════════════════════════════════════════════
-   JACKPOT — SLOT 3 Ô SỐ
+   🎰 JACKPOT — SLOT 3 Ô SỐ (PHIÊN BẢN ĐẸP)
    ═══════════════════════════════════════════════════════════════ */
 
 let jackpotState = {
@@ -3417,16 +3115,15 @@ let jackpotTuneTimeout = null;
 function startSpinSound() {
   try {
     jackpotAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    // Giai điệu vòng lặp: C-E-G-E-C-E-G-E...
     const melody = [
-      { freq: 523.25, dur: 0.15 }, // C5
-      { freq: 659.25, dur: 0.15 }, // E5
-      { freq: 783.99, dur: 0.15 }, // G5
-      { freq: 659.25, dur: 0.15 }, // E5
-      { freq: 587.33, dur: 0.15 }, // D5
-      { freq: 698.46, dur: 0.15 }, // F5
-      { freq: 880.00, dur: 0.15 }, // A5
-      { freq: 698.46, dur: 0.15 }  // F5
+      { freq: 523.25, dur: 0.15 },
+      { freq: 659.25, dur: 0.15 },
+      { freq: 783.99, dur: 0.15 },
+      { freq: 659.25, dur: 0.15 },
+      { freq: 587.33, dur: 0.15 },
+      { freq: 698.46, dur: 0.15 },
+      { freq: 880.00, dur: 0.15 },
+      { freq: 698.46, dur: 0.15 }
     ];
     let idx = 0;
 
@@ -3463,15 +3160,14 @@ function stopSpinSound() {
 function playVictorySound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // Fanfare: C - E - G - C (cao) - E - G - C (cao hơn)
     const fanfare = [
-      { f: 523.25, d: 0.12, t: 0.00 },  // C5
-      { f: 659.25, d: 0.12, t: 0.12 },  // E5
-      { f: 783.99, d: 0.12, t: 0.24 },  // G5
-      { f: 1046.50, d: 0.25, t: 0.36 }, // C6
-      { f: 783.99, d: 0.12, t: 0.62 },  // G5
-      { f: 1046.50, d: 0.25, t: 0.74 }, // C6
-      { f: 1318.51, d: 0.55, t: 1.00 }  // E6 (đỉnh)
+      { f: 523.25, d: 0.12, t: 0.00 },
+      { f: 659.25, d: 0.12, t: 0.12 },
+      { f: 783.99, d: 0.12, t: 0.24 },
+      { f: 1046.50, d: 0.25, t: 0.36 },
+      { f: 783.99, d: 0.12, t: 0.62 },
+      { f: 1046.50, d: 0.25, t: 0.74 },
+      { f: 1318.51, d: 0.55, t: 1.00 }
     ];
     fanfare.forEach(n => {
       const osc = ctx.createOscillator();
@@ -3486,7 +3182,6 @@ function playVictorySound() {
       gain.gain.exponentialRampToValueAtTime(0.001, now + n.d);
       osc.start(now);
       osc.stop(now + n.d + 0.05);
-      // Thêm harmonics cho tiếng "sáng"
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.connect(gain2);
@@ -3633,6 +3328,7 @@ const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 setInterval(() => { if (currentUser && Date.now() - sessionLastActivity > SESSION_TIMEOUT_MS) { if (confirm('⏰ Phiên hết hạn sau 30 phút.\nĐăng nhập lại?')) { auth.signOut(); location.reload(); } else sessionLastActivity = Date.now(); } }, 60000);
 
 console.log('%c✅ App v9.0 — Lồng quay 3D','color:#10b981;font-size:16px;font-weight:bold;');
+   ============================================================ */
 </script>
 
 <div id="ownerFooter">
