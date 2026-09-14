@@ -1790,7 +1790,7 @@ const uid = () => Date.now()+Math.floor(Math.random()*10000);
 const genClassId = () => {
   const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
   let id = '';
-  for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random()*chars.length)];
+  for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random()*chars.length)];
   return id;
 };
 const defaultSubjects = ['Toán','Ngữ Văn','Lịch Sử','Địa Lý','GDKT & PL','Hóa Học','Vật Lý','Tiếng Anh','Sinh Học','Tin Học'];
