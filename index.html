@@ -198,7 +198,7 @@
     <div id="authMsg" class="auth-msg"></div>
 
     <input type="email" id="authEmail" placeholder="📧 Email..." autocomplete="email">
-    <input type="password" id="authPassword" placeholder="🔒 (tối thiểu 10 ký tự, có HOA + số + ký tự đặc biệt)">
+    <input type="password" id="authPassword" placeholder="🔒 (tối thiểu 8 ký tự, có HOA + số + ký tự đặc biệt)">
     <input type="password" id="authPassword2" placeholder="🔒 Nhập lại mật khẩu" style="display:none;">
 
     <div id="signupModeBox" style="display:none;">
@@ -208,7 +208,7 @@
       </div>
 
       <div id="signupFormJoin">
-        <input type="text" id="authJoinClassId" placeholder="MÃ LỚP (6 KÝ TỰ)" maxlength="8" style="text-align:center;letter-spacing:8px;font-size:22px;font-weight:bold;text-transform:uppercase;font-family:monospace;padding:14px;">
+        <input type="text" id="authJoinClassId" placeholder="MÃ LỚP (10 KÝ TỰ)" maxlength="12" style="text-align:center;letter-spacing:8px;font-size:22px;font-weight:bold;text-transform:uppercase;font-family:monospace;padding:14px;">
         <div style="font-size:11px;color:#64748b;text-align:center;margin:-4px 0 12px;">💡 Nhập mã lớp mà chủ lớp đã gửi cho bạn</div>
       </div>
 
@@ -1677,8 +1677,8 @@
   <div class="modal-card" style="max-width:480px;">
     <div class="modal-header"><h3>🔗 Vào Lớp Bằng Mã</h3><button class="modal-close" onclick="closeJoinClassModal()">×</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Mã lớp (6 ký tự):</label>
-        <input type="text" id="joinClassId" maxlength="8" style="font-size:24px;text-align:center;letter-spacing:6px;font-family:monospace;font-weight:bold;text-transform:uppercase;"></div>
+      <div class="form-group"><label>Mã lớp (10 ký tự):</label>
+        <input type="text" id="joinClassId" maxlength="12" style="font-size:24px;text-align:center;letter-spacing:6px;font-family:monospace;font-weight:bold;text-transform:uppercase;"></div>
       <button class="btn-act btn-success btn-full" onclick="joinClass()">🚀 Vào Lớp</button>
     </div>
   </div>
@@ -1721,6 +1721,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+ /* ═══════════════ GIỚI HẠN TẦN SUẤT ═══════════════ */
+const RateLimiter = {
+  checks: {},
+  check(action, maxPerMinute = 30) {
+    const now = Date.now();
+    if (!this.checks[action]) this.checks[action] = [];
+    this.checks[action] = this.checks[action].filter(t => now - t < 60000);
+    if (this.checks[action].length >= maxPerMinute) {
+      toast(`⛔ Thao tác quá nhanh! Đợi 1 phút.`, '#ef4444');
+      return false;
+    }
+    this.checks[action].push(now);
+    return true;
+  }
+};
+     
 <script>
 /* ═══════════════ FIREBASE CONFIG ═══════════════ */
 const firebaseConfig = {
@@ -1745,6 +1761,63 @@ const DONATE_CONFIG = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+ /* ═══════════════ BỘ LỌC NỘI DUNG XẤU ═══════════════ */
+const BANNED_WORDS = [
+  // Cờ bạc - Cá độ - Lô đề
+  'cá độ','cá cược','cờ bạc','bài bạc','lô đề','đánh đề','đánh bạc','sòng bài','casino',
+  'bet','betting','gambling','xổ số','lô tô','kèo bóng','kèo nhà','nhà cái',
+  'w88','fun88','m88','188bet','bong88','letou','12bet','sbotop','bk8','fb88','kubet',
+  'ae888','789bet','v9bet','jbo','dafabet','new88','sv388','jun88','shbet','hi88','viva88',
+  'game bài','đổi thưởng','tài xỉu','xóc đĩa','bầu cua','nổ hũ','quay hũ','đánh bài',
+  'chắn','phỏm','tiến lên miền','mậu binh','xì dách','poker','blackjack','roulette',
+  'baccarat','slot','jackpot','sportsbook',
+  // Ma túy
+  'thuốc lá','ma túy','cần sa','heroin','cocaine','tem giấy','bóng cười','shisha',
+  // Nội dung người lớn
+  'sex','khiêu dâm','18+','truyện sex','phim sex','xxx','porn',
+  // Link độc hại
+  'bit.ly','tinyurl','t.me/','telegram.','goo.gl',
+  // Khác
+  'hack','crack','keygen','bẻ khóa','lừa đảo','đa cấp','ponzi','mlm','tiền ảo',
+];
+
+function containsBadWord(text) {
+  if (!text || typeof text !== 'string') return null;
+  const lower = text.toLowerCase().replace(/\s+/g, ' ');
+  for (const word of BANNED_WORDS) {
+    if (lower.includes(word)) return word;
+  }
+  return null;
+}
+
+// Chặn khi rời khỏi ô input
+document.addEventListener('blur', (e) => {
+  const el = e.target;
+  if (!el || !el.tagName) return;
+  if (!['INPUT','TEXTAREA'].includes(el.tagName)) return;
+  if (['password','email','date','number'].includes(el.type)) return;
+  if (['authEmail','authPassword','authPassword2'].includes(el.id)) return;
+  const bad = containsBadWord(el.value);
+  if (bad) {
+    toast(`⛔ Phát hiện từ khóa không phù hợp: "${bad}"`, '#ef4444');
+    el.value = '';
+    el.focus();
+  }
+}, true);
+
+// Chặn khi paste
+document.addEventListener('paste', (e) => {
+  setTimeout(() => {
+    const el = e.target;
+    if (!el || !el.value) return;
+    const bad = containsBadWord(el.value);
+    if (bad) {
+      toast(`⛔ Nội dung chứa từ khóa cấm: "${bad}"`, '#ef4444');
+      el.value = '';
+    }
+  }, 10);
+}, true);
 
 /* ═══════════════ STATE ═══════════════ */
 let userProfile = null;
@@ -1894,25 +1967,39 @@ async function handleAuth() {
       if (password !== password2) { showAuthMsg('❌ Mật khẩu nhập lại không khớp!', 'error'); return; }
 
       const userCred = await auth.createUserWithEmailAndPassword(email, password);
-      const userUid = userCred.user.uid;
+const userUid = userCred.user.uid;
 
-      // ✅ Gửi email xác thực
-      await userCred.user.sendEmailVerification();
-
-      // Tạo profile user (chưa join lớp)
-      await db.collection('users').doc(userUid).set({
-        email,
-        displayName: '',
-        currentClassId: null,
-        myClasses: [],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      showAuthMsg('✅ Đăng ký thành công!\n📧 Vào email (kể cả Spam) bấm link xác nhận, rồi quay lại đăng nhập.', 'success');
-      await auth.signOut();
+// ✅ Lấy mã lớp nếu user chọn "Vào lớp có sẵn"
+let pendingClassId = null;
+if (signupMode === 'join') {
+  const rawId = document.getElementById('authJoinClassId').value.trim().toLowerCase();
+  if (rawId) {
+    const checkDoc = await db.collection('classes').doc(rawId).get();
+    if (!checkDoc.exists) {
+      showAuthMsg(`❌ Không tìm thấy lớp "${rawId.toUpperCase()}"!\nKiểm tra lại mã với chủ lớp.`, 'error');
+      await userCred.user.delete();
       return;
+    }
+    pendingClassId = rawId;
+  }
+}
 
+await userCred.user.sendEmailVerification();
+
+await db.collection('users').doc(userUid).set({
+  email,
+  displayName: '',
+  currentClassId: null,
+  myClasses: [],
+  pendingClassId: pendingClassId,   // ✅ Lưu lớp muốn vào
+  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+});
+
+showAuthMsg('✅ Đăng ký thành công!\n📧 Vào email (kể cả Spam) bấm link xác nhận, rồi quay lại đăng nhập.', 'success');
+await auth.signOut();
+return;
+     
     } else {
       await auth.signInWithEmailAndPassword(email, password);
     }
@@ -2097,6 +2184,28 @@ auth.onAuthStateChanged(async user => {
     const profileDoc = await db.collection('users').doc(user.uid).get();
     userProfile = profileDoc.exists ? profileDoc.data() : { email: user.email, currentClassId: null, myClasses: [] };
     if (!userProfile.myClasses) userProfile.myClasses = [];
+    // ✅ Tự động vào lớp nếu có pendingClassId
+if (userProfile.pendingClassId && (!userProfile.myClasses || !userProfile.myClasses.length)) {
+  try {
+    const classDoc = await db.collection('classes').doc(userProfile.pendingClassId).get();
+    if (classDoc.exists) {
+      const classData = classDoc.data();
+      const newMembers = { ...(classData.members || {}) };
+      if (!newMembers[user.uid]) {
+        newMembers[user.uid] = { role: 'view', email: user.email };
+        await db.collection('classes').doc(userProfile.pendingClassId).update({ members: newMembers });
+      }
+      await db.collection('users').doc(user.uid).update({
+        currentClassId: userProfile.pendingClassId,
+        myClasses: [userProfile.pendingClassId],
+        pendingClassId: null
+      });
+      userProfile.currentClassId = userProfile.pendingClassId;
+      userProfile.myClasses = [userProfile.pendingClassId];
+      userProfile.pendingClassId = null;
+    }
+  } catch(e) { console.warn('Auto-join failed:', e); }
+}
         if (!userProfile.currentClassId || userProfile.myClasses.length === 0) {
       // User chưa có lớp nào (do nhập sai mã hoặc chưa join)
       document.getElementById('authScreen').style.display = 'none';
@@ -2424,6 +2533,10 @@ function deleteScoreItem(id){ if (!canEdit()) return; if (!confirm('Xóa?')) ret
 /* ═══════════════ DANH SÁCH ═══════════════ */
 function quickAddStudent() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!RateLimiter.check('addStudent', 30)) return;
+  if (getStudents().length >= 200) { toast('⛔ Lớp đã đủ 200 HS!', '#ef4444'); return; }
+  const name = document.getElementById('quickName').value.trim();
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const name = document.getElementById('quickName').value.trim();
   const phone = document.getElementById('quickPhone').value.trim();
   const address = document.getElementById('quickAddress').value.trim();
@@ -2443,6 +2556,12 @@ function quickAddStudent() {
 document.addEventListener('keydown', e=>{ if (e.key==='Enter' && document.activeElement.id==='quickName') quickAddStudent(); });
  
 function importStudents() {
+ if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!RateLimiter.check('importStudents', 5)) return;
+  const txt = document.getElementById('txtBatch').value.trim();
+  const lines = txt.split(/[\r\n]+/).filter(l => l.trim());
+  if (lines.length > 100) { toast('⛔ Tối đa 100 HS 1 lần!', '#ef4444'); return; }
+  if (!txt) return;
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const txt = document.getElementById('txtBatch').value.trim();
   if (!txt) return;
@@ -2553,6 +2672,10 @@ function calcCollectStats(c){
 }
 
 function createCollect() {
+ if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!RateLimiter.check('createCollect', 10)) return;
+  if (getCollects().length >= 100) { toast('⛔ Đã đủ 100 đợt thu!', '#ef4444'); return; }
+  const name = document.getElementById('colName').value.trim();
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const name = document.getElementById('colName').value.trim();
   const amount = parseInt(document.getElementById('colAmount').value)||0;
@@ -3859,6 +3982,9 @@ function renderPunishStudentSelector() {
 }
 
 function createPunishment() {
+ if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  if (!RateLimiter.check('createPunish', 30)) return;
+  const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
   const type = document.getElementById('ptType').value;
@@ -4213,6 +4339,11 @@ function openCreateClassModal() {
 function closeCreateClassModal(){ document.getElementById('createClassModal').classList.remove('active'); }
 
 async function createNewClass() {
+ if ((userProfile.myClasses || []).length >= 5) {
+    toast('⛔ Mỗi tài khoản chỉ được tạo tối đa 5 lớp!', '#ef4444');
+    return;
+  }
+  const name = document.getElementById('newClassName').value.trim();
   const name = document.getElementById('newClassName').value.trim();
   const school = document.getElementById('newClassSchool').value.trim();
   const teacher = document.getElementById('newClassTeacher').value.trim();
@@ -5254,10 +5385,29 @@ function saveConfig() {
 }
 
 function saveData(sync = true){
+  // ✅ Kiểm tra nội dung xấu trước khi lưu
+  if (currentClass) {
+    const checkFields = [
+      ...getStudents().map(s => s.name || ''),
+      ...getExps().map(e => e.title || ''),
+      ...getLogs().map(l => l.note || ''),
+      ...(currentClass.config?.className ? [currentClass.config.className] : []),
+      ...(currentClass.config?.school ? [currentClass.config.school] : []),
+      ...(currentClass.config?.teacher ? [currentClass.config.teacher] : []),
+    ];
+    for (const text of checkFields) {
+      const bad = containsBadWord(text);
+      if (bad) {
+        toast(`⛔ Nội dung chứa từ khóa cấm: "${bad}". Không thể lưu!`, '#ef4444');
+        return;
+      }
+    }
+  }
+  
   renderAllUI();
   if (sync && currentUser && currentClass && canEdit()) syncToCloud();
 }
-
+ 
 /* ═══════════════ BACKUP ═══════════════ */
 function exportJSONData() {
   const data = { version: 8, exportedAt: new Date().toISOString(), classId: currentClass.id, className: currentClass.config?.className, students: getStudents(), exps: getExps(), logs: getLogs(), scores: getScores(), collects: getCollects(), punishments: getPunishments() };
