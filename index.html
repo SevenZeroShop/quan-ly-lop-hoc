@@ -312,6 +312,7 @@
   <button class="nav-btn" onclick="showTab('khenthuong',this)">🏅 Khen Thưởng</button>
   <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
   <button class="nav-btn" onclick="showTab('thungrac',this)">🗑️ Thùng Rác</button>
+  <button class="nav-btn" onclick="showTab('random',this)">🎲 Random</button>
   <button class="nav-btn" onclick="showTab('saoluu',this)">⚙️ Sao Lưu</button>
 </div>
 
@@ -774,6 +775,29 @@
     <th style="width:8%;text-align:center;">STT</th><th style="width:25%;">Họ và Tên</th>
     <th style="width:47%;">Tổng Hợp</th><th style="width:20%;text-align:center;">Chi Tiết</th>
   </tr></thead><tbody id="tbDD"></tbody></table></div>
+ <!-- ═══════════ BẢNG 5 NGÀY GẦN NHẤT ═══════════ -->
+<div class="card" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;">
+  <h3 style="color:#1e40af;">📅 5 Ngày Gần Nhất</h3>
+  <p style="font-size:12px;color:#1e3a8a;line-height:1.6;">
+    Xem nhanh tình hình vi phạm 5 ngày gần nhất. 
+    <b>KP</b>=Không phép • <b>M</b>=Muộn • <b>SĐB</b>=Sổ đầu bài • <b>P</b>=Phép
+  </p>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+    <b style="font-size:14px;color:#1e3a8a;">📊 Ma trận vi phạm</b>
+    <button class="btn-act btn-export" onclick="exportToCSV('dd5days')">📥 CSV</button>
+  </div>
+  <input type="text" class="search-input" id="searchDD5Days" onkeyup="renderDD5Days()" placeholder="🔍 Tìm theo tên..." style="margin-bottom:8px;">
+</div>
+
+<div class="table-wrapper">
+  <table id="tbDD5Days" style="min-width:700px;">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+</div>
 </div>
 
 <!-- SỔ ĐIỂM -->
@@ -1308,6 +1332,100 @@
   </div>
 </div>
 
+ <!-- ═══════════════ RANDOM WHEEL ═══════════════ -->
+<div id="sec-random" class="section-pane">
+  
+  <!-- Header -->
+  <div class="card" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed,#ec4899);color:#fff;border:none;text-align:center;padding:22px;">
+    <div style="font-size:46px;margin-bottom:8px;">🎲</div>
+    <h2 style="font-size:20px;text-transform:uppercase;">VÒNG QUAY MAY MẮN</h2>
+    <p style="font-size:13px;opacity:.95;margin-top:6px;">
+      Chọn người → Quay → Nhận kết quả ngẫu nhiên
+    </p>
+  </div>
+  
+  <!-- Cài đặt -->
+  <div class="card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+    <h3 style="color:#6d28d9;">⚙️ Cài Đặt</h3>
+    
+    <div class="form-group">
+      <label>👥 Người tham gia:</label>
+      <input type="text" class="search-input" id="searchWheelParticipants" 
+             onkeyup="filterChecklist('searchWheelParticipants','wheelChecklist')" 
+             placeholder="🔍 Tìm tên..." style="margin-bottom:6px;">
+      <div class="checkbox-toolbar">
+        <button class="btn-act btn-mini" onclick="toggleAll('wheelCheck',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('wheelCheck',false)">✖ Bỏ</button>
+        <button class="btn-act btn-mini btn-success" onclick="toggleWheelRandom(5)">🎲 Chọn 5</button>
+        <button class="btn-act btn-mini btn-success" onclick="toggleWheelRandom(10)">🎲 Chọn 10</button>
+      </div>
+      <div class="checkbox-group" id="wheelChecklist" style="max-height:200px;"></div>
+      <div id="wheelCountDisplay" style="font-size:12px;color:#6d28d9;font-weight:700;margin-top:6px;text-align:center;"></div>
+    </div>
+    
+    <div class="grid-2">
+      <div class="form-group">
+        <label>🏆 Số người trúng:</label>
+        <input type="number" id="wheelWinnerCount" value="1" min="1" max="20">
+      </div>
+      <div class="form-group">
+        <label>🔄 Chế độ:</label>
+        <select id="wheelMode">
+          <option value="remove">🔄 Loại dần (không lặp)</option>
+          <option value="repeat">♻️ Cho phép lặp</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="grid-2">
+      <div class="form-group">
+        <label>⏱️ Thời gian quay (giây):</label>
+        <input type="number" id="wheelDuration" value="4" min="2" max="15" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>🔊 Âm thanh:</label>
+        <select id="wheelSound">
+          <option value="on">🔊 Bật</option>
+          <option value="off">🔇 Tắt</option>
+        </select>
+      </div>
+    </div>
+    
+    <button class="btn-act btn-success btn-full" id="btnSpinWheel" 
+            onclick="startWheelSpin()" 
+            style="padding:16px;font-size:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed)!important;">
+      🎰 QUAY NGAY
+    </button>
+  </div>
+  
+  <!-- Vòng quay -->
+  <div class="card" style="background:#fff;padding:20px 10px;">
+    <div class="wheel-container">
+      <div class="wheel-pointer">▼</div>
+      <canvas id="wheelCanvas" width="600" height="600"></canvas>
+    </div>
+  </div>
+  
+  <!-- Kết quả -->
+  <div class="card" id="wheelResultBox" style="display:none;border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+    <h3 style="color:#166534;">🏆 Kết Quả</h3>
+    <div id="wheelResultContent"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn-act btn-success" style="flex:1;" onclick="copyWheelResults()">📋 Copy Kết Quả</button>
+      <button class="btn-act btn-warning" style="flex:1;" onclick="hideWheelResult()">✖ Đóng</button>
+    </div>
+  </div>
+  
+  <!-- Lịch sử quay -->
+  <div class="card">
+    <h3>📜 Lịch Sử Quay
+      <button class="btn-act btn-danger btn-mini" onclick="clearWheelHistory()">🗑️ Xóa</button>
+    </h3>
+    <div id="wheelHistoryList"></div>
+  </div>
+  
+</div>
+ 
 <!-- SAO LƯU -->
 <div id="sec-saoluu" class="section-pane">
   <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fef3c7,#fde68a);">
@@ -2000,6 +2118,7 @@ auth.onAuthStateChanged(async user => {
     const ok = await loadClassFromCloud(userProfile.currentClassId);
     if (!ok) { toast('⚠️ Lỗi tải lớp!', '#ef4444'); return; }
     renderAllUI();
+    setTimeout(() => initWheel(), 100);  // ← Thêm dòng này
     toast('✅ Đăng nhập thành công!', '#10b981');
   } else {
     currentUser = null; currentClass = null; userProfile = null;
@@ -2049,6 +2168,7 @@ function renderAllUI() {
   updateSelects();
   renderTopStats();
   renderDiemDanhSummary();
+  renderDD5Days();
   renderScoreSummary();
   renderExpenseTable();
   renderStudentList();
@@ -4327,6 +4447,93 @@ function downloadFile(filename, content, mimeType){
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
 }
 
+ /* ═══════════ WHEEL ═══════════ */
+.wheel-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 10px;
+}
+
+#wheelCanvas {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(139,92,246,.4));
+  border-radius: 50%;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 42px;
+  color: #dc2626;
+  filter: drop-shadow(0 4px 8px rgba(220,38,38,.6));
+  z-index: 10;
+  animation: pointerBounce 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pointerBounce {
+  from { transform: translateX(-50%) translateY(0); }
+  to { transform: translateX(-50%) translateY(4px); }
+}
+
+.winner-box {
+  padding: 16px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  animation: winnerPop 0.5s ease-out;
+}
+
+.winner-box.rank-1 {
+  background: linear-gradient(135deg,#fef3c7,#fde68a);
+  color: #92400e;
+  border: 2px solid #fbbf24;
+}
+.winner-box.rank-2 {
+  background: linear-gradient(135deg,#e5e7eb,#d1d5db);
+  color: #374151;
+  border: 2px solid #9ca3af;
+}
+.winner-box.rank-3 {
+  background: linear-gradient(135deg,#fed7aa,#fdba74);
+  color: #7c2d12;
+  border: 2px solid #ea580c;
+}
+.winner-box.rank-other {
+  background: linear-gradient(135deg,#dbeafe,#bfdbfe);
+  color: #1e40af;
+  border: 2px solid #60a5fa;
+}
+
+@keyframes winnerPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  z-index: 99999;
+  pointer-events: none;
+  animation: confettiFall 3s linear forwards;
+  border-radius: 2px;
+}
 function buildWordHTML(title, body){
   return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
   <head><meta charset='utf-8'><title>${esc(title)}</title>
@@ -4885,6 +5092,27 @@ function exportToCSV(type){
   if (type === 'stList') {
     csv += "STT,Họ và Tên\r\n";
     students.forEach((s,i)=>csv += `${i+1},${q(s.name)}\r\n`);
+   } else if (type === 'dd5days') {
+  const logs = getLogs();
+  const logDates = [...new Set(logs.map(l => l.date).filter(Boolean))];
+  logDates.sort((a, b) => b.localeCompare(a));
+  const dates = logDates.slice(0, 5);
+  
+  csv += "STT,Họ và Tên," + dates.map(d => `${d}`).join(",") + "\r\n";
+  
+  getStudents().forEach((st, i) => {
+    const row = [i+1, q(st.name)];
+    dates.forEach(d => {
+      const dayLogs = logs.filter(l => String(l.stId) === String(st.id) && l.date === d);
+      const short = dayLogs.map(l => ({
+        v_khongphep: 'KP', di_muon: 'M', so_daubai: 'SDB', v_cophep: 'P'
+      })[l.type] || '?').join('; ');
+      row.push(q(short));
+    });
+    csv += row.join(",") + "\r\n";
+  });
+  fname = `ChuyenCan5Ngay_${todayStr()}.csv`;
+}
   } else if (type === 'attendance') {
     csv += "STT,Học Sinh,Ngày,Môn,Loại Vi Phạm,Ghi Chú\r\n";
     logs.forEach((l,i)=>{
@@ -5254,8 +5482,584 @@ document.getElementById('exPrice')?.addEventListener('input', calcExpAmt);
 document.getElementById('editExQty')?.addEventListener('input', calcEditExpAmt);
 document.getElementById('editExPrice')?.addEventListener('input', calcEditExpAmt);
 validatePasteContent();
+/* ═══════════════════════════════════════════════════════════════
+   🎰 WHEEL — VÒNG QUAY MAY MẮN
+   ═══════════════════════════════════════════════════════════════ */
+
+const WheelColors = [
+  '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#f97316', '#84cc16', '#14b8a6',
+  '#6366f1', '#d946ef', '#f43f5e', '#0ea5e9', '#22c55e',
+  '#eab308', '#a855f7', '#0891b2', '#e11d48', '#65a30d'
+];
+
+let wheelState = {
+  canvas: null,
+  ctx: null,
+  rotation: -Math.PI / 2,   // Bắt đầu từ trên cùng
+  spinning: false,
+  participants: [],
+  lastWinners: [],
+  history: JSON.parse(localStorage.getItem('wheel_history') || '[]')
+};
+
+function initWheel() {
+  wheelState.canvas = document.getElementById('wheelCanvas');
+  if (!wheelState.canvas) return;
+  wheelState.ctx = wheelState.canvas.getContext('2d');
+  renderWheelChecklist();
+  updateWheelCount();
+  drawWheel();
+  renderWheelHistory();
+}
+
+// ───── Checklist ─────
+function renderWheelChecklist() {
+  const box = document.getElementById('wheelChecklist');
+  if (!box) return;
+  const students = getStudents();
+  const checkedIds = new Set([...document.querySelectorAll('input[name="wheelCheck"]:checked')].map(c => c.value));
+  box.innerHTML = students.map((s, i) => `
+    <label class="checkbox-item">
+      <input type="checkbox" name="wheelCheck" value="${s.id}" 
+             ${checkedIds.has(String(s.id)) ? 'checked' : ''} 
+             onchange="updateWheelCount(); drawWheelFromChecklist();">
+      ${i+1}. ${esc(s.name)}
+    </label>
+  `).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
+  
+  // Mặc định tick hết lần đầu
+  if (checkedIds.size === 0 && students.length > 0) {
+    document.querySelectorAll('input[name="wheelCheck"]').forEach(cb => cb.checked = true);
+    updateWheelCount();
+    drawWheelFromChecklist();
+  }
+}
+
+function updateWheelCount() {
+  const count = document.querySelectorAll('input[name="wheelCheck"]:checked').length;
+  const el = document.getElementById('wheelCountDisplay');
+  if (el) el.textContent = `Đã chọn: ${count} người`;
+}
+
+function toggleWheelRandom(n) {
+  const all = [...document.querySelectorAll('input[name="wheelCheck"]')];
+  all.forEach(cb => cb.checked = false);
+  const shuffled = all.sort(() => Math.random() - 0.5);
+  shuffled.slice(0, n).forEach(cb => cb.checked = true);
+  updateWheelCount();
+  drawWheelFromChecklist();
+}
+
+function getWheelParticipants() {
+  const checkedIds = [...document.querySelectorAll('input[name="wheelCheck"]:checked')].map(c => c.value);
+  return getStudents().filter(s => checkedIds.includes(String(s.id)));
+}
+
+function drawWheelFromChecklist() {
+  wheelState.participants = getWheelParticipants();
+  drawWheel();
+}
+
+// ───── Vẽ wheel ─────
+function drawWheel() {
+  const canvas = wheelState.canvas;
+  const ctx = wheelState.ctx;
+  if (!canvas || !ctx) return;
+  
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const radius = Math.min(cx, cy) - 20;
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  const parts = wheelState.participants;
+  
+  // Trường hợp chưa chọn ai
+  if (!parts.length) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fill();
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 22px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('👥', cx, cy - 10);
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('Chọn người tham gia', cx, cy + 25);
+    return;
+  }
+  
+  // Trường hợp 1 người
+  if (parts.length === 1) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = WheelColors[0];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(parts[0].name, cx, cy);
+    return;
+  }
+  
+  const anglePerPart = (Math.PI * 2) / parts.length;
+  
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(wheelState.rotation);
+  
+  // Vẽ từng miếng
+  parts.forEach((p, i) => {
+    const startAngle = i * anglePerPart;
+    const endAngle = startAngle + anglePerPart;
+    
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, radius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = WheelColors[i % WheelColors.length];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Chữ
+    ctx.save();
+    ctx.rotate(startAngle + anglePerPart / 2);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    
+    const maxLen = parts.length > 20 ? 10 : parts.length > 10 ? 13 : 18;
+    const name = p.name.length > maxLen ? p.name.slice(0, maxLen) + '…' : p.name;
+    const fontSize = parts.length > 20 ? 11 : parts.length > 10 ? 13 : 16;
+    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = 'rgba(0,0,0,.3)';
+    ctx.shadowBlur = 3;
+    ctx.fillText(name, radius - 15, 0);
+    ctx.restore();
+  });
+  
+  ctx.restore();
+  
+  // Vòng tròn trung tâm
+  ctx.beginPath();
+  ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40);
+  grad.addColorStop(0, '#fff');
+  grad.addColorStop(1, '#e2e8f0');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🎯', cx, cy);
+  
+  // Vòng ngoài
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 8, 0, Math.PI * 2);
+  ctx.strokeStyle = '#8b5cf6';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+}
+
+// ───── Quay ─────
+async function startWheelSpin() {
+  if (wheelState.spinning) return;
+  
+  const participants = getWheelParticipants();
+  if (participants.length < 1) {
+    toast('⚠️ Chọn ít nhất 1 người!', '#ef4444');
+    return;
+  }
+  
+  const winnerCount = parseInt(document.getElementById('wheelWinnerCount').value) || 1;
+  const mode = document.getElementById('wheelMode').value;
+  const duration = (parseFloat(document.getElementById('wheelDuration').value) || 4) * 1000;
+  const soundOn = document.getElementById('wheelSound').value === 'on';
+  
+  if (winnerCount > participants.length && mode === 'remove') {
+    toast('⚠️ Số người trúng > số người tham gia!', '#ef4444');
+    return;
+  }
+  
+  // Disable button
+  const btn = document.getElementById('btnSpinWheel');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang quay...';
+  
+  // Ẩn kết quả cũ
+  document.getElementById('wheelResultBox').style.display = 'none';
+  
+  // Chơi âm thanh nếu bật
+  if (soundOn) startSpinSound();
+  
+  const winners = [];
+  let remaining = [...participants];
+  
+  for (let round = 0; round < winnerCount; round++) {
+    if (remaining.length === 0) break;
+    
+    wheelState.participants = [...remaining];
+    drawWheel();
+    
+    // Chọn winner
+    const winnerIdx = Math.floor(Math.random() * remaining.length);
+    const winner = remaining[winnerIdx];
+    
+    // Tính góc để winner dừng ở vị trí pointer (12 giờ)
+    const anglePerPart = (Math.PI * 2) / remaining.length;
+    // Pointer ở trên = -π/2 trong canvas
+    // Winner nằm giữa slice của nó (startAngle + anglePerPart/2)
+    const winnerCenterAngle = winnerIdx * anglePerPart + anglePerPart / 2;
+    // Cần rotate sao cho: rotation + winnerCenterAngle = -π/2 (mod 2π)
+    let targetRotation = -Math.PI / 2 - winnerCenterAngle;
+    
+    // Thêm nhiều vòng quay (5-10 vòng)
+    const extraSpins = 5 + Math.floor(Math.random() * 5);
+    
+    // Đảm bảo luôn quay tới (không quay ngược)
+    const currentRotation = wheelState.rotation;
+    let delta = targetRotation - currentRotation;
+    // Normalize về [0, 2π)
+    while (delta < 0) delta += Math.PI * 2;
+    // Cộng thêm extra spins
+    delta += extraSpins * Math.PI * 2;
+    
+    await animateWheel(delta, duration);
+    
+    winners.push(winner);
+    
+    if (mode === 'remove') {
+      const idx = remaining.indexOf(winner);
+      remaining.splice(idx, 1);
+    }
+    
+    if (round < winnerCount - 1) await sleep(600);
+  }
+  
+  // Hiển thị kết quả
+  wheelState.participants = participants;
+  drawWheel();
+  showWheelResult(winners);
+  
+  // Lưu lịch sử
+  saveWheelHistory(winners);
+  
+  if (soundOn) stopSpinSound();
+  
+  // Re-enable button
+  btn.disabled = false;
+  btn.textContent = '🎰 QUAY NGAY';
+}
+
+function animateWheel(delta, duration) {
+  return new Promise(resolve => {
+    wheelState.spinning = true;
+    const startRotation = wheelState.rotation;
+    const startTime = performance.now();
+    
+    function frame(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out quint — quay nhanh rồi chậm dần
+      const eased = 1 - Math.pow(1 - progress, 5);
+      wheelState.rotation = startRotation + delta * eased;
+      drawWheel();
+      
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        wheelState.spinning = false;
+        resolve();
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ───── Hiển thị kết quả ─────
+function showWheelResult(winners) {
+  wheelState.lastWinners = winners;
+  const box = document.getElementById('wheelResultBox');
+  const content = document.getElementById('wheelResultContent');
+  box.style.display = 'block';
+  
+  content.innerHTML = winners.map((w, i) => {
+    const rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎉';
+    return `<div class="winner-box ${rankCls}">
+      <span>${medal} Người ${i + 1}: <b>${esc(w.name)}</b></span>
+      <span style="font-size:24px;">${medal}</span>
+    </div>`;
+  }).join('');
+  
+  // Confetti
+  triggerConfetti();
+  
+  // Cuộn tới kết quả
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideWheelResult() {
+  document.getElementById('wheelResultBox').style.display = 'none';
+}
+
+function copyWheelResults() {
+  if (!wheelState.lastWinners.length) return;
+  const text = `🎰 KẾT QUẢ VÒNG QUAY\n\n` + 
+    wheelState.lastWinners.map((w, i) => 
+      `${i + 1}. ${w.name}`
+    ).join('\n') +
+    `\n\n🕐 ${new Date().toLocaleString('vi-VN')}`;
+  
+  navigator.clipboard.writeText(text)
+    .then(() => toast('📋 Đã copy!', '#10b981'))
+    .catch(() => alert(text));
+}
+
+// ───── Confetti ─────
+function triggerConfetti() {
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = WheelColors[i % WheelColors.length];
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    c.style.width = c.style.height = (6 + Math.random() * 8) + 'px';
+    if (Math.random() > 0.5) c.style.borderRadius = '50%';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+}
+
+// ───── Âm thanh ─────
+let spinAudioCtx = null;
+let spinSoundInterval = null;
+
+function startSpinSound() {
+  try {
+    spinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let tickCount = 0;
+    spinSoundInterval = setInterval(() => {
+      if (!spinAudioCtx || wheelState.spinning === false) return;
+      // Tick sound
+      const osc = spinAudioCtx.createOscillator();
+      const gain = spinAudioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(spinAudioCtx.destination);
+      osc.frequency.value = 800 + Math.random() * 400;
+      osc.type = 'square';
+      gain.gain.setValueAtTime(0.05, spinAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, spinAudioCtx.currentTime + 0.05);
+      osc.start();
+      osc.stop(spinAudioCtx.currentTime + 0.05);
+      tickCount++;
+    }, 100);
+  } catch (e) { console.warn('Audio failed:', e); }
+}
+
+function stopSpinSound() {
+  if (spinSoundInterval) { clearInterval(spinSoundInterval); spinSoundInterval = null; }
+  if (spinAudioCtx) { spinAudioCtx.close(); spinAudioCtx = null; }
+}
+
+// ───── Lịch sử ─────
+function saveWheelHistory(winners) {
+  const entry = {
+    id: uid(),
+    at: new Date().toISOString(),
+    byEmail: currentUser?.email || 'Ẩn danh',
+    winners: winners.map(w => ({ id: w.id, name: w.name })),
+    totalParticipants: getWheelParticipants().length
+  };
+  wheelState.history.unshift(entry);
+  if (wheelState.history.length > 50) wheelState.history = wheelState.history.slice(0, 50);
+  localStorage.setItem('wheel_history', JSON.stringify(wheelState.history));
+  renderWheelHistory();
+}
+
+function renderWheelHistory() {
+  const box = document.getElementById('wheelHistoryList');
+  if (!box) return;
+  if (!wheelState.history.length) {
+    box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có lịch sử quay</p>';
+    return;
+  }
+  box.innerHTML = wheelState.history.slice(0, 20).map(h => {
+    const dt = new Date(h.at);
+    const timeStr = `${dt.getDate()}/${dt.getMonth()+1} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    return `<div style="padding:10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;color:#64748b;">${timeStr} • ${esc(h.byEmail)}</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px;">
+          🏆 ${h.winners.map(w => esc(w.name)).join(', ')}
+        </div>
+      </div>
+      <div style="font-size:11px;color:#94a3b8;">
+        ${h.totalParticipants} người tham gia
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearWheelHistory() {
+  if (!confirm('Xóa toàn bộ lịch sử quay?')) return;
+  wheelState.history = [];
+  localStorage.removeItem('wheel_history');
+  renderWheelHistory();
+  toast('🗑️ Đã xóa lịch sử!');
+}
+
+// ───── Hook vào showTab ─────
+const _originalShowTab = window.showTab;
+window.showTab = function(id, btn) {
+  _originalShowTab(id, btn);
+  if (id === 'random') {
+    setTimeout(() => {
+      initWheel();
+    }, 50);
+  }
+};
+
+// ───── Init khi load ─────
+// Gọi sau khi renderAllUI lần đầu
+const _originalRenderAllUI = window.renderAllUI;
+window.renderAllUI = function() {
+  _originalRenderAllUI();
+  // Refresh wheel checklist nếu tab random đang active
+  if (document.getElementById('sec-random')?.classList.contains('active')) {
+    renderWheelChecklist();
+    drawWheelFromChecklist();
+  }
+};
+
+ // Space để quay khi đang ở tab Random
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && 
+      document.getElementById('sec-random')?.classList.contains('active') &&
+      !wheelState.spinning &&
+      document.activeElement.tagName !== 'INPUT' &&
+      document.activeElement.tagName !== 'SELECT') {
+    e.preventDefault();
+    startWheelSpin();
+  }
+});
+
 if (!DONATE_CONFIG.enabled) document.getElementById('donateBtn').style.display = 'none';
 console.log('%c✅ App v8.1 — Full features','color:#10b981;font-size:16px;font-weight:bold;');
+ /* ═══════════════ BẢNG 5 NGÀY GẦN NHẤT ═══════════════ */
+function renderDD5Days() {
+  const students = getStudents();
+  const logs = getLogs();
+  const keyword = (document.getElementById('searchDD5Days')?.value || '').toLowerCase().trim();
+  
+  // Lấy 5 ngày: ưu tiên ngày có log, bù thêm ngày trống cho đủ 5
+  const logDates = [...new Set(logs.map(l => l.date).filter(Boolean))];
+  logDates.sort((a, b) => b.localeCompare(a)); // Giảm dần
+  
+  const dates = [...logDates].slice(0, 5);
+  // Nếu chưa đủ 5 ngày → bù thêm ngày trống gần nhất
+  let offset = 0;
+  while (dates.length < 5 && offset < 30) {
+    const d = new Date();
+    d.setDate(d.getDate() - offset);
+    const dStr = d.toISOString().split('T')[0];
+    if (!dates.includes(dStr)) dates.push(dStr);
+    offset++;
+  }
+  dates.sort((a, b) => b.localeCompare(a));
+  
+  // Format ngày hiển thị
+  function formatDateShort(dateStr) {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const dow = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][d.getDay()];
+    const isToday = dateStr === todayStr();
+    return `<div style="font-size:11px;font-weight:700;">${dow}</div>
+            <div style="font-size:13px;font-weight:700;">${day}/${month}</div>
+            ${isToday ? '<div style="font-size:9px;color:#10b981;font-weight:700;">HÔM NAY</div>' : ''}`;
+  }
+  
+  // Filter students
+  let filtered = students;
+  if (keyword) {
+    filtered = students.filter((s, i) => 
+      s.name.toLowerCase().includes(keyword) || String(i+1).includes(keyword)
+    );
+  }
+  
+  // Header
+  const thead = `
+    <tr>
+      <th style="width:6%;text-align:center;">STT</th>
+      <th style="width:24%;">Họ và Tên</th>
+      ${dates.map(d => `<th style="text-align:center;width:14%;">${formatDateShort(d)}</th>`).join('')}
+    </tr>`;
+  
+  // Badge short names + colors
+  const badgeShort = {
+    v_khongphep: { txt: 'KP', cls: 'badge-pending' },
+    di_muon:     { txt: 'M',  cls: 'badge-late' },
+    so_daubai:   { txt: 'SĐB',cls: 'badge-pending' },
+    v_cophep:    { txt: 'P',  cls: 'badge-perm' }
+  };
+  
+  // Body
+  const tbody = filtered.map((st) => {
+    const i = students.indexOf(st);
+    const cells = dates.map(dateStr => {
+      const dayLogs = logs.filter(l => 
+        String(l.stId) === String(st.id) && l.date === dateStr
+      );
+      if (!dayLogs.length) {
+        return '<td style="text-align:center;color:#cbd5e1;font-size:16px;">·</td>';
+      }
+      const badges = dayLogs.map(l => {
+        const b = badgeShort[l.type] || { txt: '?', cls: 'badge-pending' };
+        const tooltip = `${getLogName(l.type)}\nMôn: ${l.sub || '—'}\nGhi chú: ${l.note || '—'}`;
+        return `<span class="badge ${b.cls}" title="${esc(tooltip)}" style="cursor:help;font-size:10px;padding:2px 6px;">${b.txt}</span>`;
+      }).join('');
+      return `<td style="text-align:center;">${badges}</td>`;
+    }).join('');
+    
+    // Highlight students with many violations
+    const totalViol5d = dates.reduce((sum, d) => 
+      sum + logs.filter(l => String(l.stId) === String(st.id) && l.date === d).length, 0
+    );
+    const rowBg = totalViol5d === 0 ? '' : 
+                  totalViol5d <= 2 ? 'background:#fef3c7;' : 
+                  'background:#fee2e2;';
+    
+    return `<tr style="${rowBg}">
+      <td style="text-align:center;"><b>${i+1}</b></td>
+      <td><b>${esc(st.name)}</b></td>
+      ${cells}
+    </tr>`;
+  }).join('') || `<tr><td colspan="${dates.length + 2}" style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</td></tr>`;
+  
+  document.getElementById('tbDD5Days').innerHTML = `<thead>${thead}</thead><tbody>${tbody}</tbody>`;
+}
+
+// Gọi trong renderAllUI
+// Tìm hàm renderAllUI(), thêm dòng: renderDD5Days();
 </script>
 
 <div id="ownerFooter">
