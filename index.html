@@ -407,261 +407,378 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 20px #fbbf24, 0 0 40px #fbbf24, 0 0 60px #dc2626; }
 }
 
-/* ═══════════════ FULL-SCREEN WIN (v2) ═══════════════ */
+/* ═══════════════ FULL-SCREEN WIN — MASTER EFFECT ═══════════════ */
 .jackpot-win-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle at center, rgba(251,191,36,.98), rgba(220,38,38,.98), rgba(124,58,237,.98));
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(30,27,75,.99), rgba(15,23,42,.995));
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 20px;
-  animation: winFadeIn .4s ease-out;
+  padding: 30px 20px;
+  animation: winFadeIn .5s ease-out;
   overflow: hidden;
 }
-@keyframes winFadeIn {
-  from { opacity: 0; transform: scale(.85); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes winFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── NỀN ĐỘNG ── */
+.jackpot-grid-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(251,191,36,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251,191,36,.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridMove 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes gridMove { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+
+/* ── TIA SÁNG XOAY ── */
+.jackpot-rays {
+  position: absolute; top: 50%; left: 50%;
+  width: 200vmax; height: 200vmax;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    transparent 0deg, rgba(251,191,36,.18) 12deg, transparent 24deg,
+    transparent 45deg, rgba(251,191,36,.18) 57deg, transparent 69deg,
+    transparent 90deg, rgba(251,191,36,.18) 102deg, transparent 114deg,
+    transparent 135deg, rgba(251,191,36,.18) 147deg, transparent 159deg,
+    transparent 180deg, rgba(251,191,36,.18) 192deg, transparent 204deg,
+    transparent 225deg, rgba(251,191,36,.18) 237deg, transparent 249deg,
+    transparent 270deg, rgba(251,191,36,.18) 282deg, transparent 294deg,
+    transparent 315deg, rgba(251,191,36,.18) 327deg, transparent 339deg,
+    transparent 360deg
+  );
+  animation: raysRotate 15s linear infinite;
+  pointer-events: none; z-index: 1;
+}
+@keyframes raysRotate {
+  from { transform: translate(-50%, -50%) rotate(0); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-.jackpot-win-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+/* ── VÒNG HÀO QUANG ── */
+.jackpot-halo {
+  position: absolute; top: 50%; left: 50%;
   border-radius: 50%;
-  background: rgba(255,255,255,.25);
-  border: 3px solid #fff;
-  color: #fff;
-  font-size: 26px;
-  font-weight: bold;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(251,191,36,.5);
+  pointer-events: none; z-index: 2;
+  box-shadow: 0 0 40px rgba(251,191,36,.6), inset 0 0 40px rgba(251,191,36,.3);
+  animation: haloExpand 2.5s ease-out infinite;
+}
+.jackpot-halo:nth-of-type(2) { animation-delay: .8s; }
+.jackpot-halo:nth-of-type(3) { animation-delay: 1.6s; }
+@keyframes haloExpand {
+  0% { width: 100px; height: 100px; opacity: 1; border-width: 4px; }
+  100% { width: 1400px; height: 1400px; opacity: 0; border-width: 1px; }
+}
+
+/* ── NÚT ĐÓNG ── */
+.jackpot-win-close {
+  position: absolute; top: 25px; right: 25px;
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.4);
+  border: 3px solid #fbbf24;
+  color: #fbbf24;
+  font-size: 28px; font-weight: bold;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  transition: all .25s;
   backdrop-filter: blur(10px);
 }
 .jackpot-win-close:hover {
-  background: rgba(255,255,255,.5);
-  transform: rotate(90deg) scale(1.1);
+  background: #fbbf24; color: #1e1b4b;
+  transform: rotate(90deg) scale(1.15);
+  box-shadow: 0 0 30px #fbbf24;
 }
 
+/* ── ĐẾM NGƯỢC ── */
 .jackpot-win-countdown {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
+  position: absolute; bottom: 25px; left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,.5);
-  color: #fff;
-  padding: 10px 24px;
+  background: rgba(0,0,0,.7);
+  color: #fbbf24;
+  padding: 12px 30px;
   border-radius: 50px;
-  font-size: 14px;
-  font-weight: bold;
-  border: 2px solid rgba(255,255,255,.4);
+  font-size: 15px; font-weight: bold;
+  border: 2px solid #fbbf24;
+  z-index: 100;
+  display: flex; align-items: center; gap: 10px;
   backdrop-filter: blur(10px);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  box-shadow: 0 0 25px rgba(251,191,36,.5);
 }
 .jackpot-win-countdown .count-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
   border-radius: 50%;
-  background: #fff;
-  color: #dc2626;
-  font-size: 16px;
-  font-weight: 900;
+  background: #fbbf24; color: #1e1b4b;
+  font-size: 20px; font-weight: 900;
   animation: countPulse 1s ease-in-out infinite;
 }
 @keyframes countPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.2); box-shadow: 0 0 20px #fbbf24; }
 }
 
+/* ── PROGRESS BAR ── */
 .jackpot-win-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 5px;
+  position: absolute; bottom: 0; left: 0;
+  height: 6px;
   background: linear-gradient(90deg,#fbbf24,#fff,#fbbf24);
-  border-radius: 0;
   animation: progressBar 5s linear forwards;
-  z-index: 10;
-  box-shadow: 0 0 15px #fbbf24;
+  z-index: 100;
+  box-shadow: 0 0 20px #fbbf24;
 }
-@keyframes progressBar {
-  from { width: 0%; }
-  to { width: 100%; }
-}
+@keyframes progressBar { from { width: 0%; } to { width: 100%; } }
 
+/* ── CONTENT ── */
 .jackpot-win-content {
+  position: relative;
+  z-index: 5;
   text-align: center;
   color: #fff;
-  z-index: 2;
-  animation: winBounce .5s ease-out;
-  max-width: 90vw;
-  position: relative;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-@keyframes winBounce {
-  0% { transform: scale(.3) rotate(-10deg); }
-  60% { transform: scale(1.1) rotate(3deg); }
-  100% { transform: scale(1) rotate(0); }
+/* ── NHÃN ── */
+.jackpot-win-label {
+  font-size: clamp(16px, 2.5vw, 26px);
+  color: #fbbf24;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-shadow: 0 0 15px rgba(251,191,36,.9), 0 0 30px rgba(251,191,36,.5);
+  animation: labelPulse 1.2s ease-in-out infinite;
+}
+@keyframes labelPulse {
+  0%,100% { opacity: .7; letter-spacing: 8px; }
+  50% { opacity: 1; letter-spacing: 11px; text-shadow: 0 0 25px #fbbf24, 0 0 50px #f59e0b; }
 }
 
-.jackpot-win-title {
-  font-size: clamp(32px, 7vw, 68px);
+/* ── MÃ SỐ — BÓC TEM ── */
+.jackpot-win-code {
+  font-size: clamp(120px, 22vw, 260px);
   font-weight: 900;
-  letter-spacing: 6px;
-  margin-bottom: 15px;
-  background: linear-gradient(90deg,#fff,#fbbf24,#fff,#fbbf24,#fff);
-  background-size: 200% auto;
+  font-family: 'Courier New', 'Consolas', monospace;
+  letter-spacing: clamp(10px, 3vw, 30px);
+  background: linear-gradient(90deg, #fbbf24, #fff, #fbbf24, #f59e0b, #fbbf24);
+  background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 20px rgba(255,255,255,.8));
-  animation: titleShine 2s linear infinite;
+  filter: drop-shadow(0 0 25px rgba(251,191,36,1)) drop-shadow(0 0 60px rgba(251,191,36,.6));
+  animation:
+    codeBurst 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+    codeShine 2s linear .5s infinite,
+    codeFloat 3s ease-in-out 1.2s infinite;
+  opacity: 0;
+  transform: scale(0.2);
+  position: relative;
+  padding: 10px 20px;
 }
-@keyframes titleShine {
-  to { background-position: 200% center; }
+@keyframes codeBurst {
+  0% { opacity: 0; transform: scale(0.2) rotate(-15deg); filter: blur(20px) drop-shadow(0 0 0 #fbbf24); }
+  60% { opacity: 1; transform: scale(1.15) rotate(3deg); filter: blur(0) drop-shadow(0 0 25px rgba(251,191,36,1)) drop-shadow(0 0 60px rgba(251,191,36,.6)); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
 }
-
-.jackpot-win-name {
-  font-size: clamp(40px, 9vw, 100px);
-  font-weight: 900;
-  color: #fff;
-  text-shadow: 0 0 30px #fbbf24, 0 0 60px #f59e0b, 0 8px 16px rgba(0,0,0,.6);
-  margin: 20px 0;
-  padding: 24px 48px;
-  background: rgba(0,0,0,.3);
-  border: 5px solid #fbbf24;
-  border-radius: 24px;
-  letter-spacing: 2px;
-  animation: namePulse 0.8s ease-in-out infinite alternate;
-  word-break: break-word;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 40px rgba(251,191,36,.7), inset 0 0 40px rgba(251,191,36,.2);
-}
-@keyframes namePulse {
-  from { transform: scale(1); box-shadow: 0 0 40px rgba(251,191,36,.7), inset 0 0 40px rgba(251,191,36,.2); }
-  to { transform: scale(1.04); box-shadow: 0 0 70px rgba(251,191,36,1), inset 0 0 60px rgba(251,191,36,.4); }
+@keyframes codeShine { to { background-position: 300% center; } }
+@keyframes codeFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.02); }
 }
 
+/* ── EMOJI XUNG QUANH MÃ ── */
 .jackpot-win-emoji {
-  font-size: clamp(70px, 14vw, 160px);
-  margin: 15px 0;
-  animation: emojiBounce 0.8s ease-in-out infinite alternate;
+  font-size: clamp(50px, 9vw, 100px);
   filter: drop-shadow(0 0 30px rgba(255,255,255,.9));
+  animation: emojiBounce .8s ease-in-out infinite alternate;
 }
 @keyframes emojiBounce {
-  from { transform: translateY(0) rotate(-8deg) scale(1); }
-  to { transform: translateY(-20px) rotate(8deg) scale(1.08); }
+  from { transform: translateY(0) rotate(-10deg) scale(1); }
+  to { transform: translateY(-18px) rotate(10deg) scale(1.1); }
 }
 
-.jackpot-win-buttons {
-  margin-top: 30px;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.jackpot-win-btn {
-  padding: 16px 36px;
-  background: #fff;
-  color: #dc2626;
-  border: none;
-  border-radius: 50px;
-  font-size: 16px;
+/* ── TÊN NGƯỜI TRÚNG — SHIMMER ── */
+.jackpot-win-name {
+  font-size: clamp(44px, 8vw, 110px);
   font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 0 30px rgba(255,255,255,.9), 0 6px 0 rgba(0,0,0,.2);
-  transition: transform .2s, box-shadow .2s;
-  letter-spacing: 1px;
-}
-.jackpot-win-btn:hover {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 0 50px rgba(255,255,255,1), 0 8px 0 rgba(0,0,0,.2);
-}
-.jackpot-win-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 30px rgba(255,255,255,.9), 0 4px 0 rgba(0,0,0,.2);
-}
-
-.jackpot-win-btn.secondary {
-  background: rgba(255,255,255,.2);
   color: #fff;
-  border: 2px solid rgba(255,255,255,.5);
-  box-shadow: 0 0 15px rgba(255,255,255,.3);
+  padding: 25px 55px;
+  background: rgba(0,0,0,.35);
+  border: 5px solid #fbbf24;
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(251,191,36,.9),
+    inset 0 0 60px rgba(251,191,36,.25);
+  animation:
+    nameRise .8s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards,
+    namePulse 1.2s ease-in-out 2.3s infinite alternate;
+  opacity: 0;
+  transform: translateY(50px) scale(0.8);
+  letter-spacing: 2px;
+  word-break: break-word;
+  backdrop-filter: blur(10px);
+  text-shadow: 0 0 30px #fbbf24, 0 0 60px #f59e0b, 0 8px 16px rgba(0,0,0,.7);
+  z-index: 6;
 }
-.jackpot-win-btn.secondary:hover {
-  background: rgba(255,255,255,.35);
+@keyframes nameRise {
+  0% { opacity: 0; transform: translateY(50px) scale(0.8); filter: blur(15px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes namePulse {
+  from { box-shadow: 0 0 60px rgba(251,191,36,.9), inset 0 0 60px rgba(251,191,36,.25); }
+  to { box-shadow: 0 0 110px rgba(251,191,36,1), inset 0 0 100px rgba(251,191,36,.45); }
 }
 
+/* ── ÁNH SÁNG LƯỚT QUA TÊN ── */
+.jackpot-win-name::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,.15) 30%,
+    rgba(255,255,255,.6) 50%,
+    rgba(255,255,255,.15) 70%,
+    transparent 100%);
+  animation: shimmerSlide 2.5s ease-in-out 2.5s infinite;
+  pointer-events: none;
+}
+@keyframes shimmerSlide {
+  0% { left: -150%; }
+  100% { left: 250%; }
+}
+
+/* ── DOTS TIẾN ĐỘ ── */
 .jackpot-win-dots {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin: 15px 0;
+  display: flex; gap: 12px; justify-content: center; margin-top: 15px;
 }
 .jackpot-win-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.4);
-  border: 2px solid rgba(255,255,255,.6);
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  border: 2px solid rgba(251,191,36,.5);
   transition: all .3s;
 }
 .jackpot-win-dot.active {
-  background: #fff;
-  transform: scale(1.3);
-  box-shadow: 0 0 15px #fff;
+  background: #fbbf24;
+  transform: scale(1.4);
+  box-shadow: 0 0 20px #fbbf24, 0 0 40px #fbbf24;
+  animation: dotPulse 1s ease-in-out infinite;
 }
+@keyframes dotPulse { 0%,100% { transform: scale(1.4); } 50% { transform: scale(1.6); } }
 .jackpot-win-dot.done {
   background: #10b981;
   border-color: #10b981;
+  box-shadow: 0 0 15px #10b981;
 }
 
 .jackpot-win-counter {
-  font-size: 16px;
+  font-size: clamp(18px, 2.5vw, 24px);
   font-weight: bold;
-  opacity: .95;
-  margin-top: 8px;
-  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+  color: #fbbf24;
+  letter-spacing: 4px;
+  margin-top: 5px;
+  text-shadow: 0 0 15px rgba(251,191,36,.9);
 }
 
+/* ── BUTTONS ── */
+.jackpot-win-buttons {
+  margin-top: 25px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: buttonsFade .5s ease-out 2.5s forwards;
+}
+@keyframes buttonsFade { to { opacity: 1; } }
+
+.jackpot-win-btn {
+  padding: 18px 42px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1e1b4b;
+  border: none;
+  border-radius: 50px;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 0 35px rgba(251,191,36,.9), 0 6px 0 rgba(0,0,0,.3);
+  transition: transform .15s, box-shadow .15s;
+  letter-spacing: 1px;
+}
+.jackpot-win-btn:hover { transform: scale(1.08) translateY(-3px); box-shadow: 0 0 55px rgba(251,191,36,1), 0 9px 0 rgba(0,0,0,.3); }
+.jackpot-win-btn:active { transform: translateY(2px); box-shadow: 0 0 35px rgba(251,191,36,.9), 0 3px 0 rgba(0,0,0,.3); }
+
+.jackpot-win-btn.secondary {
+  background: rgba(255,255,255,.12);
+  color: #fbbf24;
+  border: 2px solid #fbbf24;
+  box-shadow: 0 0 20px rgba(251,191,36,.3);
+}
+.jackpot-win-btn.secondary:hover { background: rgba(251,191,36,.2); }
+
+/* ── SAO LẤP LÁNH BAY ── */
+.jackpot-star {
+  position: fixed;
+  font-size: 30px;
+  z-index: 50;
+  pointer-events: none;
+  color: #fbbf24;
+  text-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b;
+  animation: starFloat 3.5s ease-out forwards;
+}
+@keyframes starFloat {
+  0% { transform: translateY(100vh) scale(.3) rotate(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-20vh) scale(1.3) rotate(720deg); opacity: 0; }
+}
+
+/* ── PHÁO HOA NỔ (điểm sáng) ── */
+.jackpot-firework-particle {
+  position: fixed;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  z-index: 99998;
+  pointer-events: none;
+  animation: fireworkBurst 1.6s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+@keyframes fireworkBurst {
+  0% { transform: translate(0,0) scale(1.8); opacity: 1; }
+  100% { transform: translate(var(--fx), var(--fy)) scale(.1); opacity: 0; }
+}
+
+/* ── CONFETTI (fallback nếu canvas-confetti chưa load) ── */
 .jackpot-confetti {
   position: fixed;
-  width: 12px;
-  height: 12px;
+  width: 14px; height: 14px;
   z-index: 100000;
   pointer-events: none;
-  animation: jackpotConfettiFall 4s linear forwards;
+  animation: confettiFall 4.5s linear forwards;
 }
-@keyframes jackpotConfettiFall {
-  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(1080deg); opacity: 0; }
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0) scale(1); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(1440deg) scale(.3); opacity: 0; }
 }
 
 @media (max-width: 520px) {
-  .jackpot-reel { width: 72px; height: 85px; }
-  .jackpot-reel-item { height: 85px; font-size: 13px; padding: 4px; }
-  .jackpot-machine { gap: 12px; padding: 12px 8px; }
-  .jackpot-lever { width: 55px; height: 140px; }
-  .lever-knob { width: 42px; height: 42px; }
-  .lever-arm { height: 70px; top: 40px; }
-  .lever-base { width: 48px; height: 40px; }
-  .jackpot-win-close { width: 42px; height: 42px; font-size: 22px; }
+  .jackpot-win-close { width: 46px; height: 46px; font-size: 22px; top: 15px; right: 15px; }
+  .jackpot-win-countdown { padding: 8px 20px; font-size: 12px; }
+  .jackpot-win-countdown .count-num { width: 30px; height: 30px; font-size: 15px; }
+  .jackpot-win-name { padding: 15px 25px; border-width: 3px; border-radius: 18px; }
   .jackpot-win-btn { padding: 14px 28px; font-size: 14px; }
+  .jackpot-win-dot { width: 12px; height: 12px; }
 }
 </style>
 </head>
@@ -1668,6 +1785,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 
 <script>
 /* ═══════════════ FIREBASE CONFIG ═══════════════ */
@@ -4344,51 +4462,25 @@ function renderTimetableView() {
 
 function renderAllTimetable() { renderTimetableInput(); renderTimetableView(); }
 
-/* ═══════════════ JACKPOT MACHINE ═══════════════ */
-const JackpotColors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316','#84cc16','#14b8a6'];
+/* ═══════════════════════════════════════════════════════════════
+   JACKPOT MACHINE v3 — 3 Reels Số (000-999)
+   ═══════════════════════════════════════════════════════════════ */
 
 let jackpotState = {
   spinning: false,
-  lastWinners: [],
-  history: JSON.parse(localStorage.getItem('jackpot_history') || '[]'),
-  reels: [], // Mảng 4 reel
-  lightsInterval: null
+  winners: [],
+  history: JSON.parse(localStorage.getItem('jackpot_history') || '[]')
 };
 
-// ═══ Khởi tạo máy jackpot ═══
+// ═══ KHỞI TẠO ═══
 function initJackpot() {
   renderJackpotChecklist();
   updateJackpotCount();
   buildJackpotReels();
   renderJackpotHistory();
-  createJackpotLights();
 }
 
-// ═══ Tạo đèn nhấp nháy quanh máy ═══
-function createJackpotLights() {
-  const container = document.getElementById('jackpotLights');
-  if (!container) return;
-  container.innerHTML = '';
-  const positions = [
-    // Top row
-    { top: '8px', left: '10%' }, { top: '8px', left: '30%' }, { top: '8px', left: '50%' }, { top: '8px', left: '70%' }, { top: '8px', left: '90%' },
-    // Bottom row
-    { bottom: '8px', left: '10%' }, { bottom: '8px', left: '30%' }, { bottom: '8px', left: '50%' }, { bottom: '8px', left: '70%' }, { bottom: '8px', left: '90%' },
-    // Left column
-    { top: '30%', left: '8px' }, { top: '50%', left: '8px' }, { top: '70%', left: '8px' },
-    // Right column
-    { top: '30%', right: '8px' }, { top: '50%', right: '8px' }, { top: '70%', right: '8px' }
-  ];
-  positions.forEach((pos, i) => {
-    const light = document.createElement('div');
-    light.className = 'jackpot-light';
-    Object.assign(light.style, pos);
-    light.style.animationDelay = (i * 0.08) + 's';
-    container.appendChild(light);
-  });
-}
-
-// ═══ Checklist người tham gia ═══
+// ═══ CHECKLIST NGƯỜI THAM GIA ═══
 function renderJackpotChecklist() {
   const box = document.getElementById('jackpotChecklist');
   if (!box) return;
@@ -4396,13 +4488,9 @@ function renderJackpotChecklist() {
   const checkedIds = new Set([...document.querySelectorAll('input[name="jackpotCheck"]:checked')].map(c => c.value));
   box.innerHTML = students.map((s, i) => `
     <label class="checkbox-item">
-      <input type="checkbox" name="jackpotCheck" value="${s.id}" 
-             ${checkedIds.has(String(s.id)) ? 'checked' : ''} 
-             onchange="updateJackpotCount();">
+      <input type="checkbox" name="jackpotCheck" value="${s.id}" ${checkedIds.has(String(s.id)) ? 'checked' : ''} onchange="updateJackpotCount()">
       ${i+1}. ${esc(s.name)}
-    </label>
-  `).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
-  
+    </label>`).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
   if (checkedIds.size === 0 && students.length > 0) {
     document.querySelectorAll('input[name="jackpotCheck"]').forEach(cb => cb.checked = true);
     updateJackpotCount();
@@ -4427,361 +4515,470 @@ function getJackpotParticipants() {
   return getStudents().filter(s => checkedIds.includes(String(s.id)));
 }
 
-// ═══ Chia tên thành các phần (max 4) ═══
-function splitName(name) {
-  const parts = name.trim().split(/\s+/);
-  // Nếu <= 4 phần thì giữ nguyên
-  if (parts.length <= 4) return parts;
-  // Nếu > 4 phần (tên dài) thì gộp các phần ở giữa
-  return [parts[0], parts[1], parts.slice(2, -1).join(' '), parts[parts.length - 1]];
-}
-
-// ═══ Xây dựng 4 reels với dữ liệu ngẫu nhiên ═══
+// ═══ TẠO 3 REEL SỐ ═══
 function buildJackpotReels() {
-  const reelsContainer = document.getElementById('jackpotReels');
-  if (!reelsContainer) return;
-  
-  reelsContainer.innerHTML = '';
-  jackpotState.reels = [];
-  
-  // Tạo 4 reels
-  for (let i = 0; i < 4; i++) {
+  const container = document.getElementById('jackpotReels');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
     const reel = document.createElement('div');
     reel.className = 'jackpot-reel';
     reel.id = `jackpotReel${i}`;
-    
     const inner = document.createElement('div');
     inner.className = 'jackpot-reel-inner';
     inner.id = `jackpotReelInner${i}`;
-    
     reel.appendChild(inner);
-    reelsContainer.appendChild(reel);
-    
-    jackpotState.reels.push({ 
-      el: reel, 
-      inner: inner, 
-      currentOffset: 0,
-      items: []
-    });
+    container.appendChild(reel);
   }
-  
-  // Hiển thị tên đầu tiên làm mẫu
-  const students = getStudents();
-  if (students.length > 0) {
-    displayRandomName();
-  }
+  displayRandomDigits();
 }
 
-// Hiển thị 1 tên ngẫu nhiên (khi chưa quay)
-function displayRandomName() {
-  const students = getStudents();
-  if (!students.length) return;
-  const sample = students[Math.floor(Math.random() * Math.min(students.length, 5))];
-  const parts = splitName(sample.name);
-  for (let i = 0; i < 4; i++) {
+function displayRandomDigits() {
+  for (let i = 0; i < 3; i++) {
     const inner = document.getElementById(`jackpotReelInner${i}`);
     if (!inner) continue;
-    const text = parts[i] || '—';
-    inner.innerHTML = `<div class="jackpot-reel-item">${esc(text)}</div>`;
+    inner.innerHTML = `<div class="jackpot-reel-item">${Math.floor(Math.random()*10)}</div>`;
     inner.style.transform = 'translateY(0)';
+    inner.style.transition = 'none';
   }
 }
 
-// ═══ Kéo cần gạt / Nhấn quay ═══
+function getReelItemHeight() {
+  return window.innerWidth <= 520 ? 95 : 150;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══ KÉO CẦN GẠT — QUAY SỐ ═══
 async function pullJackpotLever() {
   if (jackpotState.spinning) return;
-  
-  // Hiệu ứng kéo cần gạt
+
   const lever = document.getElementById('jackpotLever');
-  if (lever) {
-    lever.classList.add('pulled');
-    setTimeout(() => lever.classList.remove('pulled'), 500);
-  }
-  
+  if (lever) { lever.classList.add('pulled'); setTimeout(() => lever.classList.remove('pulled'), 800); }
+
   const participants = getJackpotParticipants();
-  if (!participants.length) {
-    toast('⚠️ Chọn ít nhất 1 người!', '#ef4444');
-    return;
-  }
-  
+  if (!participants.length) { toast('⚠️ Chọn ít nhất 1 người!', '#ef4444'); return; }
+
   const winnerCount = parseInt(document.getElementById('jackpotWinnerCount').value) || 1;
   const mode = document.getElementById('jackpotMode').value;
   const duration = (parseFloat(document.getElementById('jackpotDuration').value) || 4) * 1000;
   const soundOn = document.getElementById('jackpotSound').value === 'on';
-  
+
   if (winnerCount > participants.length && mode === 'remove') {
-    toast('⚠️ Số người trúng > số người tham gia!', '#ef4444');
-    return;
+    toast('⚠️ Số người trúng > số người tham gia!', '#ef4444'); return;
   }
-  
+
   jackpotState.spinning = true;
   const btn = document.getElementById('btnJackpotSpin');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang quay...'; }
-  
+
   document.getElementById('jackpotResultBox').style.display = 'none';
-  
+  document.getElementById('jackpotPendingBox').style.display = 'block';
+  document.getElementById('jackpotPendingList').innerHTML = '';
+
   if (soundOn) startJackpotSound();
-  
+
+  // ═══ BƯỚC 1: CHỌN WINNER NGẪU NHIÊN ═══
   const winners = [];
   let remaining = [...participants];
-  
-  for (let round = 0; round < winnerCount; round++) {
-    if (remaining.length === 0) break;
-    
-    // Chọn winner
-    const winnerIdx = Math.floor(Math.random() * remaining.length);
-    const winner = remaining[winnerIdx];
-    
-    // Quay 4 reel đến tên winner
-    await spinJackpotReels(winner, duration, remaining);
-    
-    winners.push(winner);
-    
-    if (mode === 'remove') remaining.splice(winnerIdx, 1);
-    
-    // Nếu còn round tiếp theo → chờ 1.5s
-    if (round < winnerCount - 1) await sleep(1500);
+  for (let i = 0; i < winnerCount; i++) {
+    if (!remaining.length) break;
+    const idx = Math.floor(Math.random() * remaining.length);
+    winners.push(remaining[idx]);
+    if (mode === 'remove') remaining.splice(idx, 1);
   }
-  
+
+  // ═══ BƯỚC 2: GÁN MÃ SỐ 3 CHỮ SỐ ═══
+  const usedCodes = new Set();
+  const winnerEntries = winners.map(w => {
+    let code;
+    do {
+      code = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+    } while (usedCodes.has(code));
+    usedCodes.add(code);
+    return { code, student: w };
+  });
+
+  jackpotState.winners = winnerEntries;
+
+  // ═══ BƯỚC 3: QUAY TỪNG SỐ — HIỆN VÀO HÀNG CHỜ ═══
+  const pendingList = document.getElementById('jackpotPendingList');
+  for (let i = 0; i < winnerEntries.length; i++) {
+    const entry = winnerEntries[i];
+    const progressEl = document.getElementById('jackpotPendingProgress');
+    if (progressEl) progressEl.textContent = `(${i+1}/${winnerEntries.length})`;
+
+    await spinReelsToCode(entry.code, duration);
+
+    const item = document.createElement('div');
+    item.className = 'jackpot-pending-item';
+    item.textContent = entry.code;
+    pendingList.appendChild(item);
+
+    for (let r = 0; r < 3; r++) {
+      document.getElementById(`jackpotReel${r}`)?.classList.remove('win');
+    }
+
+    if (i < winnerEntries.length - 1) await sleep(1200);
+  }
+
   if (soundOn) stopJackpotSound();
-  
-  // Lưu và hiển thị
-  jackpotState.lastWinners = winners;
-  saveJackpotHistory(winners);
-  
-  // Hiển thị chúc mừng toàn màn hình
-  showFullScreenWin(winners);
-  
+
+  // ═══ BƯỚC 4: BUNG KẾT QUẢ ═══
+  await sleep(800);
+  showJackpotReveal();
+  saveJackpotHistory(winnerEntries);
+
   jackpotState.spinning = false;
   if (btn) { btn.disabled = false; btn.textContent = '🎰 QUAY NGAY 🎰'; }
 }
 
-// ═══ Quay 4 reel đến tên winner ═══
-async function spinJackpotReels(winner, duration, allParticipants) {
-  // Chia tên winner thành các phần
-  const winnerParts = splitName(winner.name);
-  
-  // Với mỗi reel, tạo danh sách item bao gồm: các phần từ người khác + phần của winner
-  const reelPromises = [];
-  for (let i = 0; i < 4; i++) {
-    reelPromises.push(spinSingleReel(i, winnerParts[i] || '—', allParticipants, i, duration));
+// ═══ QUAY 3 REEL ĐẾN MÃ SỐ ═══
+async function spinReelsToCode(code, duration) {
+  const digits = code.split('');
+  const promises = [];
+  for (let i = 0; i < 3; i++) {
+    promises.push(spinDigitReel(i, digits[i], duration + i * 400));
   }
-  
-  await Promise.all(reelPromises);
+  await Promise.all(promises);
 }
 
-function spinSingleReel(reelIdx, targetText, allParticipants, partIdx, duration) {
+function spinDigitReel(reelIdx, targetDigit, duration) {
   return new Promise(resolve => {
     const inner = document.getElementById(`jackpotReelInner${reelIdx}`);
     if (!inner) { resolve(); return; }
-    
-    // Tạo danh sách item ngẫu nhiên để quay
-    // Bao gồm các phần tên của tất cả participants
-    const pool = [];
-    allParticipants.forEach(p => {
-      const parts = splitName(p.name);
-      if (parts[partIdx]) pool.push(parts[partIdx]);
-    });
-    
-    // Thêm các phần bổ sung để đa dạng
-    const commonParts = ['—', '...', '🎰', '⭐', '💫', '✨'];
-    for (let k = 0; k < 5; k++) {
-      pool.push(commonParts[Math.floor(Math.random() * commonParts.length)]);
-    }
-    
-    // Nếu pool rỗng thì dùng targetText
-    if (!pool.length) pool.push(targetText);
-    
-    // Tạo sequence: quay nhiều item ngẫu nhiên + kết thúc bằng target
-    const totalItems = 25 + Math.floor(Math.random() * 15);
+    const itemHeight = getReelItemHeight();
+    const totalItems = 30 + Math.floor(Math.random() * 15);
     const items = [];
-    for (let i = 0; i < totalItems; i++) {
-      items.push(pool[Math.floor(Math.random() * pool.length)]);
-    }
-    // 3 item cuối là target (để dừng đẹp)
-    items.push(targetText);
-    items.push(targetText);
-    items.push(targetText);
-    
-    // Render
-    const itemHeight = window.innerWidth <= 520 ? 80 : 100;
-    inner.innerHTML = items.map(t => `<div class="jackpot-reel-item">${esc(t)}</div>`).join('');
+    for (let i = 0; i < totalItems; i++) items.push(Math.floor(Math.random() * 10));
+    const t = parseInt(targetDigit);
+    items.push(t, t, t);
+
+    inner.innerHTML = items.map(d => `<div class="jackpot-reel-item">${d}</div>`).join('');
     inner.style.transition = 'none';
     inner.style.transform = 'translateY(0)';
-    
-    // Bắt đầu animation
+
     setTimeout(() => {
-      // Thời gian quay: reel 0 chậm nhất, reel 3 nhanh nhất (hoặc ngược lại tùy ý)
-      const reelDuration = duration + (reelIdx * 300); // Reel sau dừng sau
-      
-      inner.style.transition = `transform ${reelDuration}ms cubic-bezier(0.15, 0.9, 0.3, 1)`;
-      
-      // Vị trí dừng: item target thứ 2 từ dưới lên (index totalItems+1)
+      inner.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.9, 0.3, 1)`;
       const stopIndex = totalItems + 1;
-      const offset = -(stopIndex * itemHeight) + itemHeight; // +itemHeight để căn giữa
-      
+      const offset = -(stopIndex * itemHeight) + itemHeight;
       inner.style.transform = `translateY(${offset}px)`;
-      
-      setTimeout(() => resolve(), reelDuration);
+
+      setTimeout(() => {
+        const reelEl = document.getElementById(`jackpotReel${reelIdx}`);
+        if (reelEl) {
+          reelEl.classList.add('win');
+          setTimeout(() => reelEl.classList.remove('win'), 500);
+        }
+        resolve();
+      }, duration);
     }, 50);
   });
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CHÚC MỪNG TOÀN MÀN HÌNH (v2) — Có nút X + tự đóng 5s + ESC
+   JACKPOT REVEAL — MASTER EFFECT (v3)
+   - Mã số "bóc tem" + tên trượt lên
+   - Pháo hoa + Confetti + Sao bay + Âm nhạc
+   - Tự đóng 5s + Nút X + ESC
    ═══════════════════════════════════════════════════════════════ */
 
 let jackpotWinTimers = [];
 let jackpotWinInterval = null;
+let jackpotEffectsIntervals = [];
 
+// ═══ CLEAR TIMERS ═══
 function clearJackpotWinTimers() {
   jackpotWinTimers.forEach(t => clearTimeout(t));
   jackpotWinTimers = [];
-  if (jackpotWinInterval) {
-    clearInterval(jackpotWinInterval);
-    jackpotWinInterval = null;
-  }
+  if (jackpotWinInterval) { clearInterval(jackpotWinInterval); jackpotWinInterval = null; }
+  jackpotEffectsIntervals.forEach(i => clearInterval(i));
+  jackpotEffectsIntervals = [];
 }
 
 function closeAllJackpotWins() {
   clearJackpotWinTimers();
+  stopAllJackpotEffects();
   document.querySelectorAll('.jackpot-win-overlay').forEach(el => el.remove());
   window.__jackpotNext__ = null;
-  window.__jackpotDone__ = null;
 }
 
-function showFullScreenWin(winners) {
-  closeAllJackpotWins();
-  window.__jackpotWinners__ = winners;
-  
-  let currentIdx = 0;
-  const AUTO_CLOSE_SECONDS = 5;
-  
+// ═══ TIMER HELPER ═══
+function addJackpotEffectTimer(fn, delay) {
+  const t = setTimeout(fn, delay);
+  jackpotWinTimers.push(t);
+}
+
+// ═══ STOP EFFECTS ═══
+function stopAllJackpotEffects() {
+  document.querySelectorAll('.jackpot-star, .jackpot-firework-particle, .jackpot-confetti').forEach(el => el.remove());
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN REVEAL FUNCTION
+   ═══════════════════════════════════════════════════════════════ */
+function showJackpotReveal() {
+  let idx = 0;
+  const entries = jackpotState.winners || [];
+  const AUTO_SECONDS = 5;
+
   function showNext() {
     document.querySelectorAll('.jackpot-win-overlay').forEach(el => el.remove());
     clearJackpotWinTimers();
-    
-    if (currentIdx >= winners.length) {
-      showJackpotResult(winners);
-      window.__jackpotNext__ = null;
-      window.__jackpotDone__ = null;
+    stopAllJackpotEffects();
+
+    if (idx >= entries.length) {
+      showJackpotResult(entries);
       return;
     }
-    
-    const winner = winners[currentIdx];
-    const isLast = currentIdx === winners.length - 1;
-    const hasMultiple = winners.length > 1;
-    
+
+    const entry = entries[idx];
+    const isLast = idx === entries.length - 1;
+    const hasMultiple = entries.length > 1;
+
     const overlay = document.createElement('div');
     overlay.className = 'jackpot-win-overlay';
-    
+
     let dotsHtml = '';
     if (hasMultiple) {
       dotsHtml = '<div class="jackpot-win-dots">';
-      for (let i = 0; i < winners.length; i++) {
-        const cls = i < currentIdx ? 'done' : i === currentIdx ? 'active' : '';
+      for (let i = 0; i < entries.length; i++) {
+        const cls = i < idx ? 'done' : i === idx ? 'active' : '';
         dotsHtml += `<div class="jackpot-win-dot ${cls}"></div>`;
       }
       dotsHtml += '</div>';
     }
-    
+
     overlay.innerHTML = `
-      <button class="jackpot-win-close" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotWinners__);" title="Đóng (ESC)">✕</button>
-      
+      <div class="jackpot-grid-bg"></div>
+      <div class="jackpot-rays"></div>
+      <div class="jackpot-halo"></div>
+      <div class="jackpot-halo"></div>
+      <div class="jackpot-halo"></div>
+
+      <button class="jackpot-win-close" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotEntries__);" title="Đóng (ESC)">✕</button>
+
       <div class="jackpot-win-countdown">
         <span>Tự động đóng sau</span>
-        <span class="count-num" id="jackpotCountNum">${AUTO_CLOSE_SECONDS}</span>
+        <span class="count-num" id="jackpotCountNum">${AUTO_SECONDS}</span>
         <span>giây</span>
       </div>
-      
       <div class="jackpot-win-progress"></div>
-      
+
       <div class="jackpot-win-content">
+        <div class="jackpot-win-label">🎯 MÃ SỐ TRÚNG THƯỞNG 🎯</div>
+        <div class="jackpot-win-code">${entry.code}</div>
         <div class="jackpot-win-emoji">🎉🏆🎉</div>
-        <div class="jackpot-win-title">CHÚC MỪNG!</div>
-        <div class="jackpot-win-name">${esc(winner.name)}</div>
+        <div class="jackpot-win-label" style="animation-delay:.8s;">THUỘC VỀ</div>
+        <div class="jackpot-win-name">${esc(entry.student.name)}</div>
         ${dotsHtml}
-        ${hasMultiple ? `<div class="jackpot-win-counter">Người ${currentIdx + 1} / ${winners.length}</div>` : ''}
-        <div class="jackpot-win-emoji">🥇✨🎊</div>
-        
+        ${hasMultiple ? `<div class="jackpot-win-counter">Người ${idx + 1} / ${entries.length}</div>` : ''}
         <div class="jackpot-win-buttons">
-          ${!isLast ? `
-            <button class="jackpot-win-btn" onclick="window.__jackpotNext__()">
-              👉 XEM TIẾP (${currentIdx + 2}/${winners.length})
-            </button>
-          ` : `
-            <button class="jackpot-win-btn" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotWinners__);">
-              ✅ HOÀN THÀNH
-            </button>
-          `}
-          <button class="jackpot-win-btn secondary" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotWinners__);">
-            ⏭️ BỎ QUA
-          </button>
+          ${!isLast
+            ? `<button class="jackpot-win-btn" onclick="window.__jackpotNext__()">👉 XEM TIẾP (${idx + 2}/${entries.length})</button>`
+            : `<button class="jackpot-win-btn" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotEntries__);">✅ HOÀN THÀNH</button>`}
+          <button class="jackpot-win-btn secondary" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotEntries__);">⏭️ BỎ QUA</button>
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(overlay);
-    
-    triggerJackpotConfetti();
-    playWinSound();
-    
+    window.__jackpotEntries__ = entries;
+
+    // ═══ TIMELINE HIỆU ỨNG ═══
+    addJackpotEffectTimer(() => triggerFireworks(), 300);       // 0.3s: Pháo hoa nổ
+    addJackpotEffectTimer(() => triggerConfetti(), 1500);       // 1.5s: Confetti + Tên bung
+    addJackpotEffectTimer(() => triggerFireworks(), 1600);      // 1.6s: Pháo hoa đợt 2
+    addJackpotEffectTimer(() => triggerStars(), 2000);          // 2.0s: Sao bay
+    addJackpotEffectTimer(() => playWinSound(), 2300);          // 2.3s: Âm thanh
+
     // Đếm ngược
-    let countdown = AUTO_CLOSE_SECONDS;
+    let countdown = AUTO_SECONDS;
     const countEl = document.getElementById('jackpotCountNum');
     jackpotWinInterval = setInterval(() => {
       countdown--;
       if (countEl) countEl.textContent = Math.max(0, countdown);
     }, 1000);
-    
+
     // Tự động chuyển/đóng
-    const autoTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       clearJackpotWinTimers();
-      if (isLast) {
-        closeAllJackpotWins();
-        showJackpotResult(winners);
-      } else {
-        currentIdx++;
-        showNext();
-      }
-    }, AUTO_CLOSE_SECONDS * 1000);
-    jackpotWinTimers.push(autoTimer);
-    
-    // Callback "Xem tiếp"
+      stopAllJackpotEffects();
+      if (isLast) { closeAllJackpotWins(); showJackpotResult(entries); }
+      else { idx++; showNext(); }
+    }, AUTO_SECONDS * 1000);
+    jackpotWinTimers.push(timer);
+
     window.__jackpotNext__ = () => {
       clearJackpotWinTimers();
-      currentIdx++;
+      stopAllJackpotEffects();
+      idx++;
       showNext();
     };
   }
-  
+
   showNext();
 }
 
-// ═══ Phím ESC để đóng full-screen ═══
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.querySelector('.jackpot-win-overlay')) {
-    closeAllJackpotWins();
-    if (window.__jackpotWinners__) showJackpotResult(window.__jackpotWinners__);
-  }
-});
+/* ═══════════════════════════════════════════════════════════════
+   HIỆU ỨNG 1: PHÁO HOA NỔ
+   ═══════════════════════════════════════════════════════════════ */
+function triggerFireworks() {
+  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6','#f59e0b'];
+  const bursts = [
+    { x: 20, y: 30 }, { x: 80, y: 30 },
+    { x: 15, y: 70 }, { x: 85, y: 70 },
+    { x: 50, y: 20 }
+  ];
+  bursts.forEach((burst, bi) => {
+    setTimeout(() => {
+      const color = colors[bi % colors.length];
+      const particleCount = 16;
+      for (let i = 0; i < particleCount; i++) {
+        const angle = (Math.PI * 2 * i) / particleCount;
+        const dist = 100 + Math.random() * 150;
+        const particle = document.createElement('div');
+        particle.className = 'jackpot-firework-particle';
+        particle.style.left = burst.x + 'vw';
+        particle.style.top = burst.y + 'vh';
+        particle.style.background = color;
+        particle.style.boxShadow = `0 0 15px ${color}, 0 0 30px ${color}, 0 0 45px ${color}`;
+        particle.style.setProperty('--fx', Math.cos(angle) * dist + 'px');
+        particle.style.setProperty('--fy', Math.sin(angle) * dist + 'px');
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1700);
+      }
+    }, bi * 200);
+  });
+}
 
-// ═══ Kết quả dạng list ═══
-function showJackpotResult(winners) {
+/* ═══════════════════════════════════════════════════════════════
+   HIỆU ỨNG 2: CONFETTI (canvas-confetti)
+   ═══════════════════════════════════════════════════════════════ */
+function triggerConfetti() {
+  if (typeof confetti !== 'function') {
+    triggerFallbackConfetti();
+    return;
+  }
+  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6'];
+
+  // Bùng nổ trung tâm
+  confetti({
+    particleCount: 120, spread: 100, origin: { y: 0.5 },
+    colors, startVelocity: 55, gravity: 0.9, ticks: 250
+  });
+
+  // Hai bên liên tục
+  const duration = 2200;
+  const end = Date.now() + duration;
+  (function frame() {
+    confetti({
+      particleCount: 5, angle: 60, spread: 70,
+      origin: { x: 0, y: 0.7 }, colors, startVelocity: 45
+    });
+    confetti({
+      particleCount: 5, angle: 120, spread: 70,
+      origin: { x: 1, y: 0.7 }, colors, startVelocity: 45
+    });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  })();
+}
+
+function triggerFallbackConfetti() {
+  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6','#f59e0b','#fff'];
+  for (let i = 0; i < 100; i++) {
+    const c = document.createElement('div');
+    c.className = 'jackpot-confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.top = '-20px';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDelay = (Math.random() * 1.5) + 's';
+    c.style.animationDuration = (3 + Math.random() * 2) + 's';
+    c.style.width = c.style.height = (8 + Math.random() * 10) + 'px';
+    if (Math.random() > 0.5) c.style.borderRadius = '50%';
+    if (Math.random() > 0.5) c.style.transform = 'rotate(45deg)';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5500);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HIỆU ỨNG 3: SAO LẤP LÁNH BAY LÊN
+   ═══════════════════════════════════════════════════════════════ */
+function triggerStars() {
+  const symbols = ['⭐','✨','💫','🌟','✦','✧','⋆'];
+  const colors = ['#fbbf24','#fff','#f59e0b'];
+  let count = 0;
+  const maxStars = 40;
+  const interval = setInterval(() => {
+    if (count >= maxStars || !document.querySelector('.jackpot-win-overlay')) {
+      clearInterval(interval);
+      return;
+    }
+    const star = document.createElement('div');
+    star.className = 'jackpot-star';
+    star.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    star.style.left = Math.random() * 100 + 'vw';
+    star.style.color = colors[Math.floor(Math.random() * colors.length)];
+    star.style.fontSize = (20 + Math.random() * 30) + 'px';
+    star.style.animationDuration = (3 + Math.random() * 2) + 's';
+    star.style.animationDelay = (Math.random() * 0.8) + 's';
+    document.body.appendChild(star);
+    setTimeout(() => star.remove(), 5000);
+    count++;
+  }, 80);
+  jackpotEffectsIntervals.push(interval);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HIỆU ỨNG 4: ÂM THANH CHIẾN THẮNG (C-E-G-C-E)
+   ═══════════════════════════════════════════════════════════════ */
+function playWinSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [
+      { freq: 523.25, delay: 0.0, dur: 0.15 },  // C5
+      { freq: 659.25, delay: 0.12, dur: 0.15 }, // E5
+      { freq: 783.99, delay: 0.24, dur: 0.15 }, // G5
+      { freq: 1046.50, delay: 0.36, dur: 0.5 }, // C6
+      { freq: 1318.51, delay: 0.55, dur: 0.7 }  // E6
+    ];
+    notes.forEach(n => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = n.freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0, ctx.currentTime + n.delay);
+      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + n.delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + n.delay + n.dur);
+      osc.start(ctx.currentTime + n.delay);
+      osc.stop(ctx.currentTime + n.delay + n.dur + 0.05);
+    });
+  } catch (e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   KẾT QUẢ DẠNG LIST
+   ═══════════════════════════════════════════════════════════════ */
+function showJackpotResult(entries) {
   const box = document.getElementById('jackpotResultBox');
   const content = document.getElementById('jackpotResultContent');
   if (!box || !content) return;
   box.style.display = 'block';
-  
-  content.innerHTML = winners.map((w, i) => {
+
+  content.innerHTML = entries.map((e, i) => {
     const rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎉';
+    const codeStr = e.code ? `[${e.code}] ` : '';
+    const nameStr = e.student ? e.student.name : (e.name || '');
     return `<div class="winner-box ${rankCls}">
-      <span>${medal} Người ${i + 1}: <b>${esc(w.name)}</b></span>
+      <span>${medal} <b style="font-family:'Courier New',monospace;letter-spacing:2px;">${codeStr}</b>${esc(nameStr)}</span>
       <span style="font-size:24px;">${medal}</span>
     </div>`;
   }).join('');
-  
+
   box.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -4791,30 +4988,23 @@ function hideJackpotResult() {
 }
 
 function copyJackpotResults() {
-  if (!jackpotState.lastWinners.length) return;
-  const text = `🎰 KẾT QUẢ JACKPOT\n\n` + 
-    jackpotState.lastWinners.map((w, i) => `${i + 1}. ${w.name}`).join('\n') +
+  const entries = jackpotState.winners || [];
+  if (!entries.length) return;
+  const text = `🎰 KẾT QUẢ JACKPOT\n\n` +
+    entries.map((e, i) => {
+      const code = e.code || '';
+      const name = e.student ? e.student.name : (e.name || '');
+      return `${i + 1}. [${code}] ${name}`;
+    }).join('\n') +
     `\n\n🕐 ${new Date().toLocaleString('vi-VN')}`;
   navigator.clipboard.writeText(text)
     .then(() => toast('📋 Đã copy!', '#10b981'))
     .catch(() => alert(text));
 }
 
-function triggerJackpotConfetti() {
-  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6','#f59e0b','#fff'];
-  for (let i = 0; i < 120; i++) {
-    const c = document.createElement('div');
-    c.className = 'jackpot-confetti';
-    c.style.left = Math.random() * 100 + '%';
-    c.style.background = colors[i % colors.length];
-    c.style.animationDelay = (Math.random() * 1.5) + 's';
-    c.style.width = c.style.height = (8 + Math.random() * 10) + 'px';
-    if (Math.random() > 0.5) c.style.borderRadius = '50%';
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 5500);
-  }
-}
-
+/* ═══════════════════════════════════════════════════════════════
+   ÂM THANH KHI QUAY (rolling sound)
+   ═══════════════════════════════════════════════════════════════ */
 let jackpotAudioCtx = null;
 let jackpotSoundInterval = null;
 
@@ -4827,14 +5017,14 @@ function startJackpotSound() {
       const gain = jackpotAudioCtx.createGain();
       osc.connect(gain);
       gain.connect(jackpotAudioCtx.destination);
-      osc.frequency.value = 600 + Math.random() * 600;
-      osc.type = 'square';
-      gain.gain.setValueAtTime(0.04, jackpotAudioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, jackpotAudioCtx.currentTime + 0.06);
+      osc.frequency.value = 350 + Math.random() * 250;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.05, jackpotAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, jackpotAudioCtx.currentTime + 0.09);
       osc.start();
-      osc.stop(jackpotAudioCtx.currentTime + 0.06);
-    }, 90);
-  } catch (e) { console.warn('Audio failed:', e); }
+      osc.stop(jackpotAudioCtx.currentTime + 0.09);
+    }, 130);
+  } catch (e) {}
 }
 
 function stopJackpotSound() {
@@ -4842,32 +5032,18 @@ function stopJackpotSound() {
   if (jackpotAudioCtx) { jackpotAudioCtx.close(); jackpotAudioCtx = null; }
 }
 
-function playWinSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523.25, 659.25, 783.99, 1046.50];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = freq;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
-      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.12 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.4);
-      osc.start(ctx.currentTime + i * 0.12);
-      osc.stop(ctx.currentTime + i * 0.12 + 0.5);
-    });
-  } catch (e) {}
-}
-
-function saveJackpotHistory(winners) {
+/* ═══════════════════════════════════════════════════════════════
+   LỊCH SỬ
+   ═══════════════════════════════════════════════════════════════ */
+function saveJackpotHistory(entries) {
   const entry = {
     id: uid(),
     at: new Date().toISOString(),
     byEmail: currentUser?.email || 'Ẩn danh',
-    winners: winners.map(w => ({ id: w.id, name: w.name })),
+    winners: entries.map(e => ({
+      code: e.code || '',
+      name: e.student ? e.student.name : (e.name || '')
+    })),
     totalParticipants: getJackpotParticipants().length
   };
   jackpotState.history.unshift(entry);
@@ -4890,7 +5066,7 @@ function renderJackpotHistory() {
       <div style="flex:1;min-width:200px;">
         <div style="font-size:11px;color:#64748b;">${timeStr} • ${esc(h.byEmail)}</div>
         <div style="font-size:13px;font-weight:600;margin-top:4px;">
-          🏆 ${h.winners.map(w => esc(w.name)).join(', ')}
+          🏆 ${h.winners.map(w => `[${esc(w.code || '')}] ${esc(w.name)}`).join(' • ')}
         </div>
       </div>
       <div style="font-size:11px;color:#94a3b8;">
@@ -4908,14 +5084,42 @@ function clearJackpotHistory() {
   toast('🗑️ Đã xóa lịch sử!');
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   PHÍM ESC — ĐÓNG FULL-SCREEN
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.querySelector('.jackpot-win-overlay')) {
+    closeAllJackpotWins();
+    if (window.__jackpotEntries__) showJackpotResult(window.__jackpotEntries__);
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   PHÍM SPACE — QUAY NHANH
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' &&
+      document.getElementById('sec-random')?.classList.contains('active') &&
+      !jackpotState.spinning &&
+      !document.querySelector('.jackpot-win-overlay') &&
+      !['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    pullJackpotLever();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   HOOK showTab — KHỞI TẠO KHI VÀO TAB RANDOM
+   ═══════════════════════════════════════════════════════════════ */
 const _origShowTabJackpot = showTab;
 showTab = function(id, btn) {
   _origShowTabJackpot(id, btn);
-  if (id === 'random') {
-    setTimeout(() => initJackpot(), 50);
-  }
+  if (id === 'random') setTimeout(() => initJackpot(), 50);
 };
 
+/* ═══════════════════════════════════════════════════════════════
+   HOOK renderAllUI — REFRESH CHECKLIST
+   ═══════════════════════════════════════════════════════════════ */
 const _origRenderAllUIJackpot = renderAllUI;
 renderAllUI = function() {
   _origRenderAllUIJackpot();
@@ -4924,19 +5128,6 @@ renderAllUI = function() {
     updateJackpotCount();
   }
 };
-
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' && 
-      document.getElementById('sec-random')?.classList.contains('active') &&
-      !jackpotState.spinning &&
-      !document.querySelector('.jackpot-win-overlay') &&
-      document.activeElement.tagName !== 'INPUT' &&
-      document.activeElement.tagName !== 'SELECT' &&
-      document.activeElement.tagName !== 'TEXTAREA') {
-    e.preventDefault();
-    pullJackpotLever();
-  }
-});
   
 /* ═══════════════ INIT ═══════════════ */
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
