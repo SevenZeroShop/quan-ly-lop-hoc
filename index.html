@@ -961,92 +961,73 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
     </div>
   </div>
 </div>
-
-<!-- RANDOM — SLOT 3 Ô SỐ -->
+  
+<!-- RANDOM — VÒNG QUAY MAY MẮN -->
 <div id="sec-random" class="section-pane">
   <div class="card" style="background:linear-gradient(135deg,#7f1d1d,#dc2626,#7c3aed);color:#fff;border:none;text-align:center;padding:22px;">
-    <div style="font-size:52px;margin-bottom:8px;">🎰</div>
-    <h2 style="font-size:22px;text-transform:uppercase;letter-spacing:3px;">JACKPOT MAY MẮN</h2>
-    <p style="font-size:13px;opacity:.95;margin-top:6px;">Kéo cần gạt → 3 ô số quay → Trúng thưởng!</p>
+    <div style="font-size:52px;margin-bottom:8px;">🎡</div>
+    <h2 style="font-size:22px;text-transform:uppercase;letter-spacing:3px;">VÒNG QUAY MAY MẮN</h2>
+    <p style="font-size:13px;opacity:.95;margin-top:6px;">Quay số chọn học sinh ngẫu nhiên</p>
   </div>
 
-  <div class="card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
-    <h3 style="color:#92400e;">⚙️ Cài Đặt</h3>
-    <div class="form-group">
-      <label>👥 Người tham gia:</label>
-      <input type="text" class="search-input" id="searchJackpotParticipants" onkeyup="filterChecklist('searchJackpotParticipants','jackpotChecklist')" placeholder="🔍 Tìm tên..." style="margin-bottom:6px;">
-      <div class="checkbox-toolbar">
-        <button class="btn-act btn-mini" onclick="toggleAll('jackpotCheck',true)">✔ Tất cả</button>
-        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('jackpotCheck',false)">✖ Bỏ</button>
-        <button class="btn-act btn-mini btn-success" onclick="toggleJackpotRandom(5)">🎲 Chọn 5</button>
-        <button class="btn-act btn-mini btn-success" onclick="toggleJackpotRandom(10)">🎲 Chọn 10</button>
-      </div>
-      <div class="checkbox-group" id="jackpotChecklist" style="max-height:180px;"></div>
-      <div id="jackpotCountDisplay" style="font-size:12px;color:#92400e;font-weight:700;margin-top:6px;text-align:center;"></div>
-    </div>
-    <div class="grid-2">
-      <div class="form-group"><label>🏆 Số người trúng:</label><input type="number" id="jackpotWinnerCount" value="1" min="1" max="20"></div>
-      <div class="form-group"><label>🔄 Chế độ:</label>
-        <select id="jackpotMode"><option value="remove">🔄 Loại dần</option><option value="repeat">♻️ Cho phép lặp</option></select>
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="form-group"><label>⏱️ Thời gian quay (giây):</label><input type="number" id="jackpotDuration" value="4" min="2" max="10" step="0.5"></div>
-      <div class="form-group"><label>🔊 Âm thanh:</label>
-        <select id="jackpotSound"><option value="on">🔊 Bật</option><option value="off">🔇 Tắt</option></select>
-      </div>
-    </div>
-  </div>
+  <!-- Cài đặt + Vòng quay -->
+  <div class="wheel-app-container" style="display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;margin-top:16px;">
 
-  <button class="btn-act" onclick="toggleJackpotFullscreen()" id="btnJackpotFullscreen" style="width:100%;padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
-    📺 BẬT TOÀN MÀN HÌNH (chiếu TV)
-  </button>
+    <!-- Cột cài đặt -->
+    <div class="wheel-control-panel" style="flex:1;min-width:280px;max-width:380px;background:linear-gradient(135deg,#1f2937,#111827);border:1px solid rgba(255,0,127,0.3);border-radius:20px;padding:20px;box-shadow:0 15px 35px rgba(0,0,0,0.5);">
+      <h3 style="color:#ff007f;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;text-shadow:0 0 10px rgba(255,0,127,0.5);">👥 Người Tham Gia</h3>
 
-  <div class="slot-machine">
-    <div class="slot-crown">🎰 JACKPOT 🎰</div>
-    <div class="slot-lights">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="slot-body">
-      <div class="slot-screen-frame">
-        <div class="slot-reels" id="jackpotReels"></div>
-        <div class="slot-payline"></div>
-        <div class="slot-glass"></div>
+      <input type="text" class="search-input" id="searchWheelParticipants" onkeyup="filterChecklist('searchWheelParticipants','wheelChecklist')" placeholder="🔍 Tìm tên..." style="margin-bottom:8px;background:rgba(0,0,0,0.5);color:#00f0ff;border-color:rgba(255,255,255,0.2);">
+
+      <div class="checkbox-toolbar" style="margin-bottom:8px;">
+        <button class="btn-act btn-mini" onclick="toggleAll('wheelCheck',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('wheelCheck',false)">✖ Bỏ</button>
+        <button class="btn-act btn-mini btn-success" onclick="toggleWheelRandom(5)">🎲 Chọn 5</button>
+        <button class="btn-act btn-mini btn-success" onclick="toggleWheelRandom(10)">🎲 Chọn 10</button>
       </div>
-      <div class="slot-lever" id="jackpotLever" onclick="pullJackpotLever()" title="KÉO CẦN GẠT">
-        <div class="lever-pole"></div>
-        <div class="lever-ball">PULL</div>
-        <div class="lever-base"></div>
-      </div>
+
+      <div class="checkbox-group" id="wheelChecklist" style="max-height:220px;overflow-y:auto;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px;"></div>
+
+      <div id="wheelCountDisplay" style="font-size:12px;color:#00f0ff;font-weight:700;margin-top:8px;text-align:center;"></div>
+
+      <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#ccc;margin-top:14px;cursor:pointer;">
+        <input type="checkbox" id="wheelRemoveWinner" style="accent-color:#ff007f;width:16px;height:16px;">
+        🗑️ Xóa tên khỏi vòng sau khi trúng
+      </label>
+
+      <button class="btn-act btn-full" style="margin-top:12px;background:linear-gradient(45deg,#00f0ff,#7000ff);color:#fff;padding:12px;font-weight:800;box-shadow:0 4px 15px rgba(0,240,255,0.4);" onclick="updateWheel()">🔄 Cập Nhật Vòng Quay</button>
+
+      <button class="btn-act btn-full" style="margin-top:8px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;padding:12px;font-weight:800;" onclick="toggleWheelFullscreen()" id="btnWheelFullscreen">📺 BẬT TOÀN MÀN HÌNH (chiếu TV)</button>
     </div>
-    <button class="slot-spin-btn" id="btnJackpotSpin" onclick="pullJackpotLever()">🎰 QUAY NGAY 🎰</button>
-    <div class="slot-leds">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
+
+    <!-- Cột vòng quay -->
+    <div class="wheel-stage" style="display:flex;flex-direction:column;align-items:center;position:relative;">
+      <div class="wheel-outer-ring" id="wheelOuterRing" style="position:relative;width:480px;height:480px;border-radius:50%;padding:15px;background:linear-gradient(135deg,#ff007f,#7000ff,#00f0ff);box-shadow:0 0 30px rgba(255,0,127,0.5),inset 0 0 15px rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;">
+        <div class="pointer" style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:40px;height:50px;z-index:10;filter:drop-shadow(0 5px 10px rgba(0,0,0,0.7));">
+          <div class="pointer-shape" style="width:100%;height:100%;background:linear-gradient(to bottom,#ffe600,#ff8c00);clip-path:polygon(50% 100%,0 0,100% 0);"></div>
+        </div>
+        <canvas id="wheelCanvas" width="800" height="800" style="width:100%;height:100%;border-radius:50%;box-shadow:inset 0 0 20px rgba(0,0,0,0.6);"></canvas>
+        <div class="spin-center-btn" id="wheelSpinBtn" onclick="spinWheel()" style="position:absolute;width:90px;height:90px;background:radial-gradient(circle,#ffffff 0%,#dddddd 100%);border-radius:50%;border:6px solid #ff007f;display:flex;justify-content:center;align-items:center;font-weight:900;color:#111;font-size:1.1rem;cursor:pointer;box-shadow:0 0 20px rgba(0,0,0,0.8),0 0 15px #ff007f;z-index:5;user-select:none;transition:transform 0.2s,box-shadow 0.2s;">QUAY</div>
+      </div>
     </div>
   </div>
 
-  <div class="card" id="jackpotPendingBox" style="display:none;border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7);">
-    <h3 style="color:#92400e;">🎯 Đang bốc thăm... <span id="jackpotPendingProgress" style="font-size:12px;font-weight:400;"></span></h3>
-    <div id="jackpotPendingList" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:10px;"></div>
-    <p style="text-align:center;font-size:12px;color:#78350f;font-style:italic;margin-top:8px;">⏳ Sẽ bung tên người trúng sau khi quay đủ số</p>
-  </div>
-
-  <div class="card" id="jackpotResultBox" style="display:none;border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-    <h3 style="color:#166534;">🏆 Kết Quả</h3>
-    <div id="jackpotResultContent"></div>
-    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-      <button class="btn-act btn-success" style="flex:1;" onclick="copyJackpotResults()">📋 Copy Kết Quả</button>
-      <button class="btn-act btn-warning" style="flex:1;" onclick="hideJackpotResult()">✖ Đóng</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>📜 Lịch Sử Quay <button class="btn-act btn-danger btn-mini" onclick="clearJackpotHistory()">🗑️ Xóa</button></h3>
-    <div id="jackpotHistoryList"></div>
+  <!-- Lịch sử quay -->
+  <div class="card" style="margin-top:16px;">
+    <h3>📜 Lịch Sử Quay <button class="btn-act btn-danger btn-mini" onclick="clearWheelHistory()">🗑️ Xóa</button></h3>
+    <div id="wheelHistoryList"></div>
   </div>
 </div>
+
+<!-- Modal kết quả vòng quay -->
+<div class="modal-overlay" id="wheelWinnerModal" onclick="if(event.target===this)closeWheelModal()">
+  <div class="modal-card" style="background:linear-gradient(135deg,#1f1c2c,#928dab);padding:40px 50px;border-radius:25px;text-align:center;border:2px solid #00f0ff;box-shadow:0 0 50px rgba(0,240,255,0.6);">
+    <h3 style="font-size:1.2rem;color:#ffe600;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">🎉 CHÚC MỪNG HỌC SINH 🎉</h3>
+    <div class="winner-name" id="wheelWinnerName" style="font-size:2.8rem;font-weight:900;color:#fff;text-shadow:0 0 20px #ff007f,0 0 40px #ff007f;margin:15px 0 25px 0;">---</div>
+    <button class="btn-act" style="background:linear-gradient(45deg,#ff007f,#ff8c00);color:white;padding:12px 35px;border:none;border-radius:25px;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 5px 20px rgba(255,0,127,0.4);" onclick="closeWheelModal()">TIẾP TỤC</button>
+  </div>
+</div>
+
 
 <!-- THÙNG RÁC -->
 <div id="sec-thungrac" class="section-pane">
@@ -3087,636 +3068,328 @@ function renderTimetableView() {
 function renderAllTimetable() { renderTimetableInput(); renderTimetableView(); }
 
 /* ═══════════════════════════════════════════════════════════════
-   🎰 JACKPOT — 3D CYLINDER SLOT (TRỐNG QUAY THẬT)
+   🎡 VÒNG QUAY MAY MẮN — WHEEL OF FORTUNE
    ═══════════════════════════════════════════════════════════════ */
 
-let jackpotState = {
+let wheelState = {
   spinning: false,
-  winners: [],
-  history: JSON.parse(localStorage.getItem('jackpot_history') || '[]')
+  history: JSON.parse(localStorage.getItem('wheel_history') || '[]')
 };
-let jackpotWinTimers = [];
-let jackpotWinInterval = null;
-let jackpotEffectsIntervals = [];
-let jackpotCylAngles = [0, 0, 0];  // Góc hiện tại của từng trống (độ)
 
-/* ═══ CẤU HÌNH KÍCH THƯỚC THEO MÀN HÌNH ═══ */
-function getCylConfig() {
-  const isMobile = window.innerWidth <= 640;
-  const digitH = isMobile ? 60 : 92;
-  // 10 chữ xếp quanh vòng tròn → cạnh đa giác đều = 2R·sin(π/10)
-  // Suy ra R = digitH / (2·sin(18°)) ≈ 1.618 × digitH
-  const radius = digitH / (2 * Math.sin(Math.PI / 10));
-  return { digitH, radius, anglePerDigit: 36 };
+function initWheel() {
+  renderWheelChecklist();
+  updateWheelCount();
+  drawWheel();
+  renderWheelHistory();
 }
 
-/* ═══ KHỞI TẠO JACKPOT ═══ */
-function initJackpot() {
-  renderJackpotChecklist();
-  updateJackpotCount();
-  buildJackpotReels();
-  renderJackpotHistory();
-}
-
-function renderJackpotChecklist() {
-  const box = document.getElementById('jackpotChecklist');
+function renderWheelChecklist() {
+  const box = document.getElementById('wheelChecklist');
   if (!box) return;
   const students = getStudents();
-  const checkedIds = new Set([...document.querySelectorAll('input[name="jackpotCheck"]:checked')].map(c => c.value));
-  box.innerHTML = students.map((s, i) => `<label class="checkbox-item"><input type="checkbox" name="jackpotCheck" value="${s.id}" ${checkedIds.has(String(s.id)) ? 'checked' : ''} onchange="updateJackpotCount()"> ${i+1}. ${esc(s.name)}</label>`).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
+  const checkedIds = new Set([...document.querySelectorAll('input[name="wheelCheck"]:checked')].map(c => c.value));
+  box.innerHTML = students.map((s, i) => `<label class="checkbox-item" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:#e2e8f0;"><input type="checkbox" name="wheelCheck" value="${s.id}" ${checkedIds.has(String(s.id)) ? 'checked' : ''} onchange="updateWheelCount();drawWheel()" style="accent-color:#ff007f;"> ${i+1}. ${esc(s.name)}</label>`).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
   if (checkedIds.size === 0 && students.length > 0) {
-    document.querySelectorAll('input[name="jackpotCheck"]').forEach(cb => cb.checked = true);
-    updateJackpotCount();
+    document.querySelectorAll('input[name="wheelCheck"]').forEach(cb => cb.checked = true);
   }
+  updateWheelCount();
 }
 
-function updateJackpotCount() {
-  const count = document.querySelectorAll('input[name="jackpotCheck"]:checked').length;
-  const el = document.getElementById('jackpotCountDisplay');
-  if (el) el.textContent = `Đã chọn: ${count} người`;
+function updateWheelCount() {
+  const count = document.querySelectorAll('input[name="wheelCheck"]:checked').length;
+  const el = document.getElementById('wheelCountDisplay');
+  if (el) el.textContent = `✅ Đã chọn: ${count} học sinh`;
+  drawWheel();
 }
 
-function toggleJackpotRandom(n) {
-  const all = [...document.querySelectorAll('input[name="jackpotCheck"]')];
+function toggleWheelRandom(n) {
+  const all = [...document.querySelectorAll('input[name="wheelCheck"]')];
   all.forEach(cb => cb.checked = false);
   all.sort(() => Math.random() - 0.5).slice(0, n).forEach(cb => cb.checked = true);
-  updateJackpotCount();
+  updateWheelCount();
 }
 
-function getJackpotParticipants() {
-  const checkedIds = [...document.querySelectorAll('input[name="jackpotCheck"]:checked')].map(c => c.value);
+function getWheelParticipants() {
+  const checkedIds = [...document.querySelectorAll('input[name="wheelCheck"]:checked')].map(c => c.value);
   return getStudents().filter(s => checkedIds.includes(String(s.id)));
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   🎰 TẠO 3 TRỐNG QUAY 3D
-   ═══════════════════════════════════════════════════════════════ */
-function buildJackpotReels() {
-  const container = document.getElementById('jackpotReels');
-  if (!container) return;
-  container.innerHTML = '';
+const WHEEL_COLORS = [
+  '#FF2A6D', '#05D9E8', '#00567A', '#FFC400',
+  '#7122FA', '#FF007F', '#00F0FF', '#7000FF',
+  '#39FF14', '#FF5722', '#E91E63', '#9C27B0'
+];
 
-  for (let i = 0; i < 3; i++) {
-    // Wrap 2D ngoài cùng (nhận class .win)
-    const wrap = document.createElement('div');
-    wrap.className = 'jackpot-reel-wrap';
-    wrap.id = `jackpotReel${i}`;
+let wheelNames = [];
+let wheelStartAngle = 0;
+let wheelCurrentWinnerId = null;
 
-    // Không gian 3D có perspective
-    const reel = document.createElement('div');
-    reel.className = 'jackpot-reel-3d';
+function drawWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const participants = getWheelParticipants();
+  wheelNames = participants.map(s => ({ id: s.id, name: s.name }));
 
-    // Trục neo (điểm giữa)
-    const cyl = document.createElement('div');
-    cyl.className = 'reel-cylinder';
-    cyl.id = `jackpotCylinder${i}`;
+  const numOptions = wheelNames.length;
+  const arcSize = (2 * Math.PI) / (numOptions || 1);
+  const outsideRadius = canvas.width / 2 - 10;
+  const textRadius = outsideRadius * 0.68;
+  const insideRadius = 70;
 
-    // 10 chữ số 0→9
-    for (let d = 0; d < 10; d++) {
-      const digit = document.createElement('div');
-      digit.className = 'cyl-digit';
-      digit.textContent = d;
-      cyl.appendChild(digit);
-    }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    reel.appendChild(cyl);
-    wrap.appendChild(reel);
-
-    // Lớp che 2 đầu trống
-    const fade = document.createElement('div');
-    fade.className = 'reel-fade';
-    wrap.appendChild(fade);
-
-    // Lớp kính bóng
-    const glass = document.createElement('div');
-    glass.className = 'reel-glass';
-    wrap.appendChild(glass);
-
-    container.appendChild(wrap);
-    jackpotCylAngles[i] = 0;
+  if (numOptions === 0) {
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 30px Montserrat, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Hãy chọn học sinh tham gia!", canvas.width / 2, canvas.height / 2);
+    return;
   }
 
-  displayRandomDigits();
-}
-
-/* ═══ CẬP NHẬT TỌA ĐỘ 3D CỦA 10 CHỮ THEO GÓC φ ═══ */
-function animateCylinder(reelIdx, phi) {
-  const cyl = document.getElementById(`jackpotCylinder${reelIdx}`);
-  if (!cyl) return;
-  const { radius, anglePerDigit } = getCylConfig();
-
-  for (let d = 0; d < 10; d++) {
-    const angle = d * anglePerDigit + phi;
-    const digit = cyl.children[d];
-    if (digit) {
-      digit.style.transform = `rotateX(${angle}deg) translateZ(${radius}px)`;
-    }
-  }
-}
-
-/* ═══ ĐẶT NGẪU NHIÊN — KHÔNG ANIMATION ═══ */
-function displayRandomDigits() {
-  for (let i = 0; i < 3; i++) {
-    const d = Math.floor(Math.random() * 10);
-    const phi = -d * 36;
-    jackpotCylAngles[i] = phi;
-    animateCylinder(i, phi);
-  }
-}
-
-/* ═══ QUAY 3 TRỐNG ĐẾN CODE, LỆCH NHAU 400ms ═══ */
-async function spinReelsToCode(code, duration) {
-  const digits = code.split('').map(Number);
-  await Promise.all([
-    spinDigitReel(0, digits[0], duration),
-    spinDigitReel(1, digits[1], duration + 400),
-    spinDigitReel(2, digits[2], duration + 800)
-  ]);
-}
-
-/* ═══ QUAY 1 TRỐNG ĐẾN 1 CHỮ SỐ — requestAnimationFrame ═══ */
-function spinDigitReel(reelIdx, targetDigit, duration) {
-  return new Promise(resolve => {
-    const { anglePerDigit } = getCylConfig();
-    const SPIN_TURNS = 4;  // Số vòng quay tối thiểu trước khi dừng
-
-    const startAngle = jackpotCylAngles[reelIdx];
-    const startMod = ((startAngle % 360) + 360) % 360;
-    const targetMod = ((-targetDigit * anglePerDigit) % 360 + 360) % 360;
-
-    // Số độ phải trừ thêm để về đúng vị trí target (mod 360)
-    let delta = (startMod - targetMod + 360) % 360;
-    if (delta === 0) delta = 360;  // Nếu đang đứng yên ở target → ép quay thêm 1 vòng
-
-    const totalDelta = delta + SPIN_TURNS * 360;
-    const endAngle = startAngle - totalDelta;  // Âm dần → chữ rớt từ trên xuống
-    jackpotCylAngles[reelIdx] = endAngle;
-
-    const startTime = performance.now();
-
-    function frame(now) {
-      const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / duration);
-
-      // easeOutQuart + overshoot nhẹ → trống "nảy" khi dừng
-      const eased = 1 - Math.pow(1 - t, 4) + Math.sin(t * Math.PI) * 0.025;
-      const phi = startAngle + (endAngle - startAngle) * eased;
-      animateCylinder(reelIdx, phi);
-
-      if (t < 1) {
-        requestAnimationFrame(frame);
-      } else {
-        animateCylinder(reelIdx, endAngle);
-        const reelEl = document.getElementById(`jackpotReel${reelIdx}`);
-        if (reelEl) {
-          reelEl.classList.add('win');
-          setTimeout(() => reelEl.classList.remove('win'), 900);
-        }
-        resolve();
-      }
-    }
-    requestAnimationFrame(frame);
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   ═══ KÉO CẦN GẠT ═══
-   ═══════════════════════════════════════════════════════════════ */
-async function pullJackpotLever() {
-  if (jackpotState.spinning) return;
-
-  const lever = document.getElementById('jackpotLever');
-  if (lever) { lever.classList.add('pulled'); setTimeout(() => lever.classList.remove('pulled'), 800); }
-
-  const participants = getJackpotParticipants();
-  if (!participants.length) { toast('⚠️ Chọn ít nhất 1 người!', '#ef4444'); return; }
-
-  const winnerCount = parseInt(document.getElementById('jackpotWinnerCount').value) || 1;
-  const mode = document.getElementById('jackpotMode').value;
-  const duration = (parseFloat(document.getElementById('jackpotDuration').value) || 4) * 1000;
-  const soundOn = document.getElementById('jackpotSound').value === 'on';
-
-  if (winnerCount > participants.length && mode === 'remove') {
-    toast('⚠️ Số người trúng > số người tham gia!', '#ef4444'); return;
+  if (numOptions === 1) {
+    ctx.fillStyle = WHEEL_COLORS[0];
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, 0, 2 * Math.PI);
+    ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, 2 * Math.PI, 0, true);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 60px Montserrat, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(wheelNames[0].name, canvas.width / 2, canvas.height / 2 - 100);
+    return;
   }
 
-  jackpotState.spinning = true;
-  const btn = document.getElementById('btnJackpotSpin');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang quay...'; }
+  for (let i = 0; i < numOptions; i++) {
+    const angle = wheelStartAngle + i * arcSize;
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
 
-  document.getElementById('jackpotResultBox').style.display = 'none';
-  document.getElementById('jackpotPendingBox').style.display = 'block';
-  document.getElementById('jackpotPendingList').innerHTML = '';
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, angle, angle + arcSize, false);
+    ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, angle + arcSize, angle, true);
+    ctx.fill();
 
-  if (soundOn) startSpinSound();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
 
-  // Chọn winners
-  const winners = [];
-  let remaining = [...participants];
-  for (let i = 0; i < winnerCount; i++) {
-    if (!remaining.length) break;
-    const idx = Math.floor(Math.random() * remaining.length);
-    winners.push(remaining[idx]);
-    if (mode === 'remove') remaining.splice(idx, 1);
-  }
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = "rgba(0,0,0,0.6)";
+    ctx.shadowBlur = 5;
 
-  // Gán code 3 chữ số
-  const usedCodes = new Set();
-  const winnerEntries = winners.map(w => {
-    let code;
-    do { code = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'); }
-    while (usedCodes.has(code));
-    usedCodes.add(code);
-    return { code, student: w };
-  });
+    let fontSize = Math.max(16, Math.min(32, 400 / numOptions));
+    ctx.font = `800 ${fontSize}px Montserrat, sans-serif`;
 
-  jackpotState.winners = winnerEntries;
+    ctx.translate(
+      canvas.width / 2 + Math.cos(angle + arcSize / 2) * textRadius,
+      canvas.height / 2 + Math.sin(angle + arcSize / 2) * textRadius
+    );
+    ctx.rotate(angle + arcSize / 2 + Math.PI / 2);
 
-  const pendingList = document.getElementById('jackpotPendingList');
-  for (let i = 0; i < winnerEntries.length; i++) {
-    const entry = winnerEntries[i];
-    const progressEl = document.getElementById('jackpotPendingProgress');
-    if (progressEl) progressEl.textContent = `(${i + 1}/${winnerEntries.length})`;
-
-    await spinReelsToCode(entry.code, duration);
-
-    const item = document.createElement('div');
-    item.className = 'jackpot-pending-item';
-    item.textContent = entry.code;
-    pendingList.appendChild(item);
-
-    if (i < winnerEntries.length - 1) await sleep(1200);
-  }
-
-  if (soundOn) stopSpinSound();
-  displayRandomDigits();
-  await sleep(800);
-  showJackpotReveal();
-  saveJackpotHistory(winnerEntries);
-
-  jackpotState.spinning = false;
-  if (btn) { btn.disabled = false; btn.textContent = '🎰 QUAY NGAY 🎰'; }
-}
-
-/* ═══ TIMER MANAGEMENT ═══ */
-function clearJackpotWinTimers() {
-  jackpotWinTimers.forEach(t => clearTimeout(t));
-  jackpotWinTimers = [];
-  if (jackpotWinInterval) { clearInterval(jackpotWinInterval); jackpotWinInterval = null; }
-  jackpotEffectsIntervals.forEach(i => clearInterval(i));
-  jackpotEffectsIntervals = [];
-}
-function closeAllJackpotWins() {
-  clearJackpotWinTimers();
-  stopAllJackpotEffects();
-  document.querySelectorAll('.jackpot-win-overlay').forEach(el => el.remove());
-  window.__jackpotNext__ = null;
-}
-function addJackpotEffectTimer(fn, delay) {
-  const t = setTimeout(fn, delay);
-  jackpotWinTimers.push(t);
-}
-function stopAllJackpotEffects() {
-  document.querySelectorAll('.jackpot-star, .jackpot-firework-particle, .jackpot-confetti').forEach(el => el.remove());
-}
-
-/* ═══ BUNG KẾT QUẢ ═══ */
-function showJackpotReveal() {
-  let idx = 0;
-  const entries = jackpotState.winners || [];
-  const AUTO_SECONDS = 5;
-
-  function showNext() {
-    document.querySelectorAll('.jackpot-win-overlay').forEach(el => el.remove());
-    clearJackpotWinTimers();
-    stopAllJackpotEffects();
-
-    if (idx >= entries.length) { showJackpotResult(entries); return; }
-
-    const entry = entries[idx];
-    const isLast = idx === entries.length - 1;
-    const hasMultiple = entries.length > 1;
-
-    const overlay = document.createElement('div');
-    overlay.className = 'jackpot-win-overlay';
-
-    let dotsHtml = '';
-    if (hasMultiple) {
-      dotsHtml = '<div class="jackpot-win-dots">';
-      for (let i = 0; i < entries.length; i++) {
-        const cls = i < idx ? 'done' : i === idx ? 'active' : '';
-        dotsHtml += `<div class="jackpot-win-dot ${cls}"></div>`;
-      }
-      dotsHtml += '</div>';
-    }
-
-    overlay.innerHTML = `
-      <div class="jackpot-grid-bg"></div>
-      <div class="jackpot-rays"></div>
-      <div class="jackpot-halo"></div>
-      <div class="jackpot-halo"></div>
-      <div class="jackpot-halo"></div>
-      <button class="jackpot-win-close" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotEntries__);" title="Đóng (ESC)">✕</button>
-      <div class="jackpot-win-countdown">
-        <span>Tự động đóng sau</span>
-        <span class="count-num" id="jackpotCountNum">${AUTO_SECONDS}</span>
-        <span>giây</span>
-      </div>
-      <div class="jackpot-win-progress"></div>
-      <div class="jackpot-win-content">
-        <div class="jackpot-win-label">🎯 MÃ SỐ TRÚNG THƯỞNG 🎯</div>
-        <div class="jackpot-win-code">${entry.code}</div>
-        <div class="jackpot-win-emoji">🎉🏆🎉</div>
-        <div class="jackpot-win-label" style="animation-delay:.8s;">THUỘC VỀ</div>
-        <div class="jackpot-win-name">${esc(entry.student.name)}</div>
-        ${dotsHtml}
-        ${hasMultiple ? `<div class="jackpot-win-counter">Người ${idx + 1} / ${entries.length}</div>` : ''}
-        <div class="jackpot-win-buttons">
-          ${!isLast ? `<button class="jackpot-win-btn" onclick="window.__jackpotNext__()">👉 XEM TIẾP (${idx + 2}/${entries.length})</button>` : `<button class="jackpot-win-btn" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotEntries__);">✅ HOÀN THÀNH</button>`}
-          <button class="jackpot-win-btn secondary" onclick="closeAllJackpotWins(); showJackpotResult(window.__jackpotEntries__);">⏭️ BỎ QUA</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-    window.__jackpotEntries__ = entries;
-
-    addJackpotEffectTimer(() => triggerFireworks(), 300);
-    addJackpotEffectTimer(() => triggerConfetti(), 1500);
-    addJackpotEffectTimer(() => triggerFireworks(), 1600);
-    addJackpotEffectTimer(() => triggerStars(), 2000);
-    addJackpotEffectTimer(() => playVictorySound(), 2000);
-
-    let countdown = AUTO_SECONDS;
-    const countEl = document.getElementById('jackpotCountNum');
-    jackpotWinInterval = setInterval(() => {
-      countdown--;
-      if (countEl) countEl.textContent = Math.max(0, countdown);
-    }, 1000);
-
-    const timer = setTimeout(() => {
-      clearJackpotWinTimers();
-      stopAllJackpotEffects();
-      if (isLast) { closeAllJackpotWins(); showJackpotResult(entries); }
-      else { idx++; showNext(); }
-    }, AUTO_SECONDS * 1000);
-    jackpotWinTimers.push(timer);
-
-    window.__jackpotNext__ = () => {
-      clearJackpotWinTimers();
-      stopAllJackpotEffects();
-      idx++;
-      showNext();
-    };
-  }
-  showNext();
-}
-
-/* ═══ HIỆU ỨNG PHÁO HOA ═══ */
-function triggerFireworks() {
-  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6','#f59e0b'];
-  const bursts = [{ x: 20, y: 30 }, { x: 80, y: 30 }, { x: 15, y: 70 }, { x: 85, y: 70 }, { x: 50, y: 20 }];
-  bursts.forEach((burst, bi) => {
-    setTimeout(() => {
-      const color = colors[bi % colors.length];
-      for (let i = 0; i < 16; i++) {
-        const angle = (Math.PI * 2 * i) / 16;
-        const dist = 100 + Math.random() * 150;
-        const particle = document.createElement('div');
-        particle.className = 'jackpot-firework-particle';
-        particle.style.left = burst.x + 'vw';
-        particle.style.top = burst.y + 'vh';
-        particle.style.background = color;
-        particle.style.boxShadow = `0 0 15px ${color}, 0 0 30px ${color}, 0 0 45px ${color}`;
-        particle.style.setProperty('--fx', Math.cos(angle) * dist + 'px');
-        particle.style.setProperty('--fy', Math.sin(angle) * dist + 'px');
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1700);
-      }
-    }, bi * 200);
-  });
-}
-
-/* ═══ CONFETTI ═══ */
-function triggerConfetti() {
-  if (typeof confetti !== 'function') { triggerFallbackConfetti(); return; }
-  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6'];
-  confetti({ particleCount: 120, spread: 100, origin: { y: 0.5 }, colors, startVelocity: 55, gravity: 0.9, ticks: 250 });
-  const end = Date.now() + 2200;
-  (function frame() {
-    confetti({ particleCount: 5, angle: 60, spread: 70, origin: { x: 0, y: 0.7 }, colors, startVelocity: 45 });
-    confetti({ particleCount: 5, angle: 120, spread: 70, origin: { x: 1, y: 0.7 }, colors, startVelocity: 45 });
-    if (Date.now() < end) requestAnimationFrame(frame);
-  })();
-}
-function triggerFallbackConfetti() {
-  const colors = ['#fbbf24','#dc2626','#10b981','#3b82f6','#ec4899','#8b5cf6','#f59e0b','#fff'];
-  for (let i = 0; i < 100; i++) {
-    const c = document.createElement('div');
-    c.className = 'jackpot-confetti';
-    c.style.left = Math.random() * 100 + 'vw';
-    c.style.top = '-20px';
-    c.style.background = colors[i % colors.length];
-    c.style.animationDelay = (Math.random() * 1.5) + 's';
-    c.style.animationDuration = (3 + Math.random() * 2) + 's';
-    c.style.width = c.style.height = (8 + Math.random() * 10) + 'px';
-    if (Math.random() > 0.5) c.style.borderRadius = '50%';
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 5500);
+    const text = wheelNames[i].name;
+    ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+    ctx.restore();
   }
 }
 
-/* ═══ SAO BAY ═══ */
-function triggerStars() {
-  const symbols = ['⭐','✨','💫','🌟','✦','✧','⋆'];
-  const colors = ['#fbbf24','#fff','#f59e0b'];
-  let count = 0;
-  const interval = setInterval(() => {
-    if (count >= 40 || !document.querySelector('.jackpot-win-overlay')) { clearInterval(interval); return; }
-    const star = document.createElement('div');
-    star.className = 'jackpot-star';
-    star.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-    star.style.left = Math.random() * 100 + 'vw';
-    star.style.color = colors[Math.floor(Math.random() * colors.length)];
-    star.style.fontSize = (20 + Math.random() * 30) + 'px';
-    star.style.animationDuration = (3 + Math.random() * 2) + 's';
-    star.style.animationDelay = (Math.random() * 0.8) + 's';
-    document.body.appendChild(star);
-    setTimeout(() => star.remove(), 5000);
-    count++;
-  }, 80);
-  jackpotEffectsIntervals.push(interval);
+function updateWheel() {
+  if (wheelState.spinning) return;
+  drawWheel();
+  toast('🔄 Đã cập nhật vòng quay!');
 }
 
-/* ═══════════════ ÂM THANH VUI NHỘN ═══════════════ */
-
-let jackpotAudioCtx = null;
-let jackpotTuneTimeout = null;
-
-/* Nhạc quay: giai điệu vòng lặp vui nhộn (Carnival style) */
-function startSpinSound() {
+let wheelAudioCtx = null;
+function playWheelTickSound() {
   try {
-    jackpotAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const melody = [
-      { freq: 523.25, dur: 0.15 },
-      { freq: 659.25, dur: 0.15 },
-      { freq: 783.99, dur: 0.15 },
-      { freq: 659.25, dur: 0.15 },
-      { freq: 587.33, dur: 0.15 },
-      { freq: 698.46, dur: 0.15 },
-      { freq: 880.00, dur: 0.15 },
-      { freq: 698.46, dur: 0.15 }
-    ];
-    let idx = 0;
-
-    const playNext = () => {
-      if (!jackpotAudioCtx || !jackpotState.spinning) return;
-      const note = melody[idx % melody.length];
-      const osc = jackpotAudioCtx.createOscillator();
-      const gain = jackpotAudioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(jackpotAudioCtx.destination);
-      osc.frequency.value = note.freq;
-      osc.type = 'triangle';
-      const now = jackpotAudioCtx.currentTime;
-      gain.gain.setValueAtTime(0.08, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + note.dur);
-      osc.start(now);
-      osc.stop(now + note.dur + 0.02);
-      idx++;
-      jackpotTuneTimeout = setTimeout(playNext, note.dur * 1000);
-    };
-    playNext();
-  } catch (e) { console.warn('Audio error:', e); }
+    if (!wheelAudioCtx) wheelAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (wheelAudioCtx.state === 'suspended') wheelAudioCtx.resume();
+    const osc = wheelAudioCtx.createOscillator();
+    const gain = wheelAudioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(600, wheelAudioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, wheelAudioCtx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.15, wheelAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, wheelAudioCtx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(wheelAudioCtx.destination);
+    osc.start();
+    osc.stop(wheelAudioCtx.currentTime + 0.05);
+  } catch (e) {}
 }
 
-function stopSpinSound() {
-  if (jackpotTuneTimeout) { clearTimeout(jackpotTuneTimeout); jackpotTuneTimeout = null; }
-  if (jackpotAudioCtx) {
-    try { jackpotAudioCtx.close(); } catch(e) {}
-    jackpotAudioCtx = null;
-  }
-}
-
-/* Nhạc chiến thắng: fanfare vui tươi */
-function playVictorySound() {
+function playWheelVictorySound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const fanfare = [
-      { f: 523.25, d: 0.12, t: 0.00 },
-      { f: 659.25, d: 0.12, t: 0.12 },
-      { f: 783.99, d: 0.12, t: 0.24 },
-      { f: 1046.50, d: 0.25, t: 0.36 },
-      { f: 783.99, d: 0.12, t: 0.62 },
-      { f: 1046.50, d: 0.25, t: 0.74 },
-      { f: 1318.51, d: 0.55, t: 1.00 }
-    ];
-    fanfare.forEach(n => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = n.f;
+    if (!wheelAudioCtx) wheelAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    notes.forEach((freq, i) => {
+      const osc = wheelAudioCtx.createOscillator();
+      const gain = wheelAudioCtx.createGain();
       osc.type = 'sine';
-      const now = ctx.currentTime + n.t;
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.2, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + n.d);
-      osc.start(now);
-      osc.stop(now + n.d + 0.05);
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.frequency.value = n.f * 2;
-      osc2.type = 'triangle';
-      gain2.gain.setValueAtTime(0, now);
-      gain2.gain.linearRampToValueAtTime(0.08, now + 0.02);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + n.d);
-      osc2.start(now);
-      osc2.stop(now + n.d + 0.05);
+      osc.frequency.value = freq;
+      const t = wheelAudioCtx.currentTime + i * 0.12;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.connect(gain);
+      gain.connect(wheelAudioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.35);
     });
   } catch (e) {}
 }
 
-/* ═══ KẾT QUẢ LIST ═══ */
-function showJackpotResult(entries) {
-  const box = document.getElementById('jackpotResultBox');
-  const content = document.getElementById('jackpotResultContent');
-  if (!box || !content) return;
-  box.style.display = 'block';
-  content.innerHTML = entries.map((e, i) => {
-    const rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎉';
-    return `<div class="winner-box ${rankCls}">
-      <span>${medal} <b style="font-family:'Courier New',monospace;letter-spacing:2px;">[${e.code}]</b> <b>${esc(e.student.name)}</b></span>
-      <span style="font-size:24px;">${medal}</span>
-    </div>`;
-  }).join('');
-  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+let wheelSpinTime = 0;
+let wheelSpinTimeTotal = 0;
+let wheelSpinAngleStart = 10;
+let wheelLastSegment = -1;
+
+function spinWheel() {
+  if (wheelState.spinning) return;
+  const participants = getWheelParticipants();
+  if (participants.length < 2) {
+    toast('⚠️ Cần ít nhất 2 học sinh để quay!', '#ef4444');
+    return;
+  }
+
+  document.getElementById('wheelWinnerModal').classList.remove('active');
+
+  wheelState.spinning = true;
+  const btn = document.getElementById('wheelSpinBtn');
+  btn.style.pointerEvents = 'none';
+  btn.textContent = '...';
+
+  wheelSpinAngleStart = Math.random() * 10 + 20;
+  wheelSpinTime = 0;
+  wheelSpinTimeTotal = Math.random() * 3000 + 5000;
+
+  rotateWheel();
 }
 
-function hideJackpotResult() {
-  const box = document.getElementById('jackpotResultBox');
-  if (box) box.style.display = 'none';
+function rotateWheel() {
+  wheelSpinTime += 16;
+  if (wheelSpinTime >= wheelSpinTimeTotal) {
+    stopRotateWheel();
+    return;
+  }
+
+  const progress = wheelSpinTime / wheelSpinTimeTotal;
+  const easeOut = 1 - Math.pow(1 - progress, 3);
+  const angleChange = wheelSpinAngleStart * (1 - easeOut);
+
+  wheelStartAngle += (angleChange * Math.PI / 180);
+  drawWheel();
+
+  const numOptions = wheelNames.length;
+  const degrees = (wheelStartAngle * 180 / Math.PI) % 360;
+  const currentSegment = Math.floor((360 - degrees + 270) % 360 / (360 / numOptions));
+
+  if (currentSegment !== wheelLastSegment) {
+    playWheelTickSound();
+    wheelLastSegment = currentSegment;
+  }
+
+  requestAnimationFrame(rotateWheel);
 }
 
-function copyJackpotResults() {
-  const entries = jackpotState.winners || [];
-  if (!entries.length) return;
-  const text = `🎰 KẾT QUẢ JACKPOT\n\n` +
-    entries.map((e, i) => `${i + 1}. [${e.code}] ${e.student.name}`).join('\n') +
-    `\n\n🕐 ${new Date().toLocaleString('vi-VN')}`;
-  navigator.clipboard.writeText(text).then(() => toast('📋 Đã copy!', '#10b981')).catch(() => alert(text));
+function stopRotateWheel() {
+  wheelState.spinning = false;
+  const btn = document.getElementById('wheelSpinBtn');
+  btn.style.pointerEvents = 'auto';
+  btn.textContent = 'QUAY';
+
+  const numOptions = wheelNames.length;
+  const degrees = (wheelStartAngle * 180 / Math.PI) % 360;
+  const arcd = (360 / numOptions);
+
+  let index = Math.floor((360 - degrees + 270) % 360 / arcd);
+  index = index % numOptions;
+
+  const winner = wheelNames[index];
+  wheelCurrentWinnerId = winner.id;
+  document.getElementById('wheelWinnerName').textContent = winner.name;
+
+  saveWheelHistory(winner);
+  triggerWheelConfetti();
+  playWheelVictorySound();
+
+  setTimeout(() => {
+    document.getElementById('wheelWinnerModal').classList.add('active');
+  }, 300);
 }
 
-/* ═══ LỊCH SỬ ═══ */
-function saveJackpotHistory(entries) {
+function triggerWheelConfetti() {
+  if (typeof confetti !== 'function') return;
+  const count = 200;
+  const defaults = { origin: { y: 0.7 } };
+  function fire(particleRatio, opts) {
+    confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * particleRatio) }));
+  }
+  fire(0.25, { spread: 26, startVelocity: 55 });
+  fire(0.2, { spread: 60 });
+  fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+  fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+  fire(0.1, { spread: 120, startVelocity: 45 });
+}
+
+function closeWheelModal() {
+  document.getElementById('wheelWinnerModal').classList.remove('active');
+
+  const removeChk = document.getElementById('wheelRemoveWinner');
+  if (removeChk && removeChk.checked && wheelCurrentWinnerId !== null) {
+    const cb = [...document.querySelectorAll('input[name="wheelCheck"]')].find(c => String(c.value) === String(wheelCurrentWinnerId));
+    if (cb) cb.checked = false;
+    wheelCurrentWinnerId = null;
+    updateWheelCount();
+    toast('🗑️ Đã xóa người trúng khỏi vòng quay!');
+  }
+}
+
+function saveWheelHistory(winner) {
   const entry = {
     id: uid(),
     at: new Date().toISOString(),
     byEmail: currentUser?.email || 'Ẩn danh',
-    winners: entries.map(e => ({ code: e.code, name: e.student.name })),
-    totalParticipants: getJackpotParticipants().length
+    winnerName: winner.name,
+    winnerId: winner.id,
+    totalParticipants: wheelNames.length
   };
-  jackpotState.history.unshift(entry);
-  if (jackpotState.history.length > 50) jackpotState.history = jackpotState.history.slice(0, 50);
-  localStorage.setItem('jackpot_history', JSON.stringify(jackpotState.history));
-  renderJackpotHistory();
+  wheelState.history.unshift(entry);
+  if (wheelState.history.length > 50) wheelState.history = wheelState.history.slice(0, 50);
+  localStorage.setItem('wheel_history', JSON.stringify(wheelState.history));
+  renderWheelHistory();
 }
 
-function renderJackpotHistory() {
-  const box = document.getElementById('jackpotHistoryList');
+function renderWheelHistory() {
+  const box = document.getElementById('wheelHistoryList');
   if (!box) return;
-  if (!jackpotState.history.length) {
+  if (!wheelState.history.length) {
     box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có lịch sử quay</p>';
     return;
   }
-  box.innerHTML = jackpotState.history.slice(0, 20).map(h => {
+  box.innerHTML = wheelState.history.slice(0, 20).map(h => {
     const dt = new Date(h.at);
     const timeStr = `${dt.getDate()}/${dt.getMonth()+1} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
     return `<div style="padding:10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;">
         <div style="font-size:11px;color:#64748b;">${timeStr} • ${esc(h.byEmail)}</div>
-        <div style="font-size:13px;font-weight:600;margin-top:4px;">
-          🏆 ${h.winners.map(w => `[${esc(w.code)}] ${esc(w.name)}`).join(' • ')}
-        </div>
+        <div style="font-size:14px;font-weight:700;margin-top:4px;color:#1e3a8a;">🏆 ${esc(h.winnerName)}</div>
       </div>
-      <div style="font-size:11px;color:#94a3b8;">${h.totalParticipants} người</div>
+      <div style="font-size:11px;color:#94a3b8;align-self:center;">${h.totalParticipants} người tham gia</div>
     </div>`;
   }).join('');
 }
 
-function clearJackpotHistory() {
+function clearWheelHistory() {
   if (!confirm('Xóa toàn bộ lịch sử quay?')) return;
-  jackpotState.history = [];
-  localStorage.removeItem('jackpot_history');
-  renderJackpotHistory();
+  wheelState.history = [];
+  localStorage.removeItem('wheel_history');
+  renderWheelHistory();
   toast('🗑️ Đã xóa!');
 }
 
-/* ═══ FULLSCREEN ═══ */
-function toggleJackpotFullscreen() {
+function toggleWheelFullscreen() {
   const el = document.documentElement;
   if (!document.fullscreenElement) {
     el.requestFullscreen?.().then(() => toast('📺 Đã bật toàn màn hình', '#10b981')).catch(() => {});
@@ -3726,37 +3399,44 @@ function toggleJackpotFullscreen() {
   }
 }
 document.addEventListener('fullscreenchange', () => {
-  const btn = document.getElementById('btnJackpotFullscreen');
+  const btn = document.getElementById('btnWheelFullscreen');
   if (btn) btn.textContent = document.fullscreenElement ? '📺 TẮT TOÀN MÀN HÌNH' : '📺 BẬT TOÀN MÀN HÌNH (chiếu TV)';
 });
 
-/* ═══ KEYBOARD ═══ */
+/* ═══ KEYBOARD — Space để quay ═══ */
 document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' && document.getElementById('sec-random')?.classList.contains('active') && !jackpotState.spinning && !document.querySelector('.jackpot-win-overlay') && !['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) {
+  if (e.code === 'Space' && document.getElementById('sec-random')?.classList.contains('active') && !wheelState.spinning && !document.getElementById('wheelWinnerModal')?.classList.contains('active') && !['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) {
     e.preventDefault();
-    pullJackpotLever();
+    spinWheel();
   }
-  if (e.key === 'Escape' && document.querySelector('.jackpot-win-overlay')) {
-    closeAllJackpotWins();
-    if (window.__jackpotEntries__) showJackpotResult(window.__jackpotEntries__);
+  if (e.key === 'Escape' && document.getElementById('wheelWinnerModal')?.classList.contains('active')) {
+    closeWheelModal();
   }
 });
 
 /* ═══ HOOKS ═══ */
-const _origShowTabJackpot = showTab;
+const _origShowTabWheel = showTab;
 showTab = function(id, btn) {
-  _origShowTabJackpot(id, btn);
-  if (id === 'random') setTimeout(() => initJackpot(), 50);
+  _origShowTabWheel(id, btn);
+  if (id === 'random') setTimeout(() => initWheel(), 50);
 };
-const _origRenderAllUIJackpot = renderAllUI;
+
+const _origRenderAllUIWheel = renderAllUI;
 renderAllUI = function() {
-  _origRenderAllUIJackpot();
+  _origRenderAllUIWheel();
   if (document.getElementById('sec-random')?.classList.contains('active')) {
-    renderJackpotChecklist();
-    updateJackpotCount();
+    renderWheelChecklist();
+    updateWheelCount();
+    drawWheel();
   }
 };
 
+setTimeout(() => {
+  if (document.getElementById('sec-random')?.classList.contains('active')) {
+    initWheel();
+  }
+}, 500);
+  
 /* ═══════════════ INIT ═══════════════ */
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
 document.getElementById('exPrice')?.addEventListener('input', calcExpAmt);
