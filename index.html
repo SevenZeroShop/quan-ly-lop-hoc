@@ -863,17 +863,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
   <div id="ptListActive"></div>
 
-  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);margin-top:12px;">
-    <h3 style="color:#166534;">✅ Lịch Sử Phạt Đã Xong <button class="btn-act btn-export" onclick="exportToCSV('punish')">📥 CSV</button></h3>
-    <input type="text" class="search-input" id="searchPunishDone" onkeyup="renderPunishDone()" placeholder="🔍 Tìm HS hoặc lý do...">
-  </div>
-  <div class="table-wrapper"><table><thead><tr>
-    <th style="width:6%;text-align:center;">STT</th><th style="width:20%;">Học Sinh</th>
-    <th style="width:28%;">Nội Dung Phạt</th><th style="width:13%;text-align:center;">Hình Thức</th>
-    <th style="width:11%;text-align:center;">Ngày Xong</th><th style="width:10%;text-align:center;">Thời Gian</th>
-    <th style="width:12%;text-align:center;">Thao tác</th>
-  </tr></thead><tbody id="tbPunishDone"></tbody></table></div>
-
   <div class="card" style="margin-top:12px;"><h3>📊 Thống Kê Phạt Theo HS</h3><div id="ptStatsByStudent"></div></div>
 </div>
   
@@ -2237,16 +2226,38 @@ function daysBetween(dateStr) { if (!dateStr) return null; const now = new Date(
 function getDeadlineInfo(p) { if (p.status === 'done') return { cls: 'done', label: '✅ Đã xong', color: '#10b981' }; const days = daysBetween(p.deadline); if (days === null) return { cls: 'normal', label: '📅 Không hạn', color: '#64748b' }; if (days < 0) return { cls: 'overdue', label: `🔴 QUÁ HẠN ${-days} NGÀY`, color: '#dc2626' }; if (days === 0) return { cls: 'urgent', label: '🔴 HẾT HẠN HÔM NAY', color: '#dc2626' }; if (days <= 3) return { cls: 'warning', label: `🟡 Còn ${days} ngày`, color: '#f59e0b' }; return { cls: 'normal', label: `🟢 Còn ${days} ngày`, color: '#10b981' }; }
 function getElapsedTime(p) { if (!p.start) return '—'; const start = new Date(p.start); const end = p.status === 'done' && p.completedAt ? new Date(p.completedAt) : new Date(); const diffDays = Math.floor((end - start) / 86400000); if (diffDays < 0) return '0 ngày'; if (diffDays === 0) return 'Hôm nay'; return `${diffDays} ngày`; }
 
-function getPunishGroupKey(p) { return [p.reason || '', p.type || '', p.level || '', p.start || '', p.deadline || ''].join('|||'); }
+/* ═══ NHÓM THEO groupId — SỬA KHÔNG TÁCH NHÓM ═══ */
+function getPunishGroupId(p) {
+  /* Nếu phiếu đã có groupId → dùng luôn (sửa không tách nhóm) */
+  if (p.groupId) return p.groupId;
+  /* Fallback cho dữ liệu cũ chưa có groupId → tạo key từ nội dung */
+  return [p.reason || '', p.type || '', p.level || '', p.start || '', p.deadline || ''].join('|||');
+}
+
 function groupPunishments(list) {
   const groups = {};
   list.forEach(p => {
-    const key = getPunishGroupKey(p);
-    if (!groups[key]) groups[key] = { key, reason: p.reason, type: p.type, level: p.level, start: p.start, deadline: p.deadline || '', note: p.note || '', items: [] };
-    groups[key].items.push(p);
+    const gid = getPunishGroupId(p);
+    if (!groups[gid]) {
+      /* Lấy thông tin hiển thị từ phiếu MỚI NHẤT trong nhóm (để khi sửa xong, header hiện đúng nội dung mới) */
+      groups[gid] = { key: gid, reason: p.reason, type: p.type, level: p.level, start: p.start, deadline: p.deadline || '', note: p.note || '', items: [], _latestCreated: p.createdAt || '' };
+    }
+    const g = groups[gid];
+    /* Cập nhật header theo phiếu mới nhất */
+    if ((p.createdAt || '') >= g._latestCreated) {
+      g.reason = p.reason;
+      g.type = p.type;
+      g.level = p.level;
+      g.start = p.start;
+      g.deadline = p.deadline || '';
+      g.note = p.note || '';
+      g._latestCreated = p.createdAt || '';
+    }
+    g.items.push(p);
   });
   return Object.values(groups);
 }
+
 function calcPunishGroupStats(g) {
   const total = g.items.length;
   const done = g.items.filter(p => p.status === 'done').length;
@@ -2318,7 +2329,18 @@ function createPunishment() {
   if (!checked.length || !reason || !start) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
   const arr = getPunishments();
   const now = new Date().toISOString();
-  checked.forEach(cb => arr.push({ id: uid(), stId: cb.value, type, level, reason, start, deadline: deadline || '', note, status: 'active', createdAt: now }));
+  /* Tạo groupId MỚI cho lần tạo này — tất cả HS trong cùng lần tạo sẽ chung nhóm */
+  const groupId = 'g_' + uid();
+  checked.forEach(cb => arr.push({
+    id: uid(),
+    groupId,
+    stId: cb.value,
+    type, level, reason, start,
+    deadline: deadline || '',
+    note,
+    status: 'active',
+    createdAt: now
+  }));
   setPunishments(arr);
   ['ptReason','ptNote','ptDeadline'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('input[name="ptStudentCheck"]').forEach(c => c.checked = false);
@@ -2477,16 +2499,16 @@ function extendPunishGroup(groupKey) {
   if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; }
   const arr = getPunishments();
   let count = 0;
-  arr.forEach(p => { if (getPunishGroupKey(p) === groupKey) { p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; count++; } });
+  arr.forEach(p => { if (getPunishGroupId(p) === groupKey) { p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; count++; } });
   saveData();
   toast(`⏰ Đã gia hạn ${count} phiếu!`);
 }
 function deletePunishGroup(groupKey) {
   if (!canEdit()) return;
   const arr = getPunishments();
-  const count = arr.filter(p => getPunishGroupKey(p) === groupKey).length;
+  const count = arr.filter(p => getPunishGroupId(p) === groupKey).length;
   if (!confirm(`Xóa CẢ NHÓM gồm ${count} phiếu phạt?`)) return;
-  setPunishments(arr.filter(p => getPunishGroupKey(p) !== groupKey));
+  setPunishments(arr.filter(p => getPunishGroupId(p) !== groupKey));
   saveData();
   toast(`🗑️ Đã xóa ${count} phiếu!`);
 }
@@ -2506,6 +2528,7 @@ function openEditPunish(id) {
   document.getElementById('editPunishModal').classList.add('active');
 }
 function closeEditPunish() { document.getElementById('editPunishModal').classList.remove('active'); }
+
 function saveEditPunish() {
   if (!canEdit()) return;
   const id = document.getElementById('editPtId').value;
@@ -2518,53 +2541,15 @@ function saveEditPunish() {
   const deadline = document.getElementById('editPtDeadline').value;
   const note = document.getElementById('editPtNote').value.trim();
   if (!stId || !reason || !start) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
+  /* ⚠️ QUAN TRỌNG: KHÔNG đổi groupId — giữ nguyên nhóm cũ để không tách nhóm */
   Object.assign(p, { stId, type, level, reason, start, deadline: deadline || '', note });
-  saveData(); closeEditPunish(); toast('✏️ Đã cập nhật!');
+  saveData();
+  closeEditPunish();
+  toast('✏️ Đã cập nhật (giữ nguyên nhóm)!');
 }
 function completePunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const st = getStudents().find(s => String(s.id) === String(p.stId)); if (!confirm(`Xác nhận "${st?.name || '?'}" đã xong?`)) return; p.status = 'done'; p.completedAt = new Date().toISOString(); saveData(); toast('✅ Đã đánh dấu xong!'); }
 function extendPunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const cur = p.deadline || todayStr(); const newDate = prompt('Hạn mới (YYYY-MM-DD):', cur); if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; } p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; saveData(); toast('⏰ Đã gia hạn!'); }
 function deletePunishment(id) { if (!canEdit()) return; if (!confirm('Xóa phiếu phạt này?')) return; setPunishments(getPunishments().filter(x => String(x.id) !== String(id))); saveData(); toast('🗑️ Đã xóa!'); }
-
-function renderPunishDone() {
-  const tb = document.getElementById('tbPunishDone'); if (!tb) return;
-  const students = getStudents();
-  const search = (document.getElementById('searchPunishDone')?.value || '').toLowerCase().trim();
-
-  let done = getPunishments().filter(p => p.status === 'done');
-  if (search) {
-    done = done.filter(p => {
-      const st = students.find(s => String(s.id) === String(p.stId));
-      return (st && st.name.toLowerCase().includes(search)) || (p.reason || '').toLowerCase().includes(search);
-    });
-  }
-  done.sort((a, b) => {
-    const ta = a.completedAt ? new Date(a.completedAt).getTime() : 0;
-    const tb2 = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-    return tb2 - ta;
-  });
-
-  if (!done.length) {
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có</td></tr>';
-    return;
-  }
-
-  tb.innerHTML = done.map((p, i) => {
-    const st = students.find(s => String(s.id) === String(p.stId));
-    const idx = students.indexOf(st) + 1;
-    const typeColor = PT_TYPE_COLORS[p.type] || '#64748b';
-    const elapsed = getElapsedTime(p);
-    const completedDate = p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—';
-    return `<tr>
-      <td style="text-align:center;"><b>${i+1}</b></td>
-      <td><b>${idx}. ${esc(st?.name || '(Đã xóa)')}</b></td>
-      <td style="font-size:12px;">${esc(p.reason)}</td>
-      <td style="text-align:center;"><span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap;">${PT_TYPE_NAMES[p.type]||'Khác'}</span></td>
-      <td style="text-align:center;font-size:12px;">${completedDate}</td>
-      <td style="text-align:center;font-size:12px;color:#10b981;font-weight:bold;">${elapsed}</td>
-      <td style="text-align:center;white-space:nowrap;">${canEdit() ? `<button class="btn-act btn-teal btn-mini" onclick="openEditPunish('${p.id}')" title="Sửa">✏️</button><button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')" title="Mở lại">↩️</button><button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')" title="Xóa">🗑️</button>` : '—'}</td>
-    </tr>`;
-  }).join('');
-}
 function reopenPunishment(id) { if (!canEdit()) return; if (!confirm('Mở lại?')) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; p.status = 'active'; p.completedAt = null; saveData(); toast('↩️ Đã mở lại!'); }
 
 function renderPunishStatsByStudent() {
@@ -2621,7 +2606,7 @@ function renderPunishStatsByStudent() {
   `;
 }
 
-function renderAllPunish() { renderPunishStats(); renderPunishStudentSelector(); renderPunishActive(); renderPunishDone(); renderPunishStatsByStudent(); }
+function renderAllPunish() { renderPunishStats(); renderPunishStudentSelector(); renderPunishActive(); renderPunishStatsByStudent(); }
   
 /* ═══════════════ KHEN THƯỞNG ═══════════════ */
 const RW_TYPE_NAMES = { tuyen_duong:'📢 Tuyên Dương', giay_khen:'📜 Giấy Khen', tang_qua:'🎁 Tặng Quà', diem_cong:'💯 Điểm Cộng', thuong_quy:'💰 Thưởng Quỹ', ho_tro_ban:'🤝 Giúp Bạn', tich_cuc:'✋ Tích Cực', khac:'🏅 Khác' };
