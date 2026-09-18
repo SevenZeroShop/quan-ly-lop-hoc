@@ -2166,17 +2166,25 @@ function groupPunishments(list) {
   return Object.values(groups);
 }
 
-/* ─── HELPER: Nhóm theo số ngày còn lại ─── */
-function getDeadlineBucket(p) {
-  const days = daysBetween(p.deadline);
-  if (days === null) return { key: 'none', order: 9999, label: '📅 KHÔNG HẠN', color: '#64748b' };
-  if (days < 0) return { key: 'overdue_' + (-days), order: -10000 + days, label: `🚨 QUÁ HẠN ${-days} NGÀY`, color: '#7f1d1d' };
-  if (days === 0) return { key: 'today', order: -1, label: '🔴 HẾT HẠN HÔM NAY', color: '#dc2626' };
-  if (days === 1) return { key: 'd1', order: 1, label: '🔴 CÒN 1 NGÀY', color: '#dc2626' };
-  if (days === 2) return { key: 'd2', order: 2, label: '🟠 CÒN 2 NGÀY', color: '#ea580c' };
-  if (days === 3) return { key: 'd3', order: 3, label: '🟡 CÒN 3 NGÀY', color: '#f59e0b' };
-  if (days <= 7) return { key: 'd' + days, order: days, label: `🟢 CÒN ${days} NGÀY`, color: '#10b981' };
-  return { key: 'd' + days, order: days, label: `🔵 CÒN ${days} NGÀY`, color: '#3b82f6' };
+/* ─── HELPER: Tính stats cho 1 nhóm lỗi ─── */
+function calcPunishGroupStats(g) {
+  const total = g.items.length;
+  const done = g.items.filter(p => p.status === 'done').length;
+  const active = total - done;
+  const pct = total ? (done / total * 100) : 0;
+  return { total, done, active, pct };
+}
+
+/* ─── HELPER: Sắp xếp nhóm lỗi theo độ ưu tiên (deadline gần nhất lên đầu) ─── */
+function sortPunishGroups(groups) {
+  return groups.sort((a, b) => {
+    const da = daysBetween(a.deadline);
+    const db = daysBetween(b.deadline);
+    if (da === null && db === null) return 0;
+    if (da === null) return 1;
+    if (db === null) return -1;
+    return da - db;
+  });
 }
 
 function renderPunishStats() {
@@ -2224,114 +2232,184 @@ function createPunishment() {
   toast(`⚖️ Đã tạo ${checked.length} phiếu!`);
 }
 
-/* ═══ HIỂN THỊ ĐANG CHỊU PHẠT — NHÓM 2 CẤP: NGÀY CÒN LẠI → LỖI → HS ═══ */
+/* ═══ HIỂN THỊ ĐANG CHỊU PHẠT — KIỂU THU QUỸ ═══ */
 function renderPunishActive() {
   const box = document.getElementById('ptListActive'); if (!box) return;
   const students = getStudents();
   const search = (document.getElementById('searchPunishActive')?.value || '').toLowerCase().trim();
 
-  let active = getPunishments().filter(p => p.status !== 'done');
+  /* Lấy TẤT CẢ phiếu phạt (cả active và done) — vì mỗi card lỗi hiển thị cả 2 phần */
+  let all = getPunishments().slice();
   if (search) {
-    active = active.filter(p => {
+    all = all.filter(p => {
       const st = students.find(s => String(s.id) === String(p.stId));
-      return st && st.name.toLowerCase().includes(search);
+      return (st && st.name.toLowerCase().includes(search)) || (p.reason || '').toLowerCase().includes(search);
     });
   }
 
-  document.getElementById('ptActiveCount').textContent = `(${active.length} phiếu)`;
+  const activeTotal = all.filter(p => p.status !== 'done').length;
+  document.getElementById('ptActiveCount').textContent = `(${activeTotal} HS đang chịu phạt)`;
 
-  if (!active.length) {
-    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có HS nào đang chịu phạt!</div>';
+  if (!all.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Chưa có phiếu phạt nào!</div>';
     return;
   }
 
-  /* Bước 1: Nhóm theo bucket ngày còn lại */
-  const bucketMap = {};
-  active.forEach(p => {
-    const b = getDeadlineBucket(p);
-    if (!bucketMap[b.key]) bucketMap[b.key] = { bucket: b, items: [] };
-    bucketMap[b.key].items.push(p);
-  });
+  /* Nhóm theo lỗi */
+  let groups = groupPunishments(all);
+  /* Sắp xếp: nhóm còn nhiều HS chưa xong + deadline gần lên đầu */
+  sortPunishGroups(groups);
 
-  /* Sắp xếp bucket theo order tăng dần (còn ít ngày / quá hạn lên trước) */
-  const buckets = Object.values(bucketMap).sort((a, b) => a.bucket.order - b.bucket.order);
+  box.innerHTML = groups.map(g => {
+    const stats = calcPunishGroupStats(g);
+    const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
+    const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
+    const info = getDeadlineInfo({ status: 'active', deadline: g.deadline });
+    const isDone = stats.active === 0;
+    const hasUnpaid = stats.active > 0;
+    const cardCls = isDone ? 'done' : (hasUnpaid ? 'has-unpaid' : '');
 
-  /* Bước 2: Render từng bucket, trong mỗi bucket nhóm theo lỗi */
-  box.innerHTML = buckets.map(bk => {
-    const b = bk.bucket;
-    const groups = groupPunishments(bk.items);
-
-    /* Sắp xếp nhóm lỗi theo thứ tự HS trong lớp */
-    groups.sort((a, b) => {
-      const ia = students.findIndex(s => String(s.id) === String(a.items[0].stId));
-      const ib = students.findIndex(s => String(s.id) === String(b.items[0].stId));
+    /* Phần CHƯA HOÀN THÀNH */
+    const activeItems = g.items.filter(p => p.status !== 'done').sort((a, b) => {
+      const ia = students.findIndex(s => String(s.id) === String(a.stId));
+      const ib = students.findIndex(s => String(s.id) === String(b.stId));
+      return ia - ib;
+    });
+    const doneItems = g.items.filter(p => p.status === 'done').sort((a, b) => {
+      const ia = students.findIndex(s => String(s.id) === String(a.stId));
+      const ib = students.findIndex(s => String(s.id) === String(b.stId));
       return ia - ib;
     });
 
-    const totalStudents = bk.items.length;
-
-    /* Header bucket ngày */
-    const bucketHeader = `
-      <div style="background:linear-gradient(135deg,${b.color},${b.color}cc);color:#fff;padding:12px 16px;border-radius:12px 12px 0 0;margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 12px ${b.color}40;">
-        <div style="font-size:16px;font-weight:900;letter-spacing:1px;">${b.label}</div>
-        <div style="background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:bold;">👥 ${totalStudents} HS • ${groups.length} nhóm lỗi</div>
-      </div>`;
-
-    /* Các nhóm lỗi trong bucket */
-    const groupsHtml = groups.map(g => {
-      const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
-      const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
-
-      const sortedItems = g.items.slice().sort((a, b) => {
-        const ia = students.findIndex(s => String(s.id) === String(a.stId));
-        const ib = students.findIndex(s => String(s.id) === String(b.stId));
-        return ia - ib;
-      });
-
-      const studentRows = sortedItems.map(p => {
-        const st = students.find(s => String(s.id) === String(p.stId));
-        const idx = students.indexOf(st) + 1;
-        const elapsed = getElapsedTime(p);
-        return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f1f5f9;flex-wrap:wrap;background:#fff;">
-          <div style="flex:1;min-width:150px;">
-            <b style="font-size:13px;">${idx}. ${esc(st?.name || '(Đã xóa)')}</b>
-            <span style="font-size:11px;color:#64748b;margin-left:6px;">⏱ Đã ${elapsed}</span>
-          </div>
-          ${canEdit() ? `<div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <button class="btn-act btn-success btn-mini" onclick="completePunishment('${p.id}')" title="Đánh dấu đã xong">✅ Xong</button>
-            <button class="btn-act btn-teal btn-mini" onclick="openEditPunish('${p.id}')" title="Sửa">✏️</button>
-            <button class="btn-act btn-warning btn-mini" onclick="extendPunishment('${p.id}')" title="Gia hạn">⏰</button>
-            <button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')" title="Xóa">🗑️</button>
+    /* Danh sách HS chưa xong — có checkbox để tick hàng loạt */
+    const activeListHTML = activeItems.length ? `
+      <div style="background:#fef2f2;border:2px dashed #fca5a5;border-radius:10px;padding:12px;margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <h5 style="color:#991b1b;font-size:12px;text-transform:uppercase;margin:0;">🔴 Chưa Hoàn Thành (${activeItems.length} HS)</h5>
+          ${canEdit() ? `<div style="display:flex;gap:4px;">
+            <button class="btn-act btn-mini" onclick="toggleAllPunishCheck('${g.key}', true)">✔ Tất cả</button>
+            <button class="btn-act btn-mini btn-warning" onclick="toggleAllPunishCheck('${g.key}', false)">✖ Bỏ</button>
+            <button class="btn-act btn-mini btn-success" onclick="batchCompletePunish('${g.key}')">✅ Đánh Dấu Xong</button>
           </div>` : ''}
-        </div>`;
-      }).join('');
-
-      return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:5px solid ${typeColor};border-radius:0;overflow:hidden;margin-bottom:0;">
-        <div style="background:linear-gradient(135deg,${typeColor}15,${typeColor}05);padding:10px 14px;border-bottom:1px solid #e2e8f0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:200px;">
-              <div style="font-size:14px;font-weight:bold;color:${typeColor};margin-bottom:4px;">📋 ${esc(g.reason)}</div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;">${PT_TYPE_NAMES[g.type] || 'Khác'}</span>
-                <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;">${lvl.txt}</span>
-                <span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;">📅 BĐ: ${esc(g.start)}${g.deadline ? ` • ⏰ ${esc(g.deadline)}` : ''}</span>
-              </div>
-              ${g.note ? `<div style="font-size:11px;color:#64748b;margin-top:5px;">📝 ${esc(g.note)}</div>` : ''}
-            </div>
-            <div style="background:${typeColor};color:#fff;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:bold;white-space:nowrap;">${g.items.length} HS</div>
-          </div>
         </div>
-        <div>${studentRows}</div>
-      </div>`;
-    }).join('');
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;">
+          ${activeItems.map(p => {
+            const st = students.find(s => String(s.id) === String(p.stId));
+            const idx = students.indexOf(st) + 1;
+            const elapsed = getElapsedTime(p);
+            return `<label style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #fca5a5;border-radius:8px;padding:6px 10px;cursor:${canEdit()?'pointer':'default'};font-size:13px;">
+              ${canEdit() ? `<input type="checkbox" class="pt-group-check" data-group-key="${esc(g.key)}" value="${p.id}" style="width:16px;height:16px;cursor:pointer;">` : ''}
+              <div style="flex:1;min-width:0;">
+                <b style="font-size:13px;">${idx}. ${esc(st?.name || '(Đã xóa)')}</b>
+                <div style="font-size:10px;color:#64748b;margin-top:2px;">⏱ Đã ${elapsed}</div>
+              </div>
+              ${canEdit() ? `<button class="btn-act btn-success btn-mini" onclick="event.preventDefault();event.stopPropagation();completePunishment('${p.id}')" title="Đánh dấu xong">✅</button>` : ''}
+            </label>`;
+          }).join('')}
+        </div>
+      </div>` : '';
 
-    return `<div style="margin-bottom:20px;">
-      ${bucketHeader}
-      <div style="border:2px solid ${b.color}40;border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:#f8fafc;padding:10px;">
-        <div style="display:flex;flex-direction:column;gap:8px;">${groupsHtml}</div>
+    /* Danh sách HS ĐÃ HOÀN THÀNH */
+    const doneListHTML = doneItems.length ? `
+      <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:12px;margin-top:10px;">
+        <h5 style="color:#166534;font-size:12px;text-transform:uppercase;margin:0 0 8px;">✅ Đã Hoàn Thành (${doneItems.length} HS)</h5>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;">
+          ${doneItems.map(p => {
+            const st = students.find(s => String(s.id) === String(p.stId));
+            const idx = students.indexOf(st) + 1;
+            const completedStr = p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—';
+            return `<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #86efac;border-radius:8px;padding:6px 10px;font-size:13px;">
+              <span style="font-size:16px;">✅</span>
+              <div style="flex:1;min-width:0;">
+                <b style="font-size:13px;">${idx}. ${esc(st?.name || '(Đã xóa)')}</b>
+                <div style="font-size:10px;color:#166534;margin-top:2px;">📅 Xong: ${completedStr}</div>
+              </div>
+              ${canEdit() ? `<button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')" title="Mở lại">↩️</button>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : '';
+
+    return `<div class="collect-card ${cardCls}" style="margin-bottom:14px;">
+      <div class="collect-name" style="flex-wrap:wrap;">
+        <span style="font-size:15px;">📋 <b>${esc(g.reason)}</b></span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${PT_TYPE_NAMES[g.type] || 'Khác'}</span>
+          <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${lvl.txt}</span>
+        </div>
       </div>
+      <div class="collect-meta">
+        📅 BĐ: <b>${esc(g.start)}</b>${g.deadline ? ` • ⏰ Hạn: <b>${esc(g.deadline)}</b>` : ''}
+        <span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:6px;padding:2px 8px;font-size:11px;font-weight:bold;margin-left:6px;">${info.label}</span>
+        ${g.note ? `<br>📝 ${esc(g.note)}` : ''}
+      </div>
+
+      <!-- Progress bar giống Thu Quỹ -->
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${stats.pct}%;background:linear-gradient(90deg,#10b981,#059669);">${stats.pct.toFixed(0)}%</div>
+      </div>
+
+      <!-- Stats giống Thu Quỹ -->
+      <div class="collect-stats">
+        <div class="item"><span>Đã xong</span><b style="color:#10b981;">${stats.done}/${stats.total}</b></div>
+        <div class="item"><span>Chưa xong</span><b style="color:#ef4444;">${stats.active}</b></div>
+      </div>
+
+      ${activeListHTML}
+      ${doneListHTML}
+
+      ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+        <button class="btn-act btn-warning" style="flex:1;min-width:100px;" onclick="extendPunishGroup('${g.key}')">⏰ Gia Hạn Nhóm</button>
+        <button class="btn-act btn-danger" onclick="deletePunishGroup('${g.key}')" title="Xóa cả nhóm">🗑️</button>
+      </div>` : ''}
     </div>`;
   }).join('');
+}
+
+/* ─── Tick all checkbox trong nhóm ─── */
+function toggleAllPunishCheck(groupKey, checked) {
+  document.querySelectorAll(`.pt-group-check[data-group-key="${CSS.escape(groupKey)}"]`).forEach(cb => cb.checked = checked);
+}
+
+/* ─── Đánh dấu hàng loạt đã xong ─── */
+function batchCompletePunish(groupKey) {
+  if (!canEdit()) return;
+  const checked = [...document.querySelectorAll(`.pt-group-check[data-group-key="${CSS.escape(groupKey)}"]:checked`)];
+  if (!checked.length) { toast('⚠️ Chưa chọn HS nào!', '#ef4444'); return; }
+  const arr = getPunishments();
+  const now = new Date().toISOString();
+  let count = 0;
+  checked.forEach(cb => {
+    const p = arr.find(x => String(x.id) === String(cb.value));
+    if (p && p.status !== 'done') { p.status = 'done'; p.completedAt = now; count++; }
+  });
+  saveData();
+  toast(`✅ Đã đánh dấu ${count} HS hoàn thành!`);
+}
+
+/* ─── Gia hạn cả nhóm ─── */
+function extendPunishGroup(groupKey) {
+  if (!canEdit()) return;
+  const newDate = prompt('Hạn mới cho cả nhóm (YYYY-MM-DD):', todayStr());
+  if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; }
+  const arr = getPunishments();
+  let count = 0;
+  arr.forEach(p => {
+    if (getPunishGroupKey(p) === groupKey) { p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; count++; }
+  });
+  saveData();
+  toast(`⏰ Đã gia hạn ${count} phiếu!`);
+}
+
+/* ─── Xóa cả nhóm ─── */
+function deletePunishGroup(groupKey) {
+  if (!canEdit()) return;
+  const arr = getPunishments();
+  const count = arr.filter(p => getPunishGroupKey(p) === groupKey).length;
+  if (!confirm(`Xóa CẢ NHÓM gồm ${count} phiếu phạt?`)) return;
+  setPunishments(arr.filter(p => getPunishGroupKey(p) !== groupKey));
+  saveData();
+  toast(`🗑️ Đã xóa ${count} phiếu!`);
 }
 
 function openEditPunish(id) {
@@ -2368,7 +2446,7 @@ function completePunishment(id) { if (!canEdit()) return; const p = getPunishmen
 function extendPunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const cur = p.deadline || todayStr(); const newDate = prompt('Hạn mới (YYYY-MM-DD):', cur); if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; } p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; saveData(); toast('⏰ Đã gia hạn!'); }
 function deletePunishment(id) { if (!canEdit()) return; if (!confirm('Xóa phiếu phạt này?')) return; setPunishments(getPunishments().filter(x => String(x.id) !== String(id))); saveData(); toast('🗑️ Đã xóa!'); }
 
-/* ═══ LỊCH SỬ ĐÃ XONG — NHÓM THEO LỖI ═══ */
+/* ═══ LỊCH SỬ ĐÃ XONG — giữ nguyên bảng ═══ */
 function renderPunishDone() {
   const tb = document.getElementById('tbPunishDone'); if (!tb) return;
   const students = getStudents();
@@ -2378,7 +2456,7 @@ function renderPunishDone() {
   if (search) {
     done = done.filter(p => {
       const st = students.find(s => String(s.id) === String(p.stId));
-      return st && st.name.toLowerCase().includes(search);
+      return (st && st.name.toLowerCase().includes(search)) || (p.reason || '').toLowerCase().includes(search);
     });
   }
 
@@ -2395,7 +2473,6 @@ function renderPunishDone() {
     const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
     const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
 
-    /* Dòng header nhóm lỗi */
     html += `<tr style="background:linear-gradient(135deg,${typeColor}15,${typeColor}05);">
       <td colspan="7" style="padding:8px 12px;border-bottom:2px solid ${typeColor};">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2410,7 +2487,6 @@ function renderPunishDone() {
       </td>
     </tr>`;
 
-    /* Các dòng HS trong nhóm */
     const sortedItems = g.items.slice().sort((a, b) => {
       const ia = students.findIndex(s => String(s.id) === String(a.stId));
       const ib = students.findIndex(s => String(s.id) === String(b.stId));
