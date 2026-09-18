@@ -2153,6 +2153,32 @@ const PT_LEVEL_NAMES = { nhe:{txt:'🟢 Nhẹ',color:'#10b981'}, vua:{txt:'🟡 
 function daysBetween(dateStr) { if (!dateStr) return null; const now = new Date(); now.setHours(0,0,0,0); const d = new Date(dateStr); d.setHours(0,0,0,0); return Math.ceil((d - now) / 86400000); }
 function getDeadlineInfo(p) { if (p.status === 'done') return { cls: 'done', label: '✅ Đã xong', color: '#10b981' }; const days = daysBetween(p.deadline); if (days === null) return { cls: 'normal', label: '📅 Không hạn', color: '#64748b' }; if (days < 0) return { cls: 'overdue', label: `🔴 QUÁ HẠN ${-days} NGÀY`, color: '#dc2626' }; if (days === 0) return { cls: 'urgent', label: '🔴 HẾT HẠN HÔM NAY', color: '#dc2626' }; if (days <= 3) return { cls: 'warning', label: `🟡 Còn ${days} ngày`, color: '#f59e0b' }; return { cls: 'normal', label: `🟢 Còn ${days} ngày`, color: '#10b981' }; }
 function getElapsedTime(p) { if (!p.start) return '—'; const start = new Date(p.start); const end = p.status === 'done' && p.completedAt ? new Date(p.completedAt) : new Date(); const diffDays = Math.floor((end - start) / 86400000); if (diffDays < 0) return '0 ngày'; if (diffDays === 0) return 'Hôm nay'; return `${diffDays} ngày`; }
+
+/* ─── HELPER: Nhóm theo lỗi ─── */
+function getPunishGroupKey(p) { return [p.reason || '', p.type || '', p.level || '', p.start || '', p.deadline || ''].join('|||'); }
+function groupPunishments(list) {
+  const groups = {};
+  list.forEach(p => {
+    const key = getPunishGroupKey(p);
+    if (!groups[key]) groups[key] = { key, reason: p.reason, type: p.type, level: p.level, start: p.start, deadline: p.deadline || '', note: p.note || '', items: [] };
+    groups[key].items.push(p);
+  });
+  return Object.values(groups);
+}
+
+/* ─── HELPER: Nhóm theo số ngày còn lại ─── */
+function getDeadlineBucket(p) {
+  const days = daysBetween(p.deadline);
+  if (days === null) return { key: 'none', order: 9999, label: '📅 KHÔNG HẠN', color: '#64748b' };
+  if (days < 0) return { key: 'overdue_' + (-days), order: -10000 + days, label: `🚨 QUÁ HẠN ${-days} NGÀY`, color: '#7f1d1d' };
+  if (days === 0) return { key: 'today', order: -1, label: '🔴 HẾT HẠN HÔM NAY', color: '#dc2626' };
+  if (days === 1) return { key: 'd1', order: 1, label: '🔴 CÒN 1 NGÀY', color: '#dc2626' };
+  if (days === 2) return { key: 'd2', order: 2, label: '🟠 CÒN 2 NGÀY', color: '#ea580c' };
+  if (days === 3) return { key: 'd3', order: 3, label: '🟡 CÒN 3 NGÀY', color: '#f59e0b' };
+  if (days <= 7) return { key: 'd' + days, order: days, label: `🟢 CÒN ${days} NGÀY`, color: '#10b981' };
+  return { key: 'd' + days, order: days, label: `🔵 CÒN ${days} NGÀY`, color: '#3b82f6' };
+}
+
 function renderPunishStats() {
   const punishments = getPunishments();
   const active = punishments.filter(p => p.status !== 'done');
@@ -2197,25 +2223,117 @@ function createPunishment() {
   saveData();
   toast(`⚖️ Đã tạo ${checked.length} phiếu!`);
 }
+
+/* ═══ HIỂN THỊ ĐANG CHỊU PHẠT — NHÓM 2 CẤP: NGÀY CÒN LẠI → LỖI → HS ═══ */
 function renderPunishActive() {
   const box = document.getElementById('ptListActive'); if (!box) return;
   const students = getStudents();
   const search = (document.getElementById('searchPunishActive')?.value || '').toLowerCase().trim();
+
   let active = getPunishments().filter(p => p.status !== 'done');
-  if (search) active = active.filter(p => { const st = students.find(s => String(s.id) === String(p.stId)); return st && st.name.toLowerCase().includes(search); });
-  active.sort((a, b) => { const da = daysBetween(a.deadline); const db = daysBetween(b.deadline); if (da === null && db === null) return 0; if (da === null) return 1; if (db === null) return -1; return da - db; });
+  if (search) {
+    active = active.filter(p => {
+      const st = students.find(s => String(s.id) === String(p.stId));
+      return st && st.name.toLowerCase().includes(search);
+    });
+  }
+
   document.getElementById('ptActiveCount').textContent = `(${active.length} phiếu)`;
-  if (!active.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có HS nào đang chịu phạt!</div>'; return; }
-  box.innerHTML = active.map(p => {
-    const st = students.find(s => String(s.id) === String(p.stId));
-    const info = getDeadlineInfo(p);
-    const lvl = PT_LEVEL_NAMES[p.level] || PT_LEVEL_NAMES.nhe;
-    const typeColor = PT_TYPE_COLORS[p.type] || '#64748b';
-    const elapsed = getElapsedTime(p);
-    const borderStyle = (info.cls === 'overdue' || info.cls === 'urgent') ? '3px solid #dc2626' : info.cls === 'warning' ? '3px solid #f59e0b' : '2px solid #e2e8f0';
-    return `<div class="collect-card" style="border:${borderStyle};border-left:6px solid ${typeColor};margin-bottom:10px;"><div class="collect-name" style="flex-wrap:wrap;"><span style="font-size:15px;">👤 <b>${esc(st?.name || '(Đã xóa)')}</b></span><span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:8px;padding:3px 10px;font-size:12px;font-weight:bold;">${info.label}</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">${PT_TYPE_NAMES[p.type]||'Khác'}</span><span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">${lvl.txt}</span><span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;">⏱ Đã ${elapsed}</span></div><div style="background:#f8fafc;border-radius:8px;padding:10px;margin-top:10px;font-size:13px;line-height:1.7;"><b>📋 Nội dung:</b> ${esc(p.reason)}<br><b>📅 BĐ:</b> ${esc(p.start)}${p.deadline ? ` • <b>⏰ Hạn:</b> ${esc(p.deadline)}` : ''}${p.note ? `<br><b>📝 Ghi chú:</b> ${esc(p.note)}` : ''}</div>${canEdit()?`<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;"><button class="btn-act btn-success" style="flex:2;min-width:130px;" onclick="completePunishment('${p.id}')">✅ Đã Xong</button><button class="btn-act btn-teal" style="min-width:60px;" onclick="openEditPunish('${p.id}')">✏️</button><button class="btn-act btn-warning" style="flex:1;min-width:80px;" onclick="extendPunishment('${p.id}')">⏰ Gia Hạn</button><button class="btn-act btn-danger" onclick="deletePunishment('${p.id}')">🗑️</button></div>`:''}</div>`;
+
+  if (!active.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có HS nào đang chịu phạt!</div>';
+    return;
+  }
+
+  /* Bước 1: Nhóm theo bucket ngày còn lại */
+  const bucketMap = {};
+  active.forEach(p => {
+    const b = getDeadlineBucket(p);
+    if (!bucketMap[b.key]) bucketMap[b.key] = { bucket: b, items: [] };
+    bucketMap[b.key].items.push(p);
+  });
+
+  /* Sắp xếp bucket theo order tăng dần (còn ít ngày / quá hạn lên trước) */
+  const buckets = Object.values(bucketMap).sort((a, b) => a.bucket.order - b.bucket.order);
+
+  /* Bước 2: Render từng bucket, trong mỗi bucket nhóm theo lỗi */
+  box.innerHTML = buckets.map(bk => {
+    const b = bk.bucket;
+    const groups = groupPunishments(bk.items);
+
+    /* Sắp xếp nhóm lỗi theo thứ tự HS trong lớp */
+    groups.sort((a, b) => {
+      const ia = students.findIndex(s => String(s.id) === String(a.items[0].stId));
+      const ib = students.findIndex(s => String(s.id) === String(b.items[0].stId));
+      return ia - ib;
+    });
+
+    const totalStudents = bk.items.length;
+
+    /* Header bucket ngày */
+    const bucketHeader = `
+      <div style="background:linear-gradient(135deg,${b.color},${b.color}cc);color:#fff;padding:12px 16px;border-radius:12px 12px 0 0;margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 12px ${b.color}40;">
+        <div style="font-size:16px;font-weight:900;letter-spacing:1px;">${b.label}</div>
+        <div style="background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:bold;">👥 ${totalStudents} HS • ${groups.length} nhóm lỗi</div>
+      </div>`;
+
+    /* Các nhóm lỗi trong bucket */
+    const groupsHtml = groups.map(g => {
+      const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
+      const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
+
+      const sortedItems = g.items.slice().sort((a, b) => {
+        const ia = students.findIndex(s => String(s.id) === String(a.stId));
+        const ib = students.findIndex(s => String(s.id) === String(b.stId));
+        return ia - ib;
+      });
+
+      const studentRows = sortedItems.map(p => {
+        const st = students.find(s => String(s.id) === String(p.stId));
+        const idx = students.indexOf(st) + 1;
+        const elapsed = getElapsedTime(p);
+        return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f1f5f9;flex-wrap:wrap;background:#fff;">
+          <div style="flex:1;min-width:150px;">
+            <b style="font-size:13px;">${idx}. ${esc(st?.name || '(Đã xóa)')}</b>
+            <span style="font-size:11px;color:#64748b;margin-left:6px;">⏱ Đã ${elapsed}</span>
+          </div>
+          ${canEdit() ? `<div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn-act btn-success btn-mini" onclick="completePunishment('${p.id}')" title="Đánh dấu đã xong">✅ Xong</button>
+            <button class="btn-act btn-teal btn-mini" onclick="openEditPunish('${p.id}')" title="Sửa">✏️</button>
+            <button class="btn-act btn-warning btn-mini" onclick="extendPunishment('${p.id}')" title="Gia hạn">⏰</button>
+            <button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')" title="Xóa">🗑️</button>
+          </div>` : ''}
+        </div>`;
+      }).join('');
+
+      return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:5px solid ${typeColor};border-radius:0;overflow:hidden;margin-bottom:0;">
+        <div style="background:linear-gradient(135deg,${typeColor}15,${typeColor}05);padding:10px 14px;border-bottom:1px solid #e2e8f0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+              <div style="font-size:14px;font-weight:bold;color:${typeColor};margin-bottom:4px;">📋 ${esc(g.reason)}</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;">${PT_TYPE_NAMES[g.type] || 'Khác'}</span>
+                <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;">${lvl.txt}</span>
+                <span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;">📅 BĐ: ${esc(g.start)}${g.deadline ? ` • ⏰ ${esc(g.deadline)}` : ''}</span>
+              </div>
+              ${g.note ? `<div style="font-size:11px;color:#64748b;margin-top:5px;">📝 ${esc(g.note)}</div>` : ''}
+            </div>
+            <div style="background:${typeColor};color:#fff;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:bold;white-space:nowrap;">${g.items.length} HS</div>
+          </div>
+        </div>
+        <div>${studentRows}</div>
+      </div>`;
+    }).join('');
+
+    return `<div style="margin-bottom:20px;">
+      ${bucketHeader}
+      <div style="border:2px solid ${b.color}40;border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:#f8fafc;padding:10px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">${groupsHtml}</div>
+      </div>
+    </div>`;
   }).join('');
 }
+
 function openEditPunish(id) {
   if (!canEdit()) return;
   const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return;
@@ -2249,14 +2367,73 @@ function saveEditPunish() {
 function completePunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const st = getStudents().find(s => String(s.id) === String(p.stId)); if (!confirm(`Xác nhận "${st?.name || '?'}" đã xong?`)) return; p.status = 'done'; p.completedAt = new Date().toISOString(); saveData(); toast('✅ Đã đánh dấu xong!'); }
 function extendPunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const cur = p.deadline || todayStr(); const newDate = prompt('Hạn mới (YYYY-MM-DD):', cur); if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; } p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; saveData(); toast('⏰ Đã gia hạn!'); }
 function deletePunishment(id) { if (!canEdit()) return; if (!confirm('Xóa phiếu phạt này?')) return; setPunishments(getPunishments().filter(x => String(x.id) !== String(id))); saveData(); toast('🗑️ Đã xóa!'); }
+
+/* ═══ LỊCH SỬ ĐÃ XONG — NHÓM THEO LỖI ═══ */
 function renderPunishDone() {
   const tb = document.getElementById('tbPunishDone'); if (!tb) return;
   const students = getStudents();
   const search = (document.getElementById('searchPunishDone')?.value || '').toLowerCase().trim();
+
   let done = getPunishments().filter(p => p.status === 'done');
-  if (search) done = done.filter(p => { const st = students.find(s => String(s.id) === String(p.stId)); return st && st.name.toLowerCase().includes(search); });
-  done.sort((a, b) => (b.completedAt||'').localeCompare(a.completedAt||''));
-  tb.innerHTML = done.map((p, i) => { const st = students.find(s => String(s.id) === String(p.stId)); const typeColor = PT_TYPE_COLORS[p.type] || '#64748b'; const elapsed = getElapsedTime(p); return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(st?.name || '(Đã xóa)')}</b></td><td>${esc(p.reason)}</td><td style="text-align:center;"><span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap;">${PT_TYPE_NAMES[p.type]||'Khác'}</span></td><td style="text-align:center;font-size:12px;">${p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—'}</td><td style="text-align:center;font-size:12px;color:#10b981;font-weight:bold;">${elapsed}</td><td style="text-align:center;white-space:nowrap;">${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')">↩️</button><button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')">🗑️</button>`:'—'}</td></tr>`; }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có</td></tr>';
+  if (search) {
+    done = done.filter(p => {
+      const st = students.find(s => String(s.id) === String(p.stId));
+      return st && st.name.toLowerCase().includes(search);
+    });
+  }
+
+  const groups = groupPunishments(done);
+  groups.sort((a, b) => (b.items[0]?.completedAt || '').localeCompare(a.items[0]?.completedAt || ''));
+
+  if (!groups.length) {
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có</td></tr>';
+    return;
+  }
+
+  let html = '';
+  groups.forEach(g => {
+    const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
+    const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
+
+    /* Dòng header nhóm lỗi */
+    html += `<tr style="background:linear-gradient(135deg,${typeColor}15,${typeColor}05);">
+      <td colspan="7" style="padding:8px 12px;border-bottom:2px solid ${typeColor};">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div>
+            <b style="color:${typeColor};font-size:13px;">📋 ${esc(g.reason)}</b>
+            <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;margin-left:6px;">${PT_TYPE_NAMES[g.type] || 'Khác'}</span>
+            <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;margin-left:4px;">${lvl.txt}</span>
+            ${g.deadline ? `<span style="font-size:11px;color:#64748b;margin-left:6px;">⏰ Hạn: ${esc(g.deadline)}</span>` : ''}
+          </div>
+          <span style="background:${typeColor};color:#fff;border-radius:10px;padding:2px 10px;font-size:11px;font-weight:bold;">${g.items.length} HS đã xong</span>
+        </div>
+      </td>
+    </tr>`;
+
+    /* Các dòng HS trong nhóm */
+    const sortedItems = g.items.slice().sort((a, b) => {
+      const ia = students.findIndex(s => String(s.id) === String(a.stId));
+      const ib = students.findIndex(s => String(s.id) === String(b.stId));
+      return ia - ib;
+    });
+
+    sortedItems.forEach(p => {
+      const st = students.find(s => String(s.id) === String(p.stId));
+      const idx = students.indexOf(st) + 1;
+      const elapsed = getElapsedTime(p);
+      html += `<tr>
+        <td style="text-align:center;"><b>${idx}</b></td>
+        <td><b>${esc(st?.name || '(Đã xóa)')}</b></td>
+        <td style="font-size:12px;color:#64748b;font-style:italic;">↳ thuộc nhóm trên</td>
+        <td style="text-align:center;">—</td>
+        <td style="text-align:center;font-size:12px;">${p.completedAt ? new Date(p.completedAt).toLocaleDateString('vi-VN') : '—'}</td>
+        <td style="text-align:center;font-size:12px;color:#10b981;font-weight:bold;">${elapsed}</td>
+        <td style="text-align:center;white-space:nowrap;">${canEdit() ? `<button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')" title="Mở lại">↩️</button><button class="btn-act btn-danger btn-mini" onclick="deletePunishment('${p.id}')" title="Xóa">🗑️</button>` : '—'}</td>
+      </tr>`;
+    });
+  });
+
+  tb.innerHTML = html;
 }
 function reopenPunishment(id) { if (!canEdit()) return; if (!confirm('Mở lại?')) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; p.status = 'active'; p.completedAt = null; saveData(); toast('↩️ Đã mở lại!'); }
 function renderPunishStatsByStudent() {
@@ -2271,7 +2448,7 @@ function renderPunishStatsByStudent() {
   box.innerHTML = arr.slice(0, 20).map(x => { const pct = (x.total / maxTotal) * 100; const color = x.active > 0 ? '#ef4444' : '#10b981'; return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><b>${esc(x.name)}</b><span><b style="color:${color};">${x.total}</b> phiếu • 🔴 ${x.active} • ✅ ${x.done}</span></div><div class="chart-bar-bg" style="height:12px;"><div style="width:${pct}%;height:100%;background:${color};border-radius:6px;"></div></div></div>`; }).join('');
 }
 function renderAllPunish() { renderPunishStats(); renderPunishStudentSelector(); renderPunishActive(); renderPunishDone(); renderPunishStatsByStudent(); }
-
+  
 /* ═══════════════ KHEN THƯỞNG ═══════════════ */
 const RW_TYPE_NAMES = { tuyen_duong:'📢 Tuyên Dương', giay_khen:'📜 Giấy Khen', tang_qua:'🎁 Tặng Quà', diem_cong:'💯 Điểm Cộng', thuong_quy:'💰 Thưởng Quỹ', ho_tro_ban:'🤝 Giúp Bạn', tich_cuc:'✋ Tích Cực', khac:'🏅 Khác' };
 const RW_TYPE_COLORS = { tuyen_duong:'#f59e0b', giay_khen:'#dc2626', tang_qua:'#ec4899', diem_cong:'#3b82f6', thuong_quy:'#10b981', ho_tro_ban:'#8b5cf6', tich_cuc:'#0ea5e9', khac:'#64748b' };
