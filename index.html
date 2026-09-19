@@ -1418,7 +1418,8 @@ auth.onAuthStateChanged(async user => {
     renderAllUI();
   setTimeout(() => initWheel(), 100);
   toast('✅ Đăng nhập thành công!', '#10b981');
-
+});
+  
 function renderAllUI() {
   if (!currentClass) return;
   const _cfg = currentClass.config || {};
