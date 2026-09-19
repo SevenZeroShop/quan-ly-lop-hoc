@@ -1415,10 +1415,9 @@ auth.onAuthStateChanged(async user => {
   if (!classId) { showAuthMsg('❌ Tài khoản chưa được gán lớp.\nLiên hệ quản trị viên.', 'error'); await auth.signOut(); return; }
   const ok = await loadClassFromCloud(classId);
   if (!ok) return;
-  renderAllUI();
-  setTimeout(() => initJackpot(), 100);
+    renderAllUI();
+  setTimeout(() => initWheel(), 100);
   toast('✅ Đăng nhập thành công!', '#10b981');
-});
 
 function renderAllUI() {
   if (!currentClass) return;
@@ -2220,18 +2219,20 @@ function groupPunishments(list) {
   list.forEach(p => {
     const gid = getPunishGroupId(p);
     if (!groups[gid]) {
-      /* Lấy thông tin hiển thị từ phiếu MỚI NHẤT trong nhóm (để khi sửa xong, header hiện đúng nội dung mới) */
-      groups[gid] = { key: gid, reason: p.reason, type: p.type, level: p.level, start: p.start, deadline: p.deadline || '', note: p.note || '', items: [], _latestCreated: p.createdAt || '' };
+      groups[gid] = { key: gid, reason: p.reason, type: p.type, level: p.level, start: p.start, deadline: p.deadline || '', note: p.note || '', items: [], _latestCreated: p.createdAt || '', _latestUpdated: p.updatedAt || '' };
     }
     const g = groups[gid];
-    /* Cập nhật header theo phiếu mới nhất */
-    if ((p.createdAt || '') >= g._latestCreated) {
+    /* Cập nhật header theo phiếu được SỬA mới nhất (fallback: tạo mới nhất) */
+    const pLast = p.updatedAt || p.createdAt || '';
+    const gLast = g._latestUpdated || g._latestCreated || '';
+    if (pLast >= gLast) {
       g.reason = p.reason;
       g.type = p.type;
       g.level = p.level;
       g.start = p.start;
       g.deadline = p.deadline || '';
       g.note = p.note || '';
+      g._latestUpdated = pLast;
       g._latestCreated = p.createdAt || '';
     }
     g.items.push(p);
@@ -2522,12 +2523,14 @@ function saveEditPunish() {
   const deadline = document.getElementById('editPtDeadline').value;
   const note = document.getElementById('editPtNote').value.trim();
   if (!stId || !reason || !start) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
-  /* ⚠️ QUAN TRỌNG: KHÔNG đổi groupId — giữ nguyên nhóm cũ để không tách nhóm */
-  Object.assign(p, { stId, type, level, reason, start, deadline: deadline || '', note });
+  /* ⚠️ KHÔNG đổi groupId — giữ nguyên nhóm cũ để không tách nhóm */
+  /* ✅ Thêm updatedAt để header nhóm tự cập nhật theo phiếu vừa sửa */
+  Object.assign(p, { stId, type, level, reason, start, deadline: deadline || '', note, updatedAt: new Date().toISOString() });
   saveData();
   closeEditPunish();
   toast('✏️ Đã cập nhật (giữ nguyên nhóm)!');
 }
+  
 function completePunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const st = getStudents().find(s => String(s.id) === String(p.stId)); if (!confirm(`Xác nhận "${st?.name || '?'}" đã xong?`)) return; p.status = 'done'; p.completedAt = new Date().toISOString(); saveData(); toast('✅ Đã đánh dấu xong!'); }
 function extendPunishment(id) { if (!canEdit()) return; const p = getPunishments().find(x => String(x.id) === String(id)); if (!p) return; const cur = p.deadline || todayStr(); const newDate = prompt('Hạn mới (YYYY-MM-DD):', cur); if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) { toast('⚠️ Sai định dạng!', '#ef4444'); return; } p.deadline = newDate; p.extendedCount = (p.extendedCount || 0) + 1; saveData(); toast('⏰ Đã gia hạn!'); }
 function deletePunishment(id) { if (!canEdit()) return; if (!confirm('Xóa phiếu phạt này?')) return; setPunishments(getPunishments().filter(x => String(x.id) !== String(id))); saveData(); toast('🗑️ Đã xóa!'); }
@@ -2970,7 +2973,7 @@ function showTab(id, btn) {
   if (id === 'laodong') renderAllLabor();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
   if (id === 'thungrac') renderTrashList();
-  if (id === 'random') setTimeout(() => initJackpot(), 50);
+  if (id === 'random') setTimeout(() => initWheel(), 50);
 }
 function filterChecklist(inputId, containerId) { const f = document.getElementById(inputId).value.toLowerCase().trim(); for (const lb of document.getElementById(containerId).getElementsByTagName('label')) lb.style.display = (lb.textContent||'').toLowerCase().includes(f) ? 'flex' : 'none'; }
 function toggleAll(name, checked) { document.querySelectorAll(`input[name="${name}"]`).forEach(cb => { const lb = cb.closest('label'); if (lb && lb.style.display !== 'none') cb.checked = checked; }); }
@@ -3449,7 +3452,7 @@ const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 ['click','keydown','mousemove','touchstart','scroll'].forEach(evt => { document.addEventListener(evt, () => { sessionLastActivity = Date.now(); }, { passive: true }); });
 setInterval(() => { if (currentUser && Date.now() - sessionLastActivity > SESSION_TIMEOUT_MS) { if (confirm('⏰ Phiên hết hạn sau 30 phút.\nĐăng nhập lại?')) { auth.signOut(); location.reload(); } else sessionLastActivity = Date.now(); } }, 60000);
 
-console.log('%c✅ App v9.0 — Lồng quay 3D','color:#10b981;font-size:16px;font-weight:bold;');
+console.log('%c✅ App v9.0 — Vòng quay may mắn','color:#10b981;font-size:16px;font-weight:bold;');
 </script>
 
 <div id="ownerFooter">
