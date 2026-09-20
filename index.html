@@ -230,6 +230,32 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 #wwBanner.ww-show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #wwBanner small{display:block;font-size:.85rem;font-weight:700;margin-top:6px;color:#1a1a3e;opacity:.75}
 #wwResult.ww-show{opacity:1;transform:scale(1)}
+/* ═══ BIỆT ĐỘI SIÊU ANH HÙNG ═══ */
+.ww-team-hero{position:absolute;width:140px;height:200px;z-index:48;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;will-change:transform;transition:transform .4s cubic-bezier(.34,1.4,.64,1)}
+.ww-team-hero img{width:100%;height:100%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 0 16px #FFD700) drop-shadow(0 0 32px #E84393);pointer-events:none}
+.ww-team-hero.ww-fighting img{animation:wwFightShake .12s linear infinite}
+@keyframes wwFightShake{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,-2px) rotate(-2deg)}50%{transform:translate(3px,2px) rotate(2deg)}75%{transform:translate(-2px,3px) rotate(-1deg)}100%{transform:translate(0,0) rotate(0)}}
+.ww-team-hero.ww-vanishing{animation:wwVanish .4s ease-out forwards}
+@keyframes wwVanish{to{opacity:0;transform:scale(0.3) rotate(180deg)}}
+
+/* Tia năng lượng bay lung tung khi đánh nhau */
+.ww-beam{position:absolute;pointer-events:none;z-index:52;transform-origin:0 0;height:4px;border-radius:2px;animation:wwBeamFade .5s ease-out forwards}
+@keyframes wwBeamFade{from{opacity:1;transform:scaleX(1)}to{opacity:0;transform:scaleX(0.2)}}
+.ww-punch{position:absolute;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,0.95),rgba(232,67,147,0.6),transparent 70%);pointer-events:none;z-index:53;transform:translate(-50%,-50%);animation:wwPunchBoom .4s ease-out forwards}
+@keyframes wwPunchBoom{from{opacity:1;transform:translate(-50%,-50%) scale(0.3)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}to{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+.ww-spark-big{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#FFD700,#E84393,transparent 70%);pointer-events:none;z-index:54;transform:translate(-50%,-50%);animation:wwSparkFly .6s ease-out forwards}
+@keyframes wwSparkFly{to{opacity:0;transform:translate(-50%,-50%) scale(0.1)}}
+
+/* Bùng nổ cuối cùng */
+.ww-explosion{position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(circle,#fff 0%,#FFD700 20%,#E84393 50%,#6C5CE7 80%,transparent 100%);pointer-events:none;z-index:190;transform:translate(-50%,-50%);animation:wwExplode 1.2s cubic-bezier(.2,.8,.4,1) forwards}
+@keyframes wwExplode{0%{width:0;height:0;opacity:1}50%{width:120vw;height:120vw;opacity:0.9}100%{width:160vw;height:160vw;opacity:0}}
+.ww-shockwave{position:absolute;top:50%;left:50%;width:0;height:0;border:6px solid #FFD700;border-radius:50%;pointer-events:none;z-index:189;transform:translate(-50%,-50%);animation:wwShock 1s ease-out forwards}
+@keyframes wwShock{0%{width:0;height:0;opacity:1;border-width:8px}100%{width:120vw;height:120vw;opacity:0;border-width:1px}}
+
+/* Banner kết quả nâng cấp cho nhiều người */
+#wwBanner.ww-multi{max-width:92%;padding:26px 32px}
+#wwBanner.ww-multi .ww-badge{display:inline-block;background:linear-gradient(135deg,#FFD700,#E84393);color:#fff;border-radius:50px;padding:10px 22px;margin:6px 4px;font-weight:900;font-size:17px;box-shadow:0 6px 20px rgba(232,67,147,0.5);text-shadow:0 2px 6px rgba(0,0,0,0.3);animation:wwBadgeIn .5s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes wwBadgeIn{from{opacity:0;transform:scale(0.3) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
 @media(max-width:640px){#wwStage{height:400px}#wwHero{width:110px;height:160px}#wwBanner{font-size:1.2rem;padding:14px 24px}}
 @media (max-width:520px){.jackpot-win-close{width:46px;height:46px;font-size:22px;top:15px;right:15px}.jackpot-win-countdown{padding:8px 20px;font-size:12px}.jackpot-win-countdown .count-num{width:30px;height:30px;font-size:15px}.jackpot-win-name{padding:15px 25px;border-width:3px;border-radius:18px}.jackpot-win-btn{padding:14px 28px;font-size:14px}.jackpot-win-dot{width:12px;height:12px}}
 </style>
