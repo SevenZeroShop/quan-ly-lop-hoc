@@ -188,7 +188,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 #ownerFooter .owner-name{display:inline-block;padding:2px 10px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin:0 2px}
 .readonly-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#78350f;font-weight:600;text-align:center}
 
-  /* ═══════════ WONDER WOMAN ═══════════ */
+/* ═══════════ WONDER WOMAN ═══════════ */
 #wwStage{position:relative;width:100%;height:520px;background:radial-gradient(ellipse at 15% 15%,rgba(255,110,199,.5),transparent 45%),radial-gradient(ellipse at 85% 25%,rgba(120,115,245,.55),transparent 50%),radial-gradient(ellipse at 50% 95%,rgba(74,222,222,.4),transparent 55%),radial-gradient(ellipse at 90% 85%,rgba(255,215,0,.35),transparent 50%),radial-gradient(ellipse at 10% 60%,rgba(108,92,231,.4),transparent 45%),linear-gradient(135deg,#1a0d3d 0%,#2d1b5e 35%,#4a2b7a 65%,#1a0d3d 100%);overflow:hidden;border-radius:12px;box-shadow:0 0 100px rgba(232,67,147,.35) inset,0 0 60px rgba(108,92,231,.3) inset,0 8px 32px rgba(0,0,0,.5)}
 #wwStage::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:1}
 #wwStage::after{content:'';position:absolute;inset:0;background-image:radial-gradient(2px 2px at 15% 20%,rgba(255,255,255,.95),transparent),radial-gradient(1px 1px at 35% 60%,rgba(255,255,255,.75),transparent),radial-gradient(2px 2px at 55% 15%,rgba(255,255,255,.9),transparent),radial-gradient(1px 1px at 75% 75%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 90% 40%,rgba(255,255,255,.95),transparent),radial-gradient(1px 1px at 25% 85%,rgba(255,255,255,.8),transparent),radial-gradient(2px 2px at 65% 55%,rgba(255,255,255,.85),transparent),radial-gradient(1px 1px at 45% 30%,rgba(255,255,255,.7),transparent),radial-gradient(1px 1px at 10% 55%,rgba(255,255,255,.75),transparent),radial-gradient(2px 2px at 80% 10%,rgba(255,255,255,.9),transparent),radial-gradient(1px 1px at 60% 80%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 5% 90%,rgba(255,255,255,.85),transparent);animation:wwTwinkle 4s ease-in-out infinite alternate;pointer-events:none;z-index:1}
@@ -213,13 +213,15 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 .ww-icon.ww-caught{z-index:60;animation:wwCaughtPulse .5s ease-in-out infinite alternate}
 @keyframes wwCaughtPulse{from{filter:brightness(1.4) drop-shadow(0 0 20px #FFD700)}to{filter:brightness(2) drop-shadow(0 0 50px #FFD700)}}
 .ww-icon.ww-dimmed{opacity:.18;filter:grayscale(.85) blur(1.5px) brightness(.7)}
-#wwHero{position:absolute;bottom:-10px;left:5px;width:150px;height:220px;z-index:50;pointer-events:none;transition:transform .2s;animation:wwHeroIdle 2.6s ease-in-out infinite;display:flex;align-items:flex-end;justify-content:center}
+#wwHero{position:absolute;bottom:-10px;left:5px;width:150px;height:220px;z-index:50;pointer-events:none;transition:transform .3s cubic-bezier(.34,1.4,.64,1);animation:wwHeroIdle 2.6s ease-in-out infinite;display:flex;align-items:flex-end;justify-content:center;will-change:transform}
 @keyframes wwHeroIdle{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-.5deg)}}
-#wwHero img{width:100%;height:100%;object-fit:contain;object-position:bottom center;pointer-events:none;filter:drop-shadow(0 8px 20px rgba(0,0,0,.7))}
+#wwHero img{width:100%;height:100%;object-fit:contain;object-position:bottom center;pointer-events:none;filter:drop-shadow(0 8px 20px rgba(0,0,0,.7));transition:transform .2s}
 #wwHero.ww-throwing{animation:wwHeroThrow .7s ease-out}
 @keyframes wwHeroThrow{0%{transform:translateY(0) rotate(0)}30%{transform:translateY(-8px) rotate(-14deg)}60%{transform:translateY(0) rotate(6deg)}100%{transform:translateY(0) rotate(0)}}
 #wwHero.ww-celebrate{animation:wwHeroCelebrate 1.2s ease-in-out}
 @keyframes wwHeroCelebrate{0%,100%{transform:translateY(0)}25%{transform:translateY(-16px) rotate(-6deg)}50%{transform:translateY(-4px) rotate(4deg)}75%{transform:translateY(-12px) rotate(-2deg)}}
+#wwHero.ww-chasing{animation:none !important;transition:transform .15s linear !important;z-index:55}
+#wwHero.ww-chasing img{filter:drop-shadow(0 0 24px #FFD700) drop-shadow(0 0 48px #E84393)}
 #wwLasso{position:absolute;inset:0;pointer-events:none;z-index:70;overflow:visible;width:100%;height:100%}
 #wwLasso path{fill:none;stroke:url(#wwLassoGrad);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px #FFD700) drop-shadow(0 0 16px #ff69b4)}
 #wwLassoLoop{position:absolute;width:42px;height:42px;border-radius:50%;border:4px solid #FFD700;box-shadow:0 0 15px #FFD700,0 0 30px #ff69b4,inset 0 0 10px rgba(255,215,0,.6);pointer-events:none;z-index:75;transform:translate(-50%,-50%);opacity:0;will-change:left,top;transition:opacity .2s}
@@ -230,34 +232,21 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 #wwBanner.ww-show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #wwBanner small{display:block;font-size:.85rem;font-weight:700;margin-top:6px;color:#1a1a3e;opacity:.75}
 #wwResult.ww-show{opacity:1;transform:scale(1)}
-/* ═══ BIỆT ĐỘI SIÊU ANH HÙNG ═══ */
-.ww-team-hero{position:absolute;width:140px;height:200px;z-index:48;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;will-change:transform;transition:transform .4s cubic-bezier(.34,1.4,.64,1)}
-.ww-team-hero img{width:100%;height:100%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 0 16px #FFD700) drop-shadow(0 0 32px #E84393);pointer-events:none}
-.ww-team-hero.ww-fighting img{animation:wwFightShake .12s linear infinite}
-@keyframes wwFightShake{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,-2px) rotate(-2deg)}50%{transform:translate(3px,2px) rotate(2deg)}75%{transform:translate(-2px,3px) rotate(-1deg)}100%{transform:translate(0,0) rotate(0)}}
-.ww-team-hero.ww-vanishing{animation:wwVanish .4s ease-out forwards}
-@keyframes wwVanish{to{opacity:0;transform:scale(0.3) rotate(180deg)}}
-
-/* Tia năng lượng bay lung tung khi đánh nhau */
-.ww-beam{position:absolute;pointer-events:none;z-index:52;transform-origin:0 0;height:4px;border-radius:2px;animation:wwBeamFade .5s ease-out forwards}
-@keyframes wwBeamFade{from{opacity:1;transform:scaleX(1)}to{opacity:0;transform:scaleX(0.2)}}
-.ww-punch{position:absolute;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,0.95),rgba(232,67,147,0.6),transparent 70%);pointer-events:none;z-index:53;transform:translate(-50%,-50%);animation:wwPunchBoom .4s ease-out forwards}
-@keyframes wwPunchBoom{from{opacity:1;transform:translate(-50%,-50%) scale(0.3)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}to{opacity:0;transform:translate(-50%,-50%) scale(2)}}
-.ww-spark-big{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#FFD700,#E84393,transparent 70%);pointer-events:none;z-index:54;transform:translate(-50%,-50%);animation:wwSparkFly .6s ease-out forwards}
-@keyframes wwSparkFly{to{opacity:0;transform:translate(-50%,-50%) scale(0.1)}}
-
-/* Bùng nổ cuối cùng */
-.ww-explosion{position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(circle,#fff 0%,#FFD700 20%,#E84393 50%,#6C5CE7 80%,transparent 100%);pointer-events:none;z-index:190;transform:translate(-50%,-50%);animation:wwExplode 1.2s cubic-bezier(.2,.8,.4,1) forwards}
-@keyframes wwExplode{0%{width:0;height:0;opacity:1}50%{width:120vw;height:120vw;opacity:0.9}100%{width:160vw;height:160vw;opacity:0}}
-.ww-shockwave{position:absolute;top:50%;left:50%;width:0;height:0;border:6px solid #FFD700;border-radius:50%;pointer-events:none;z-index:189;transform:translate(-50%,-50%);animation:wwShock 1s ease-out forwards}
-@keyframes wwShock{0%{width:0;height:0;opacity:1;border-width:8px}100%{width:120vw;height:120vw;opacity:0;border-width:1px}}
-
-/* Banner kết quả nâng cấp cho nhiều người */
-#wwBanner.ww-multi{max-width:92%;padding:26px 32px}
-#wwBanner.ww-multi .ww-badge{display:inline-block;background:linear-gradient(135deg,#FFD700,#E84393);color:#fff;border-radius:50px;padding:10px 22px;margin:6px 4px;font-weight:900;font-size:17px;box-shadow:0 6px 20px rgba(232,67,147,0.5);text-shadow:0 2px 6px rgba(0,0,0,0.3);animation:wwBadgeIn .5s cubic-bezier(.34,1.56,.64,1) backwards}
-@keyframes wwBadgeIn{from{opacity:0;transform:scale(0.3) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+/* Nút TOÀN MÀN HÌNH */
+#wwFullscreenBtn{transition:all .2s ease}
+#wwFullscreenBtn:hover{background:rgba(255,255,255,0.4) !important;transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.25)}
+#wwFullscreenBtn:active{transform:translateY(0)}
+/* Khi fullscreen — mở rộng sân khấu */
+:fullscreen #wwStage{height:90vh !important;max-height:none !important;border-radius:0 !important}
+:-webkit-full-screen #wwStage{height:90vh !important;max-height:none !important;border-radius:0 !important}
+:fullscreen #wwHero{width:200px;height:290px}
+:-webkit-full-screen #wwHero{width:200px;height:290px}
+:fullscreen #wwBanner{font-size:2rem;padding:26px 48px}
+:-webkit-full-screen #wwBanner{font-size:2rem;padding:26px 48px}
+/* Responsive */
 @media(max-width:640px){#wwStage{height:400px}#wwHero{width:110px;height:160px}#wwBanner{font-size:1.2rem;padding:14px 24px}}
 @media (max-width:520px){.jackpot-win-close{width:46px;height:46px;font-size:22px;top:15px;right:15px}.jackpot-win-countdown{padding:8px 20px;font-size:12px}.jackpot-win-countdown .count-num{width:30px;height:30px;font-size:15px}.jackpot-win-name{padding:15px 25px;border-width:3px;border-radius:18px}.jackpot-win-btn{padding:14px 28px;font-size:14px}.jackpot-win-dot{width:12px;height:12px}}
+  @media (max-width:520px){.jackpot-win-close{width:46px;height:46px;font-size:22px;top:15px;right:15px}.jackpot-win-countdown{padding:8px 20px;font-size:12px}.jackpot-win-countdown .count-num{width:30px;height:30px;font-size:15px}.jackpot-win-name{padding:15px 25px;border-width:3px;border-radius:18px}.jackpot-win-btn{padding:14px 28px;font-size:14px}.jackpot-win-dot{width:12px;height:12px}}
 </style>
 </head>
 <body>
@@ -897,12 +886,41 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   
 <!-- RANDOM — VÒNG QUAY MAY MẮN -->
 <div id="sec-random" class="section-pane">
-    <div class="card" style="background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);color:#fff;border:none;text-align:center;padding:24px;box-shadow:0 10px 40px rgba(232,67,147,0.45),0 0 0 3px rgba(255,215,0,0.2) inset;position:relative;overflow:hidden;">
+  <div class="card" style="background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);color:#fff;border:none;text-align:center;padding:24px;box-shadow:0 10px 40px rgba(232,67,147,0.45);position:relative;overflow:hidden;">
     <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,0.3),transparent 70%);border-radius:50%;pointer-events:none;"></div>
     <div style="position:absolute;bottom:-40px;left:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,0.2),transparent 70%);border-radius:50%;pointer-events:none;"></div>
     <div style="font-size:54px;margin-bottom:8px;filter:drop-shadow(0 0 16px rgba(255,215,0,0.9));animation:wwHeroIdle 2.6s ease-in-out infinite;">🎯</div>
-    <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:5px;font-weight:900;text-shadow:0 2px 14px rgba(0,0,0,0.4);position:relative;">Người được Wonder Woman chọn</h2>
-    <p style="font-size:14px;opacity:.97;margin-top:8px;font-style:italic;position:relative;font-weight:500;">Vận may sẽ gọi tên ai? Hãy cùng chờ đợi! ✨</p>
+    <h2 style="font-size:22px;text-transform:uppercase;letter-spacing:4px;font-weight:900;text-shadow:0 2px 14px rgba(0,0,0,0.4);position:relative;">Người Được Chọn</h2>
+    <p style="font-size:14px;opacity:.97;margin-top:8px;font-style:italic;position:relative;">Vận may sẽ gọi tên ai? Hãy cùng chờ đợi! ✨</p>
+    <button id="wwFullscreenBtn" style="margin-top:14px;background:rgba(255,255,255,0.25);color:#fff;border:2px solid rgba(255,255,255,0.6);padding:10px 24px;font-size:13px;font-weight:800;letter-spacing:1.5px;border-radius:50px;cursor:pointer;position:relative;">⛶ TOÀN MÀN HÌNH</button>
+  </div>
+
+  <div class="card" style="border:2px solid #E84393;background:linear-gradient(135deg,#fdf2f8,#fce7f3);">
+    <h3 style="color:#be185d;">🎯 Số Người Được Chọn</h3>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="font-size:13px;font-weight:700;color:#475569;">Chọn cùng lúc:</label>
+      <input type="number" id="wwPickCount" value="1" min="1" max="20" style="width:80px;padding:10px;border:2px solid #E84393;border-radius:8px;font-size:16px;font-weight:800;text-align:center;color:#be185d;background:#fff;">
+      <span style="font-size:12px;color:#64748b;">người (1-20)</span>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:#64748b;line-height:1.6;">
+      💡 Chọn <b>1</b> người: dây bay ra tóm 1 người • Chọn <b>nhiều</b>: dây lao ra tóm từng người rồi kéo hết về cùng lúc
+    </div>
+  </div>
+
+  <div class="card" style="border:2px solid #6C5CE7;background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+    <h3 style="color:#6d28d9;">🎭 Danh Sách Nhân Vật</h3>
+    <p style="font-size:12px;color:#475569;margin-bottom:10px;line-height:1.7;">
+      💡 <b>Cách thêm nhân vật:</b><br>
+      1️⃣ Tải ảnh PNG (nền trong suốt) — dùng <b>remove.bg</b> xoá nền<br>
+      2️⃣ Đặt ảnh cùng thư mục với <code>index.html</code><br>
+      3️⃣ Nhập mỗi dòng: <code>tên_file.png|Tên hiển thị</code>
+    </p>
+    <textarea id="wwHeroList" style="width:100%;height:100px;font-family:monospace;font-size:12px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="wonder-woman.png|Wonder Woman"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+      <button class="btn-act btn-success" style="flex:1;" onclick="wwSaveHeroList()">💾 Lưu DS</button>
+      <button class="btn-act btn-warning" style="flex:1;" onclick="wwRandomHeroPick()">🎲 Random</button>
+    </div>
+    <div id="wwHeroPreview" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"></div>
   </div>
 
   <div class="card">
@@ -943,7 +961,10 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 
   <div style="text-align:center;margin-bottom:12px;">
-        <button id="wwStartBtn" class="btn-act" style="background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);padding:16px 52px;font-size:16px;letter-spacing:3px;font-weight:900;border-radius:50px;box-shadow:0 8px 28px rgba(232,67,147,0.6),0 0 0 3px rgba(255,215,0,0.25);text-shadow:0 2px 6px rgba(0,0,0,0.3);transition:all 0.2s;">🎯 BẮT ĐẦU CHỌN!</button>
+    <button id="wwStartBtn" class="btn-act" style="background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);padding:16px 52px;font-size:16px;letter-spacing:3px;font-weight:900;border-radius:50px;box-shadow:0 8px 28px rgba(232,67,147,0.6),0 0 0 3px rgba(255,215,0,0.25);text-shadow:0 2px 6px rgba(0,0,0,0.3);transition:all 0.2s;">🎯 BẮT ĐẦU CHỌN!</button>
+    <div style="margin-top:10px;font-size:12px;color:#64748b;">
+      💡 Nhấn <kbd style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:2px 8px;font-weight:700;">Enter</kbd> hoặc <kbd style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:2px 8px;font-weight:700;">Space</kbd> để chạy
+    </div>
   </div>
 
   <div id="wwResult" style="text-align:center;font-size:1.8rem;font-weight:800;min-height:2.4rem;background:linear-gradient(90deg,#FFD700,#E84393,#4ADEDE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:0;transition:opacity .4s,transform .4s;transform:scale(.7);"></div>
