@@ -187,9 +187,12 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 #ownerFooter{margin-top:20px;background:linear-gradient(135deg,#1e3a8a 0,#2563eb 45%,#7c3aed 100%);color:#fff;text-align:center;padding:14px 16px;border-radius:12px;line-height:1.5;width:100%}
 #ownerFooter .owner-name{display:inline-block;padding:2px 10px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin:0 2px}
 .readonly-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#78350f;font-weight:600;text-align:center}
-/* ═══════════ WONDER WOMAN ═══════════ */
-#wwStage{position:relative;width:100%;height:520px;background:radial-gradient(circle at 20% 80%,rgba(232,67,147,.1),transparent 55%),radial-gradient(circle at 80% 20%,rgba(255,215,0,.1),transparent 55%),rgba(15,23,42,.5);overflow:hidden;border-radius:12px}
-#wwStage::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+
+  /* ═══════════ WONDER WOMAN ═══════════ */
+#wwStage{position:relative;width:100%;height:520px;background:radial-gradient(ellipse at 15% 15%,rgba(255,110,199,.5),transparent 45%),radial-gradient(ellipse at 85% 25%,rgba(120,115,245,.55),transparent 50%),radial-gradient(ellipse at 50% 95%,rgba(74,222,222,.4),transparent 55%),radial-gradient(ellipse at 90% 85%,rgba(255,215,0,.35),transparent 50%),radial-gradient(ellipse at 10% 60%,rgba(108,92,231,.4),transparent 45%),linear-gradient(135deg,#1a0d3d 0%,#2d1b5e 35%,#4a2b7a 65%,#1a0d3d 100%);overflow:hidden;border-radius:12px;box-shadow:0 0 100px rgba(232,67,147,.35) inset,0 0 60px rgba(108,92,231,.3) inset,0 8px 32px rgba(0,0,0,.5)}
+#wwStage::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:1}
+#wwStage::after{content:'';position:absolute;inset:0;background-image:radial-gradient(2px 2px at 15% 20%,rgba(255,255,255,.95),transparent),radial-gradient(1px 1px at 35% 60%,rgba(255,255,255,.75),transparent),radial-gradient(2px 2px at 55% 15%,rgba(255,255,255,.9),transparent),radial-gradient(1px 1px at 75% 75%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 90% 40%,rgba(255,255,255,.95),transparent),radial-gradient(1px 1px at 25% 85%,rgba(255,255,255,.8),transparent),radial-gradient(2px 2px at 65% 55%,rgba(255,255,255,.85),transparent),radial-gradient(1px 1px at 45% 30%,rgba(255,255,255,.7),transparent),radial-gradient(1px 1px at 10% 55%,rgba(255,255,255,.75),transparent),radial-gradient(2px 2px at 80% 10%,rgba(255,255,255,.9),transparent),radial-gradient(1px 1px at 60% 80%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 5% 90%,rgba(255,255,255,.85),transparent);animation:wwTwinkle 4s ease-in-out infinite alternate;pointer-events:none;z-index:1}
+@keyframes wwTwinkle{0%{opacity:.45}100%{opacity:1}}
 .ww-icon{position:absolute;width:62px;height:62px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;font-family:'Segoe UI','Arial Black',system-ui,sans-serif;color:#fff;letter-spacing:-.5px;user-select:none;left:0;top:0;will-change:transform;transition:filter .35s,opacity .35s;z-index:5;filter:drop-shadow(0 0 6px var(--glow,rgba(255,255,255,.5))) drop-shadow(0 4px 10px rgba(0,0,0,.6))}
 .ww-icon .ww-fill{position:absolute;inset:0;background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.98),transparent 42%),radial-gradient(circle at 75% 90%,rgba(0,0,0,.45),transparent 55%),linear-gradient(135deg,var(--c1) 0%,var(--c2) 100%);z-index:-1;box-shadow:inset 0 3px 8px rgba(255,255,255,.55),inset 0 -5px 12px rgba(0,0,0,.5),inset 0 0 0 1.5px rgba(255,255,255,.35);animation:wwFillGlow 3s ease-in-out infinite}
 @keyframes wwFillGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
@@ -868,10 +871,12 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   
 <!-- RANDOM — VÒNG QUAY MAY MẮN -->
 <div id="sec-random" class="section-pane">
-  <div class="card" style="background:linear-gradient(135deg,#7f1d1d,#dc2626,#7c3aed);color:#fff;border:none;text-align:center;padding:20px;">
-    <div style="font-size:48px;margin-bottom:6px;">🪢</div>
-    <h2 style="font-size:20px;text-transform:uppercase;letter-spacing:3px;">WONDER WOMAN BẮT HỌC SINH</h2>
-    <p style="font-size:13px;opacity:.95;margin-top:6px;">Tung dây thòng lọng — chọn học sinh ngẫu nhiên</p>
+    <div class="card" style="background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);color:#fff;border:none;text-align:center;padding:24px;box-shadow:0 10px 40px rgba(232,67,147,0.45),0 0 0 3px rgba(255,215,0,0.2) inset;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,0.3),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-40px;left:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,0.2),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+    <div style="font-size:54px;margin-bottom:8px;filter:drop-shadow(0 0 16px rgba(255,215,0,0.9));animation:wwHeroIdle 2.6s ease-in-out infinite;">🎯</div>
+    <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:5px;font-weight:900;text-shadow:0 2px 14px rgba(0,0,0,0.4);position:relative;">Người được Wonder Woman chọn</h2>
+    <p style="font-size:14px;opacity:.97;margin-top:8px;font-style:italic;position:relative;font-weight:500;">Vận may sẽ gọi tên ai? Hãy cùng chờ đợi! ✨</p>
   </div>
 
   <div class="card">
@@ -912,7 +917,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 
   <div style="text-align:center;margin-bottom:12px;">
-    <button id="wwStartBtn" class="btn-act" style="background:linear-gradient(135deg,#E84393,#FFD700);padding:16px 48px;font-size:16px;letter-spacing:2px;font-weight:900;border-radius:50px;box-shadow:0 8px 24px rgba(232,67,147,0.5);">🪢 TUNG DÂY!</button>
+        <button id="wwStartBtn" class="btn-act" style="background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);padding:16px 52px;font-size:16px;letter-spacing:3px;font-weight:900;border-radius:50px;box-shadow:0 8px 28px rgba(232,67,147,0.6),0 0 0 3px rgba(255,215,0,0.25);text-shadow:0 2px 6px rgba(0,0,0,0.3);transition:all 0.2s;">🎯 BẮT ĐẦU CHỌN!</button>
   </div>
 
   <div id="wwResult" style="text-align:center;font-size:1.8rem;font-weight:800;min-height:2.4rem;background:linear-gradient(90deg,#FFD700,#E84393,#4ADEDE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:0;transition:opacity .4s,transform .4s;transform:scale(.7);"></div>
@@ -2982,7 +2987,7 @@ let wwIsBusy = false;
 let wwFinalIndex = -1;
 let wwCurrentTargetIndex = 0;
 let wwT = 0;
-let wwRunSpeed = 1;
+let wwRunSpeed = 2;
 let wwLassoActive = false;
 let wwLassoPhase = 'idle';
 let wwLassoPoints = [];
@@ -3057,7 +3062,7 @@ function wwBuildStudents() {
         cy: stageH * (0.35 + Math.random() * 0.3),
         ax: stageW * (0.15 + Math.random() * 0.13),
         ay: stageH * (0.15 + Math.random() * 0.13),
-        speed: 0.15 + Math.random() * 0.22,
+        speed: 0.25 + Math.random() * 0.3,
         phase: seed * 2,
         rotSpeed: (Math.random() - 0.5) * 0.5,
         rot: 0,
@@ -3267,7 +3272,7 @@ function wwOnCaught(target) {
     banner.classList.add('ww-show');
     resultEl.textContent = '✨ ' + target.name + ' ✨';
     resultEl.classList.add('ww-show');
-    startBtn.textContent = '🪢 TUNG DÂY!';
+    startBtn.textContent = '🎯 BẮT ĐẦU CHỌN!';
     startBtn.disabled = false;
     wwIsBusy = false;
     wwSaveHistory(target);
