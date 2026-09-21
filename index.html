@@ -77,6 +77,10 @@ th{background:#1e3a8a;color:#fff;font-size:12px;font-weight:600}
 .badge-perm{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
 .badge-score{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
 .badge-btvn{background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd}
+.badge-sdb{background:#fecaca;color:#7f1d1d;border:1px solid #ef4444}
+.badge-warn{background:linear-gradient(135deg,#fca5a5,#ef4444);color:#fff;border:1px solid #dc2626}
+.badge-punish{background:#fed7aa;color:#7c2d12;border:1px solid #ea580c}
+.badge-duty{background:#ccfbf1;color:#115e59;border:1px solid #5eead4}
 .badge-excellent{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
 .badge-good{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
 .badge-average{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
@@ -1209,7 +1213,7 @@ function delStudent(id) {
 
 /* ═══════════════ CHUYÊN CẦN ═══════════════ */
 const CC_LABELS = { v_khongphep:'🔴 Nghỉ KP', di_muon:'🟡 Đi muộn', chua_btvn:'📝 Chưa BTVN', so_daubai:'📕 SĐB', v_cophep:'🔵 Nghỉ phép' };
-const CC_CLS = { v_khongphep:'badge-pending', di_muon:'badge-late', chua_btvn:'badge-btvn', so_daubai:'badge-pending', v_cophep:'badge-perm' };
+const CC_CLS = { v_khongphep:'badge-pending', di_muon:'badge-late', chua_btvn:'badge-btvn', so_daubai:'badge-sdb', v_cophep:'badge-perm' };
 
 function saveCC() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
@@ -2708,39 +2712,45 @@ let bigMicActive = false;
 let bigMicSilenceTimer = null;
 let voiceParsedResult = null;
 
-/* ═══ TỪ KHÓA STOP KHI TÌM TÊN ═══ */
-const VOICE_STOP_KEYWORDS = [
-  'vang khong phep','vang ko phep','vang khong co phep','vang khong xin phep',
-  'nghi khong phep','nghi ko phep','nghi khong co phep','nghi khong xin phep',
-  'vang co phep','vang cp','nghi co phep','nghi cp','xin phep','co giay','co don','xin nghi',
-  'vang hoc','nghi hoc','bum hoc','bung hoc','cup hoc','cup tiet','tron hoc','tron tiet','bo hoc','bo tiet','cat hoc','cat tiet',
-  'vang','nghi','bum','bung','cup','tron','bo','cat',
-  'khong phep','ko phep','khong co phep','khong xin phep','kp','phep','fep',
-  'di muon','di tre','di cham','tre hoc','muon hoc','den muon','vao tre','muon','tre','cham',
-  'khong lam bai','chua lam bai','ko lam bai','khong soan bai','chua soan bai',
-  'khong lam btvn','chua lam btvn','khong lam bai tap','chua lam bai tap',
-  'quen lam bai','quen soan bai','quen mang sach','quen mang vo','quen mang','quen',
-  'khong hoc bai','chua hoc bai','khong chuan bi bai','khong mang sach','khong mang vo','khong co bai','khong co sach','khong co vo',
-  'thieu bai','thieu sach','thieu vo','thieu','lam bai','soan bai','hoc bai','mang sach','mang vo','mang',
-  'btvn','bai tap','bai ve nha','bai','sach','vo',
-  'khong','chua','ko','hong','hok','co',
-  'sdb','sđb','so dau bai','vi pham so dau bai','vi pham sdb',
-  'noi chuyen rieng','noi chuyen','mat trat tu','lam viec rieng','ngu gat','dung dien thoai','an quan vat','dao bai','quay cop','khong ghi bai',
-  'trung phat','ky luat','chep phat','chep bai','chep','kiem diem','viet kiem diem','bao phu huynh','bao ph','goi dien phu huynh','ha hanh kiem','nop phat','phat',
-  'truc nhat','ve sinh','don lop','don truong','quet lop','quet nha','quet san','lau lop','lau nha','lau bang','nhat rac','nhat giay','lao dong','truc','don','quet','lau','nhat',
-  'diem mieng','diem 15 phut','diem 1 tiet','diem thi','diem giua ki','diem cuoi ki','diem','phay','d','đ',
-  'thu quy','dong quy','nop quy','gop quy','nop tien','dong tien','thu tien','chuyen khoan','tien mat','tra tien','tra quy','chi quy','chi tieu','chi tien','thanh toan',
-  'thu','nop','dong','gop','chi','mua','tra','ck','quy','tien','trieu','nghin','ngan','tram',
-  'mo tab','chuyen tab','vao tab','tab','trang',
-  'so','ban','stt',
-  'hom nay','hom qua','hom kia','hom truoc','tuan truoc','hom no','sang nay','chieu nay','toi nay','bua nay','ngay mai',
-  'thu hai','thu ba','thu tu','thu nam','thu sau','thu bay','chu nhat','thu 2','thu 3','thu 4','thu 5','thu 6','thu 7',
-  'nay','qua','kia','truoc','sang','chieu','toi','hom','mai','ngay','thang','nam','tuan','thu',
-  'ngu van','lich su','dia ly','vat ly','tieng anh','sinh hoc','tin hoc','phap luat','giao duc','toan','van','su','dia','hoa','ly','li','anh','sinh','tin','gdkt','mon',
-  'cho','duoc','them','dat','la','thi','va','cua','voi','bi','da','se','nhe','nha','oi','u','the','do','gi','rat','hon','nua','nguoi','em','anh','chi','cac','nhung','moi','tat','ca','het','cung','luon'
-].sort((a, b) => b.length - a.length);
+/* ═══ TỪ KHÓA HÀNH ĐỘNG — ĐẦY ĐỦ ═══ */
+const ACTION_KEYWORDS = {
+  v_khongphep: ['vang khong phep','vang ko phep','vang kp','vang khong co phep','vang khong xin phep','vang hoc khong phep','nghi khong phep','nghi ko phep','nghi kp','nghi khong co phep','nghi khong xin phep','nghi hoc khong phep','khong phep','ko phep','khong co phep','khong xin phep','vang hoc','vang mat','vang tu do','vang khong li do','vang','nghi','bum hoc','bung hoc','cup hoc','cup tiet','tron hoc','tron tiet','bo hoc','bo tiet','cat hoc','cat tiet','bum','bung','cup','tron','bo','cat'],
+  v_cophep: ['vang co phep','vang cp','vang phep','vang hoc co phep','nghi co phep','nghi cp','nghi phep','nghi hoc co phep','nghi co li do','xin phep','xin nghi','co giay','co don','co phep','co cp'],
+  di_muon: ['di muon','di tre','di cham','di hoc muon','di hoc tre','di hoc cham','tre hoc','tre gio','tre tiet','muon hoc','muon gio','muon tiet','den muon','den tre','vao tre','vao lop tre','vao muon','toi muon','toi tre','tre','muon','cham'],
+  chua_btvn: ['khong lam bai','chua lam bai','ko lam bai','khong lam btvn','chua lam btvn','khong soan bai','chua soan bai','khong lam bai tap','chua lam bai tap','khong lam bai ve nha','chua lam bai ve nha','quen lam bai','quen soan bai','quen lam btvn','quen mang sach','quen mang vo','quen mang','khong hoc bai','chua hoc bai','khong chuan bi bai','khong mang sach','khong mang vo','khong mang bai','khong co bai','khong co sach','khong co vo','thieu bai','thieu sach','thieu vo','khong lam','chua lam','ko lam','khong soan','chua soan'],
+  so_daubai: ['sdb','sđb','so dau bai','vi pham sdb','vi pham so dau bai','bi ghi sdb','bi ghi so dau bai','ghi sdb','ghi so dau bai','co ten trong sdb','noi chuyen rieng','noi chuyen trong gio','noi leo','noi xau ban','mat trat tu','gay mat trat tu','lam on','on ao','lam viec rieng','lam viec rieng trong gio','khong chu y','khong tap trung','ngu gat','ngu trong lop','ngu trong gio','ngu','dung dien thoai','choi dien thoai','su dung dien thoai','dung dt','an quan vat','an quy vat','an banh','an keo','an trong gio','dao bai','dao de','quay cop','quay bai','xem bai ban','chep bai ban','khong ghi bai','khong chep bai','khong chep','khong ghi','danh nhau','danh ban','xich mich','cai nhau'],
+  phat: ['phat','trung phat','ky luat','xu ly','xu phat','phat nang','phat nhe','phat vua','chep phat','chep bai','chep 10 lan','chep 5 lan','chep 100 lan','kiem diem','viet kiem diem','lam kiem diem','viet ban kiem diem','bao ph','bao phu huynh','bao gia dinh','goi dien phu huynh','goi dien gia dinh','lien lac ph','ha hanh kiem','mua do','mua qua','nop phat','nop tien phat'],
+  trucnhat: ['truc nhat','truc lop','truc truong','truc tuan','truc ngay','ve sinh','ve sinh lop','ve sinh truong','ve sinh san','ve sinh khu','ve sinh khu vuc','don lop','don truong','don san','don ve sinh','don dep','don dep lop','quet lop','quet nha','quet san','quet hanh lang','quet cau thang','lau lop','lau nha','lau bang','lau san','lau cua','lau cua so','lau ban ghe','nhat rac','nhat giay','don rac','thu gom rac','lao dong','lao dong cong ich','tham gia lao dong','tuoi cay','cham soc cay','trong cay'],
+  diem: ['diem','điểm','diem mieng','diem 15 phut','diem 1 tiet','diem 45 phut','diem thi','diem giua ki','diem cuoi ki','diem giua ky','diem cuoi ky','diem hk','diem hoc ki','duoc diem','bi diem','cho diem','dat diem','thi duoc','lam duoc','dat duoc','diem phay','phay'],
+  thu: ['thu','thu quy','thu tien','thu tien quy','thu quy lop','thu tien lop','nop','nop quy','nop tien','nop tien quy','nop quy lop','nop tien lop','dong','dong quy','dong tien','dong tien quy','dong quy lop','dong tien lop','gop','gop quy','gop tien','gop tien quy','gop quy lop','chuyen khoan','ck','chuyen tien','chuyen quy','tien mat','tra tien','tra quy','nhan tien','nhan quy'],
+  chi: ['chi','chi quy','chi tien','chi tieu','chi quy lop','mua','mua do','mua qua','mua but','mua vo','mua sach','mua banh keo','mua nuoc','mua hoa','mua phan','mua ghe','tra','tra tien','thanh toan','tra no','tra quy']
+};
 
-/* ═══ HÀM BỎ TỪ KHÓA ═══ */
+function _detectAction(t) {
+  const scores = {};
+  Object.keys(ACTION_KEYWORDS).forEach(k => { scores[k] = 0; });
+  Object.keys(ACTION_KEYWORDS).forEach(actionKey => {
+    ACTION_KEYWORDS[actionKey].forEach(kw => {
+      const re = new RegExp('(^|\\s)' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\s|$)', 'g');
+      const matches = t.match(re);
+      if (matches) scores[actionKey] += matches.length * (kw.length >= 10 ? 3 : kw.length >= 6 ? 2 : 1);
+    });
+  });
+  if (/(vang|nghi|bum|bung|cup|tron)/.test(t) && /(khong|ko|hong|hok|k)\s*(co\s+|xin\s+)?(phep|fep)/.test(t)) { scores.v_khongphep = Math.max(scores.v_khongphep, 10); scores.v_cophep = 0; }
+  if (/(vang|nghi)/.test(t) && /(co|cp)\s*(phep|fep)/.test(t) && !/(khong|ko|hong)/.test(t)) scores.v_cophep = Math.max(scores.v_cophep, 10);
+  let best = null, bestScore = 0;
+  ['v_khongphep','v_cophep','di_muon','chua_btvn','so_daubai','phat','trucnhat','thu','chi','diem'].forEach(k => { if (scores[k] > bestScore) { bestScore = scores[k]; best = k; } });
+  return bestScore >= 1 ? best : null;
+}
+
+/* ═══ BỎ TỪ KHÓA KHI TÌM TÊN ═══ */
+const VOICE_STOP_KEYWORDS = [].concat(
+  ACTION_KEYWORDS.v_khongphep, ACTION_KEYWORDS.v_cophep, ACTION_KEYWORDS.di_muon,
+  ACTION_KEYWORDS.chua_btvn, ACTION_KEYWORDS.so_daubai, ACTION_KEYWORDS.phat,
+  ACTION_KEYWORDS.trucnhat, ACTION_KEYWORDS.diem, ACTION_KEYWORDS.thu, ACTION_KEYWORDS.chi,
+  ['khong','chua','ko','hong','hok','co','cho','la','thi','va','cua','voi','bi','da','se','nhe','nha','oi','u','the','do','gi','rat','hon','nua','nguoi','em','anh','chi','cac','nhung','moi','tat','ca','het','cung','luon','duoc','them','dat','mon','quy','tien','trieu','nghin','ngan','tram','dong','so','ban','stt','hom','nay','qua','kia','truoc','sang','chieu','toi','mai','ngay','thang','nam','tuan','thu','toan','van','su','dia','hoa','ly','li','anh','sinh','tin','gdkt','phap','luat','giao','duc','ngu']
+).sort((a, b) => b.length - a.length);
+
 function _voiceClean(text) {
   let t = ' ' + removeDiacritics(text).replace(/\s+/g, ' ') + ' ';
   VOICE_STOP_KEYWORDS.forEach(kw => {
@@ -2752,7 +2762,7 @@ function _voiceClean(text) {
   return t.replace(/\s+/g, ' ').trim();
 }
 
-/* ═══ HÀM CHÍNH — PARSE CÂU LỆNH ═══ */
+/* ═══ HÀM CHÍNH PARSE ═══ */
 function parseVoiceCommand(text) {
   if (!text || !currentClass) return null;
   const t = removeDiacritics(text).replace(/\s+/g, ' ').trim();
@@ -2760,14 +2770,14 @@ function parseVoiceCommand(text) {
   console.log('%c📝 Gốc: ' + text, 'color:#f59e0b');
   console.log('%c📝 Bỏ dấu: ' + t, 'color:#f59e0b');
 
-  /* ─── NGÀY THÁNG ─── */
+  /* NGÀY THÁNG */
   const now = new Date();
   const curYear = now.getFullYear();
   let date = now.toISOString().split('T')[0];
-  if (/\b(hom qua)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 1); date = d.toISOString().split('T')[0]; }
+  if (/\bhom qua\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 1); date = d.toISOString().split('T')[0]; }
   else if (/\b(hom kia|hom truoc|hom no)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 2); date = d.toISOString().split('T')[0]; }
   else if (/\b(ngay mai|mai)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() + 1); date = d.toISOString().split('T')[0]; }
-  else if (/\b(tuan truoc)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 7); date = d.toISOString().split('T')[0]; }
+  else if (/\btuan truoc\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 7); date = d.toISOString().split('T')[0]; }
   else {
     const thuM = t.match(/\bthu\s*(hai|ba|tu|nam|sau|bay|2|3|4|5|6|7)\b/);
     if (thuM) {
@@ -2777,12 +2787,10 @@ function parseVoiceCommand(text) {
       const d = new Date(now); d.setDate(d.getDate() + diff);
       date = d.toISOString().split('T')[0];
     } else {
-      let m = t.match(/ngay\s+(\d{1,2})\s+thang\s+(\d{1,2})\s+nam\s+(\d{2,4})/);
-      if (!m) m = t.match(/(\d{1,2})\s+thang\s+(\d{1,2})\s+nam\s+(\d{2,4})/);
+      let m = t.match(/ngay\s+(\d{1,2})\s+thang\s+(\d{1,2})\s+nam\s+(\d{2,4})/) || t.match(/(\d{1,2})\s+thang\s+(\d{1,2})\s+nam\s+(\d{2,4})/);
       if (m) { const y = parseInt(m[3]); const year = y < 100 ? 2000 + y : y; date = `${year}-${String(parseInt(m[2])).padStart(2,'0')}-${String(parseInt(m[1])).padStart(2,'0')}`; }
       else {
-        m = t.match(/ngay\s+(\d{1,2})\s+thang\s+(\d{1,2})/);
-        if (!m) m = t.match(/(\d{1,2})\s+thang\s+(\d{1,2})/);
+        m = t.match(/ngay\s+(\d{1,2})\s+thang\s+(\d{1,2})/) || t.match(/(\d{1,2})\s+thang\s+(\d{1,2})/);
         if (m) { date = `${curYear}-${String(parseInt(m[2])).padStart(2,'0')}-${String(parseInt(m[1])).padStart(2,'0')}`; }
         else {
           m = t.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
@@ -2792,16 +2800,15 @@ function parseVoiceCommand(text) {
     }
   }
 
-  /* ─── MÔN HỌC ─── */
-  const SUBJ_MAP = { 'toan':'Toán','van':'Ngữ Văn','ngu van':'Ngữ Văn','su':'Lịch Sử','lich su':'Lịch Sử','dia':'Địa Lý','dia ly':'Địa Lý','dia li':'Địa Lý','gdkt':'GDKT & PL','giao duc kinh te':'GDKT & PL','phap luat':'GDKT & PL','hoa':'Hóa Học','hoa hoc':'Hóa Học','ly':'Vật Lý','li':'Vật Lý','vat ly':'Vật Lý','vat li':'Vật Lý','anh':'Tiếng Anh','tieng anh':'Tiếng Anh','sinh':'Sinh Học','sinh hoc':'Sinh Học','tin':'Tin Học','tin hoc':'Tin Học' };
+  /* MÔN HỌC */
+  const SUBJ_MAP = { 'toan':'Toán','van':'Ngữ Văn','ngu van':'Ngữ Văn','su':'Lịch Sử','lich su':'Lịch Sử','dia':'Địa Lý','dia ly':'Địa Lý','hoa':'Hóa Học','hoa hoc':'Hóa Học','ly':'Vật Lý','li':'Vật Lý','vat ly':'Vật Lý','anh':'Tiếng Anh','tieng anh':'Tiếng Anh','sinh':'Sinh Học','sinh hoc':'Sinh Học','tin':'Tin Học','tin hoc':'Tin Học','gdkt':'GDKT & PL','phap luat':'GDKT & PL' };
   let subject = null;
   const subjKeys = Object.keys(SUBJ_MAP).sort((a,b) => b.length - a.length);
   for (const k of subjKeys) { if (new RegExp('\\b' + k + '\\b').test(t)) { subject = SUBJ_MAP[k]; break; } }
 
-  /* ─── XÁC ĐỊNH ACTION + CHI TIẾT ─── */
+  /* PHÁT HIỆN HÀNH ĐỘNG */
   let action = null, type = null, score = null, amount = null, method = null, task = null, punishType = null, reason = null, title = null, duration = null, note = null, collectName = null, tab = null, tabName = null;
 
-  /* 1) MỞ TAB */
   if (/\b(mo tab|chuyen tab|vao tab|mo trang)\b/.test(t)) {
     action = 'openTab';
     if (/diem/.test(t)) { tab = 'diem'; tabName = 'Sổ Điểm'; }
@@ -2809,112 +2816,92 @@ function parseVoiceCommand(text) {
     else if (/phat|danh gia/.test(t)) { tab = 'dg'; tabName = 'Đánh Giá'; }
     else if (/danh sach|hoc sinh/.test(t)) { tab = 'ds'; tabName = 'Danh Sách'; }
     else if (/chon|ngau nhien/.test(t)) { tab = 'chon'; tabName = 'Người Được Chọn'; }
+    else if (/truc nhat|truc/.test(t)) { tab = 'trucnhat'; tabName = 'Trực Nhật'; }
     else { tab = 'cc'; tabName = 'Chuyên Cần'; }
-  }
-  /* 2) PHẠT (ưu tiên trước trực nhật để "phạt trực nhật" vẫn là phạt) */
-  else if (/\b(phat|trung phat|ky luat|chep phat|chep bai|kiem diem|bao ph|bao phu huynh|goi dien phu huynh|ha hanh kiem)\b/.test(t)) {
-    action = 'addPunish';
-    if (/chep phat|chep bai/.test(t)) punishType = 'chep_phat';
-    else if (/kiem diem/.test(t)) punishType = 'kiem_diem';
-    else if (/bao ph|bao phu huynh|goi dien/.test(t)) punishType = 'thong_bao';
-    else if (/truc nhat|ve sinh/.test(t)) punishType = 've_sinh';
-    else punishType = 'nhac_nho';
-    if (/khong lam bai|chua lam bai|khong soan bai|chua soan bai/.test(t)) reason = 'Không làm bài tập';
-    else if (/noi chuyen|mat trat tu/.test(t)) reason = 'Nói chuyện riêng';
-    else if (/khong truc nhat|khong ve sinh/.test(t)) reason = 'Không trực nhật';
-    else if (/di muon|di tre/.test(t)) reason = 'Đi muộn';
-    else if (/nghi hoc|vang hoc/.test(t)) reason = 'Nghỉ học';
-    else reason = 'Vi phạm';
-    const dm = t.match(/(\d+)\s*(tuan|ngay|buoi)/);
-    if (dm) duration = { num: parseInt(dm[1]), unit: dm[2] };
-    else if (/1 tuan|mot tuan/.test(t)) duration = { num: 1, unit: 'tuan' };
-  }
-  /* 3) TRỰC NHẬT (không có "phạt") */
-  else if (/\b(truc nhat|ve sinh|don lop|don truong|quet lop|lau lop|lau bang|nhat rac)\b/.test(t)) {
-    action = 'addDuty';
-    task = 'Trực nhật';
-  }
-  /* 4) CHUYÊN CẦN — ưu tiên cụm có "phép" */
-  else if (/(khong|ko|hong|hok|k)\s*(co\s+|xin\s+)?(phep|fep)/.test(t) && /(vang|nghi|bum|bung|cup|tron|bo|cat)/.test(t)) {
-    action = 'addCC'; type = 'v_khongphep';
-  }
-  else if (/(co|cp)\s*(phep|fep)/.test(t) && /(vang|nghi)/.test(t) && !/(khong|ko|hong)/.test(t)) {
-    action = 'addCC'; type = 'v_cophep';
-  }
-  else if (/\b(vang|nghi|bum|bung|cup hoc|tron hoc|bo hoc|cat hoc)\b/.test(t)) {
-    action = 'addCC'; type = 'v_khongphep';
-  }
-  else if (/\b(di muon|di tre|di cham|tre hoc|muon hoc|den muon|vao tre)\b/.test(t)) {
-    action = 'addCC'; type = 'di_muon';
-  }
-  else if (/\b(chua lam bai|khong lam bai|chua soan bai|khong soan bai|chua lam btvn|khong lam btvn|quen lam bai|quen soan bai|quen mang sach|quen mang vo)\b/.test(t)) {
-    action = 'addCC'; type = 'chua_btvn';
-    if (subject) note = 'Chưa làm bài tập ' + subject;
-  }
-  else if (/\b(sdb|sđb|so dau bai|vi pham so dau bai|noi chuyen rieng|mat trat tu|lam viec rieng|ngu gat|dung dien thoai|an quan vat|dao bai|quay cop)\b/.test(t)) {
-    action = 'addCC'; type = 'so_daubai';
-  }
-  /* 5) QUỸ — phải có số tiền */
-  else if (/\b\d+\s*(trieu|nghin|ngan|k|dong|d)\b/.test(t) || /\b\d{4,}\b/.test(t)) {
-    const t2 = t.replace(/\./g, '').replace(/,/g, '.');
-    let m = t2.match(/(\d+(?:\.\d+)?)\s*(trieu|tr|nghin|ngan|k)\b/);
-    if (m) {
-      const num = parseFloat(m[1]); const u = m[2];
-      amount = (u === 'trieu' || u === 'tr') ? Math.round(num * 1000000) : Math.round(num * 1000);
-    } else {
-      m = t2.match(/(\d{4,})/); if (m) amount = parseInt(m[1]);
+  } else {
+    const detected = _detectAction(t);
+    console.log('%c🎯 Detect: ' + detected, 'color:#8b5cf6');
+    if (/\b(phat|trung phat|ky luat)\b/.test(t)) {
+      action = 'addPunish';
+      if (/chep phat|chep bai/.test(t)) punishType = 'chep_phat';
+      else if (/kiem diem/.test(t)) punishType = 'kiem_diem';
+      else if (/bao ph|bao phu huynh|goi dien/.test(t)) punishType = 'thong_bao';
+      else if (/truc nhat|ve sinh/.test(t)) punishType = 've_sinh';
+      else punishType = 'nhac_nho';
+      if (/khong lam bai|chua lam bai|khong soan bai/.test(t)) reason = 'Không làm bài tập';
+      else if (/noi chuyen|mat trat tu/.test(t)) reason = 'Nói chuyện riêng';
+      else if (/di muon|di tre/.test(t)) reason = 'Đi muộn';
+      else if (/nghi hoc|vang hoc/.test(t)) reason = 'Nghỉ học';
+      else reason = 'Vi phạm';
+      const dm = t.match(/(\d+)\s*(tuan|ngay|buoi)/);
+      if (dm) duration = { num: parseInt(dm[1]), unit: dm[2] };
+    } else if (detected && detected !== 'diem') {
+      if (['v_khongphep','v_cophep','di_muon','chua_btvn','so_daubai'].includes(detected)) {
+        action = 'addCC'; type = detected;
+        if (detected === 'chua_btvn' && subject) note = 'Chưa làm bài tập ' + subject;
+      } else if (detected === 'trucnhat') { action = 'addDuty'; task = 'Trực nhật'; }
+      else if (detected === 'thu' || detected === 'chi') {
+        const t2 = t.replace(/\./g, '').replace(/,/g, '.');
+        let m = t2.match(/(\d+(?:\.\d+)?)\s*(trieu|tr|nghin|ngan|k)\b/);
+        if (m) { const num = parseFloat(m[1]); amount = (m[2]==='trieu'||m[2]==='tr') ? Math.round(num*1000000) : Math.round(num*1000); }
+        else { m = t2.match(/(\d{4,})/); if (m) amount = parseInt(m[1]); }
+        if (amount) {
+          method = /\b(ck|chuyen khoan)\b/.test(t) ? 'transfer' : 'cash';
+          if (detected === 'chi') {
+            action = 'addExpense';
+            title = text.replace(/.*?(chi|mua|thanh toan|tra tien)\s*/i, '').replace(/\d+\s*(trieu|nghin|ngan|k|dong|d)\b/gi, '').replace(/\b\d{4,}\b/g, '').trim() || 'Chi khác';
+          } else {
+            action = 'addPayment';
+            const cm = t.match(/quy\s+([a-z0-9 ]+)/);
+            if (cm) {
+              const nm = cm[1].trim();
+              const collects = currentClass?.collects || [];
+              const found = collects.find(c => removeDiacritics(c.name).includes(nm));
+              collectName = found ? found.name : 'Quỹ lớp';
+            } else collectName = 'Quỹ lớp';
+          }
+        }
+      }
     }
-    method = /\b(ck|chuyen khoan)\b/.test(t) ? 'transfer' : 'cash';
-    if (/\b(chi|mua|thanh toan|tra tien)\b/.test(t)) {
-      action = 'addExpense';
-      let tt = text.replace(/.*?(chi|mua|thanh toan|trả tiền|tra tien)\s*/i, '').replace(/\d+\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong)\b/gi, '').replace(/\b\d{4,}\b/g, '').trim();
-      title = tt || 'Chi khác';
-    } else {
-      action = 'addPayment';
-      const cm = t.match(/quy\s+([a-z0-9 ]+)/);
-      if (cm) {
-        const name = cm[1].trim();
-        if (name && name.length < 30) {
-          const collects = currentClass?.collects || [];
-          const found = collects.find(c => removeDiacritics(c.name).includes(name));
-          collectName = found ? found.name : 'Quỹ lớp';
-        } else collectName = 'Quỹ lớp';
-      } else collectName = 'Quỹ lớp';
+    // ĐIỂM — ưu tiên thấp
+    if (!action) {
+      let m = t.match(/(\d+(?:[.,]\d+)?)\s*(diem|d\b|đ\b|phay)/);
+      if (!m && subject) m = t.match(/(\d+(?:[.,]\d+)?)/);
+      if (m) {
+        const val = parseFloat(m[1].replace(',', '.'));
+        if (val >= 0 && val <= 10) { action = 'addScore'; score = val; if (!subject) subject = 'Toán'; }
+      }
     }
-  }
-  /* 6) ĐIỂM — cuối cùng */
-  else if (/\b\d+(?:[.,]\d+)?\s*(diem|d\b|đ\b|phay)\b/.test(t)) {
-    action = 'addScore';
-    const m = t.match(/(\d+(?:[.,]\d+)?)\s*(diem|d\b|đ\b|phay)/);
-    score = parseFloat(m[1].replace(',', '.'));
-    if (!subject) subject = 'Toán';
   }
 
-  /* ─── TÌM HS ─── */
-  const found = [];
+  /* TÌM HS — 3 CÁCH */
+  const found = []; const foundIds = new Set();
   const rawParts = text.split(/[,，;]/).map(s => s.trim()).filter(Boolean);
   if (rawParts.length > 1) {
     rawParts.forEach(part => {
       const c = _voiceClean(part);
       if (c.length >= 2) {
         const m = fuzzyFindStudents(c, 1);
-        if (m.length && m[0].score >= 100 && !found.find(s => String(s.id) === String(m[0].student.id))) found.push(m[0].student);
+        if (m.length && m[0].score >= 80 && !foundIds.has(String(m[0].student.id))) { foundIds.add(String(m[0].student.id)); found.push(m[0].student); }
       }
     });
   }
   if (!found.length) {
     const cleaned = _voiceClean(text);
-    console.log('%c🧹 Sau khi bỏ từ khóa: "' + cleaned + '"', 'color:#f59e0b');
-    if (cleaned) {
+    if (cleaned && cleaned.length >= 2) {
       const words = cleaned.split(/\s+/).filter(w => w.length >= 2);
+      const used = new Array(words.length).fill(false);
       let i = 0;
       while (i < words.length) {
+        if (used[i]) { i++; continue; }
         let matched = false;
         for (let len = Math.min(4, words.length - i); len >= 1; len--) {
-          const chunk = words.slice(i, i + len).join(' ');
-          const m = fuzzyFindStudents(chunk, 1);
-          if (m.length && m[0].score >= 100) {
-            if (!found.find(s => String(s.id) === String(m[0].student.id))) found.push(m[0].student);
+          const chunk = words.slice(i, i + len).filter((_, idx) => !used[i + idx]).join(' ').trim();
+          if (!chunk || chunk.length < 2) continue;
+          const m = fuzzyFindStudents(chunk, 3);
+          if (m.length && m[0].score >= 80) {
+            if (!foundIds.has(String(m[0].student.id))) { foundIds.add(String(m[0].student.id)); found.push(m[0].student); }
+            for (let k = 0; k < len; k++) used[i + k] = true;
             i += len; matched = true; break;
           }
         }
@@ -2922,9 +2909,22 @@ function parseVoiceCommand(text) {
       }
     }
   }
+  if (!found.length && action !== 'openTab') {
+    const students = currentClass?.students || [];
+    students.forEach(st => {
+      const stName = removeDiacritics(st.name).trim();
+      const stWords = stName.split(/\s+/).filter(w => w.length >= 2);
+      let matchedCount = 0;
+      stWords.forEach(sw => { if (sw.length >= 2 && new RegExp('\\b' + sw + '\\b').test(t)) matchedCount++; });
+      const lastName = stWords[stWords.length - 1];
+      const lastNameMatch = lastName && new RegExp('\\b' + lastName + '\\b').test(t);
+      if ((lastNameMatch && matchedCount >= 1) || matchedCount >= 2) {
+        if (!foundIds.has(String(st.id))) { foundIds.add(String(st.id)); found.push(st); }
+      }
+    });
+  }
 
   console.log('%c🎯 Action: ' + (action || 'KHÔNG'), 'color:#10b981;font-weight:bold');
-  console.log('%c📅 Date: ' + date, 'color:#10b981');
   console.log('%c👥 HS: ' + found.length + ' (' + found.map(s => s.name).join(', ') + ')', 'color:#10b981;font-weight:bold');
 
   return { action: action || 'unknown', date, students: found, type, score, subject, amount, method, task, punishType, reason, title, duration, note, collectName, tab, tabName, rawText: text };
@@ -2978,33 +2978,45 @@ function showVoicePopup(transcript, parsed) {
   }
   detectBox.innerHTML = detectHtml;
 
-  let matches = (parsed.students || []).map(st => ({
-    student: st, idx: currentClass.students.indexOf(st), score: 999, name: st.name
-  }));
-
-  if (!matches.length && parsed.rawText) {
-    const query = extractStudentQuery(parsed.rawText);
-    if (query.length >= 2) matches = fuzzyFindStudents(query, 10);
-  }
-
-  if (!matches.length) {
-    matches = getAllStudentsAsMatches(50);
-    matchBox.innerHTML = '<p style="color:#f59e0b;font-size:12px;text-align:center;padding:6px;background:#fef3c7;border-radius:6px;margin-bottom:8px">⚠️ Không tìm thấy tên khớp. Hiện tất cả HS — tick chọn:</p>' + matches.map(m => {
-      return `<label class="match-item" onclick="toggleMatchItem(this)"><input type="checkbox" class="voice-match-chk" value="${m.student.id}" onchange="updateMatchHighlight(this)"><div class="mi-info"><div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div></div><span class="mi-score low">?</span></label>`;
+  const matched = parsed.students || [];
+  const matchedIds = new Set(matched.map(s => String(s.id)));
+  const allStudents = currentClass.students || [];
+  let html = '';
+  
+  if (matched.length) {
+    html += `<div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;margin-bottom:6px">✅ Đã nhận diện (${matched.length})</div>`;
+    html += matched.map(st => {
+      const idx = allStudents.indexOf(st) + 1;
+      return `<label class="match-item selected" onclick="toggleMatchItem(this)">
+        <input type="checkbox" class="voice-match-chk" value="${st.id}" checked onchange="updateMatchHighlight(this)">
+        <div class="mi-info"><div class="mi-name">${idx}. ${esc(st.name)}</div><div class="mi-meta">${st.role ? '👑 ' + esc(st.role) : '✓ khớp giọng nói'}</div></div>
+        <span class="mi-score high">✓</span>
+      </label>`;
     }).join('');
-    document.getElementById('voicePopup').classList.add('active');
-    return;
   }
-
-  matchBox.innerHTML = matches.map(m => {
-    const sc = Math.min(100, Math.round(m.score / 3));
-    const cls = sc >= 80 ? 'high' : sc >= 60 ? 'mid' : 'low';
-    const auto = sc >= 80 ? 'checked' : '';
-    return `<label class="match-item ${auto ? 'selected' : ''}" onclick="toggleMatchItem(this)"><input type="checkbox" class="voice-match-chk" value="${m.student.id}" ${auto} onchange="updateMatchHighlight(this)"><div class="mi-info"><div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div><div class="mi-meta">${m.student.role ? '👑 ' + esc(m.student.role) : ''}</div></div><span class="mi-score ${cls}">${sc >= 999 ? '✓' : sc + '%'}</span></label>`;
-  }).join('');
-
+  
+  const unmatched = allStudents.filter(s => !matchedIds.has(String(s.id)));
+  if (unmatched.length) {
+    html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin:12px 0 6px">📋 Chọn thêm (${unmatched.length} HS khác)</div>`;
+    unmatched.sort((a, b) => allStudents.indexOf(a) - allStudents.indexOf(b));
+    html += unmatched.slice(0, 100).map(st => {
+      const idx = allStudents.indexOf(st) + 1;
+      return `<label class="match-item" onclick="toggleMatchItem(this)">
+        <input type="checkbox" class="voice-match-chk" value="${st.id}" onchange="updateMatchHighlight(this)">
+        <div class="mi-info"><div class="mi-name">${idx}. ${esc(st.name)}</div><div class="mi-meta">${st.role ? '👑 ' + esc(st.role) : ''}</div></div>
+        <span class="mi-score low">—</span>
+      </label>`;
+    }).join('');
+  }
+  
+  if (!matched.length && !unmatched.length) {
+    html = '<p style="color:#94a3b8;font-size:13px;text-align:center;padding:14px">Lớp chưa có HS nào.</p>';
+  }
+  
+  matchBox.innerHTML = html;
   document.getElementById('voicePopup').classList.add('active');
 }
+  
 function toggleMatchItem(label) {
   const cb = label.querySelector('input');
   if (event.target.tagName !== 'INPUT') cb.checked = !cb.checked;
