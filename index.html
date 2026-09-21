@@ -142,7 +142,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
 <div id="authScreen">
   <div class="auth-card">
     <div style="font-size:44px;margin-bottom:8px;">🏫</div>
@@ -212,7 +211,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ════════ TAB HỌC SINH ════════ -->
 <div id="sec-hs" class="section-pane active">
   <div class="card">
     <h3>➕ Thêm Học Sinh Nhanh</h3>
@@ -251,7 +249,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </tr></thead><tbody id="tbHS"></tbody></table></div>
 </div>
 
-<!-- ════════ TAB CHUYÊN CẦN ════════ -->
 <div id="sec-cc" class="section-pane">
   <div class="card">
     <h3>📝 Ghi Nhận Mới</h3>
@@ -292,7 +289,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div id="ccViewBox"></div>
 </div>
 
-<!-- ════════ TAB SỔ ĐIỂM ════════ -->
 <div id="sec-diem" class="section-pane">
   <div class="card">
     <h3>💯 Nhập Điểm</h3>
@@ -320,7 +316,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </tr></thead><tbody id="tbDiem"></tbody></table></div>
 </div>
 
-<!-- ════════ TAB QUỸ ════════ -->
 <div id="sec-quy" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
     <div class="stat-box" style="background:#dcfce7;border-color:#86efac"><span style="color:#166534">Đã thu</span><b style="color:#166534" id="qIn">0đ</b></div>
@@ -347,7 +342,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div class="card"><h3>💸 Danh Sách Chi</h3><div id="qExpList"></div></div>
 </div>
 
-<!-- ════════ TAB ĐÁNH GIÁ (PHẠT + KHEN) ════════ -->
 <div id="sec-dg" class="section-pane">
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
     <div class="stat-box" style="background:#fee2e2;border-color:#fca5a5"><span style="color:#991b1b">Đang phạt</span><b style="color:#991b1b" id="dgPActive">0</b></div>
@@ -431,7 +425,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   <div id="rListBox"></div>
 </div>
 
-<!-- ════════ TAB NGƯỜI ĐƯỢC CHỌN ════════ -->
 <div id="sec-chon" class="section-pane">
   <div class="card" style="background:linear-gradient(135deg,#6C5CE7,#E84393,#FFD700);color:#fff;text-align:center;padding:20px;border:none">
     <div style="font-size:48px">🎯</div>
@@ -460,7 +453,6 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ════════ TAB CÀI ĐẶT ════════ -->
 <div id="sec-cai" class="section-pane">
   <div class="card" style="border-color:#93c5fd;background:#eff6ff">
     <h3 style="color:#1e40af">⚙️ Thông Tin Lớp</h3>
@@ -489,7 +481,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- MODAL CHUNG -->
+<!-- ═══════ MODAL SỬA HỌC SINH ═══════ -->
 <div class="modal-overlay" id="editStudentModal" onclick="if(event.target===this)closeModal('editStudentModal')">
   <div class="modal-card" style="max-width:520px">
     <div class="modal-header"><h3>✏️ Sửa Học Sinh</h3><button class="modal-close" onclick="closeModal('editStudentModal')">×</button></div>
@@ -513,6 +505,7 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
+<!-- ═══════ MODAL TÀI KHOẢN ═══════ -->
 <div class="modal-overlay" id="accountModal" onclick="if(event.target===this)closeModal('accountModal')">
   <div class="modal-card" style="max-width:480px">
     <div class="modal-header"><h3>⚙️ Tài Khoản</h3><button class="modal-close" onclick="closeModal('accountModal')">×</button></div>
@@ -526,14 +519,130 @@ body.dark .header-info>div{background:rgba(0,0,0,.2)}
   </div>
 </div>
 
-<!-- ═══ KẾT THÚC PHẦN 1/3 ═══ -->
-<!-- PHẦN 2/3 SẼ DÁN VÀO ĐÂY (SCRIPT FIREBASE + DATA + VOICE + CÁC HÀM XỬ LÝ CHÍNH) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<!-- ═══════ MODAL SỬA PHIẾU PHẠT ═══════ -->
+<div class="modal-overlay" id="editPunishModal" onclick="if(event.target===this)closeEditPunish()">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-header"><h3>✏️ Sửa Phiếu Phạt</h3><button class="modal-close" onclick="closeEditPunish()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editPtId">
+      <div class="form-group"><label>Học sinh</label><select id="editPtStudent"></select></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Hình thức</label>
+          <select id="editPtType">
+            <option value="nhac_nho">💬 Nhắc nhở</option>
+            <option value="ve_sinh">🧹 Vệ sinh / Trực nhật</option>
+            <option value="chep_phat">📝 Chép phạt</option>
+            <option value="kiem_diem">📄 Kiểm điểm</option>
+            <option value="thong_bao">📞 Báo phụ huynh</option>
+            <option value="khac">📌 Khác</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Mức độ</label>
+          <select id="editPtLevel">
+            <option value="nhe">🟢 Nhẹ</option><option value="vua">🟡 Vừa</option>
+            <option value="nang">🟠 Nặng</option><option value="nghiem_trong">🔴 Nghiêm trọng</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Lý do</label><input type="text" id="editPtReason"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Ngày BĐ</label><input type="date" id="editPtStart"></div>
+        <div class="form-group"><label>Hạn</label><input type="date" id="editPtDeadline"></div>
+      </div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="editPtNote"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-act btn-success" style="flex:1;padding:12px" onclick="saveEditPunish()">💾 Cập nhật</button>
+        <button class="btn-act btn-warning" style="flex:1;padding:12px" onclick="closeEditPunish()">✖ Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL SỬA ĐỢT THU ═══════ -->
+<div class="modal-overlay" id="editCollectModal" onclick="if(event.target===this)closeEditCollect()">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-header"><h3>✏️ Sửa Đợt Thu</h3><button class="modal-close" onclick="closeEditCollect()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editColId">
+      <div class="form-group"><label>Tên đợt</label><input type="text" id="editColName"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Số tiền/HS</label><input type="number" id="editColAmount" step="1000"></div>
+        <div class="form-group"><label>Ngày</label><input type="date" id="editColDate"></div>
+      </div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="editColNote"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-act btn-success" style="flex:1;padding:12px" onclick="saveEditCollect()">💾 Cập nhật</button>
+        <button class="btn-act btn-warning" style="flex:1;padding:12px" onclick="closeEditCollect()">✖ Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL CHI TIẾT ĐỢT THU ═══════ -->
+<div class="modal-overlay" id="collectModal" onclick="if(event.target===this)closeCollectModal()">
+  <div class="modal-card">
+    <div class="modal-header"><h3 id="collectModalTitle">Chi Tiết Đợt Thu</h3><button class="modal-close" onclick="closeCollectModal()">×</button></div>
+    <div class="modal-body" id="collectModalBody"></div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL BÀN GIAO ═══════ -->
+<div class="modal-overlay" id="handoverModal" onclick="if(event.target===this)closeHandoverModal()">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-header"><h3>💸 Bàn Giao</h3><button class="modal-close" onclick="closeHandoverModal()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="hoCollectId">
+      <div class="form-group"><label>Số tiền</label><input type="number" id="hoAmount" step="1000"></div>
+      <div class="form-group"><label>Người nhận</label><input type="text" id="hoTo" list="hoToSuggest">
+        <datalist id="hoToSuggest"><option value="Cô giáo chủ nhiệm"><option value="Ban cán sự"></datalist>
+      </div>
+      <div class="form-group"><label>Ngày</label><input type="date" id="hoDate"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="hoNote"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-act btn-success" style="flex:2;padding:12px" onclick="saveHandover()">💾 Lưu</button>
+        <button class="btn-act btn-warning" style="flex:1;padding:12px" onclick="closeHandoverModal()">✖ Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL SỬA KHOẢN CHI ═══════ -->
+<div class="modal-overlay" id="expenseModal" onclick="if(event.target===this)closeExpenseEdit()">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-header"><h3 id="expModalTitle">✏️ Sửa</h3><button class="modal-close" onclick="closeExpenseEdit()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editExpId">
+      <div class="grid-2">
+        <div class="form-group"><label>Ngày</label><input type="date" id="editExDate"></div>
+        <div class="form-group"><label>Nội dung</label><input type="text" id="editExTitle"></div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>ĐV</label><input type="text" id="editExUnit"></div>
+        <div class="form-group"><label>SL</label><input type="number" id="editExQty" min="1"></div>
+        <div class="form-group"><label>Đơn giá</label><input type="number" id="editExPrice" step="500"></div>
+      </div>
+      <div class="form-group"><label>💰 Thành tiền</label><input type="text" id="editExAmtDisplay" readonly value="0đ" style="background:#eff6ff;font-weight:bold;color:#1e40af;font-size:18px;text-align:right;padding:12px;border:2px solid #93c5fd"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-act btn-success" style="flex:1;padding:12px" onclick="saveExpenseEdit()">💾 Cập nhật</button>
+        <button class="btn-act btn-warning" style="flex:1;padding:12px" onclick="closeExpenseEdit()">✖ Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL CHI TIẾT HỌC SINH ═══════ -->
+<div class="modal-overlay" id="studentModal" onclick="if(event.target===this)closeModal('studentModal')">
+  <div class="modal-card">
+    <div class="modal-header"><h3 id="modalStudentName">Chi Tiết</h3><button class="modal-close" onclick="closeModal('studentModal')">×</button></div>
+    <div class="modal-body" id="modalStudentBody"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ═══════════════ FIREBASE CONFIG ═══════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyDNydt3Q5TC-_ze_t-OCmyQ-9iqfDprQEA",
   authDomain: "quanlylophoc-901bc.firebaseapp.com",
@@ -547,7 +656,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const SUPER_ADMIN_EMAIL = 'hoabui6225@gmail.com';
 
-/* ═══════════════ STATE ═══════════════ */
 let userProfile = null;
 let currentClass = null;
 let currentUser = null;
@@ -555,12 +663,10 @@ let currentRole = 'viewer';
 let isSyncing = false;
 let pendingSync = false;
 const SUBJECTS = ['Toán','Ngữ Văn','Lịch Sử','Địa Lý','GDKT & PL','Hóa Học','Vật Lý','Tiếng Anh','Sinh Học','Tin Học'];
-
 const uid = () => Date.now() + Math.floor(Math.random() * 10000);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => Number(n || 0).toLocaleString('vi-VN') + 'đ';
 const today = () => new Date().toISOString().split('T')[0];
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function isSuperAdminUser() {
   return currentUser && currentUser.email && currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
@@ -571,8 +677,6 @@ function canEdit() {
   const m = currentClass.members?.[currentUser?.uid];
   return m && m.role === 'editor';
 }
-
-/* ═══════════════ TOAST + THEME ═══════════════ */
 function toast(msg, color = '#10b981') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -593,7 +697,6 @@ function toggleTheme() {
   }
 })();
 
-/* ═══════════════ VOICE INPUT ═══════════════ */
 let recognition = null;
 let activeMicBtn = null;
 function startVoice(targetId, btn) {
@@ -634,7 +737,6 @@ function startVoice(targetId, btn) {
   recognition.start();
 }
 
-/* ═══════════════ AUTH ═══════════════ */
 function showAuthMsg(text, type) {
   const el = document.getElementById('authMsg');
   el.textContent = text;
@@ -662,12 +764,14 @@ async function handleAuth() {
 document.getElementById('authPassword')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') handleAuth();
 });
+document.getElementById('authEmail')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('authPassword').focus();
+});
 function logout() {
   if (!confirm('Đăng xuất?')) return;
   auth.signOut();
 }
 
-/* ═══════════════ SYNC FIRESTORE ═══════════════ */
 function setSyncStatus(status) {
   const dot = document.getElementById('syncDot');
   const txt = document.getElementById('syncText');
@@ -765,7 +869,6 @@ auth.onAuthStateChanged(async user => {
   toast('✅ Đăng nhập thành công!', '#10b981');
 });
 
-/* ═══════════════ HELPERS ═══════════════ */
 function filterChk(inputId, containerId) {
   const f = document.getElementById(inputId).value.toLowerCase().trim();
   document.getElementById(containerId).querySelectorAll('label').forEach(lb => {
@@ -793,7 +896,6 @@ function showTab(id, btn) {
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-/* ═══════════════ STATS ═══════════════ */
 function renderStats() {
   const students = currentClass?.students || [];
   const logs = currentClass?.logs || [];
@@ -810,7 +912,6 @@ function renderStats() {
     <div class="stat-box"><span>Đã thu</span><b style="color:#059669">${collected.toLocaleString('vi-VN')}đ</b></div>`;
 }
 
-/* ═══════════════ HỌC SINH ═══════════════ */
 function addStudent() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const name = document.getElementById('hsName').value.trim();
@@ -900,7 +1001,6 @@ function delStudent(id) {
   toast('🗑️ Đã xóa!');
 }
 
-/* ═══════════════ CHUYÊN CẦN ═══════════════ */
 const CC_LABELS = { v_khongphep:'🔴 Nghỉ KP', di_muon:'🟡 Đi muộn', chua_btvn:'📝 Chưa BTVN', so_daubai:'📕 SĐB', v_cophep:'🔵 Nghỉ phép' };
 const CC_CLS = { v_khongphep:'badge-pending', di_muon:'badge-late', chua_btvn:'badge-btvn', so_daubai:'badge-pending', v_cophep:'badge-perm' };
 function saveCC() {
@@ -957,7 +1057,6 @@ function renderCCView() {
   }).join('');
 }
 
-/* ═══════════════ SỔ ĐIỂM ═══════════════ */
 function saveScore() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const val = parseFloat(document.getElementById('dVal').value);
@@ -997,7 +1096,6 @@ function renderScoreView() {
   }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px">Không có kết quả</td></tr>';
 }
 
-/* ═══════════════ QUỸ ═══════════════ */
 function createCollect() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const name = document.getElementById('qName').value.trim();
@@ -1060,6 +1158,8 @@ function renderCollectList() {
           </div>` : '<div style="background:#dcfce7;border:2px solid #86efac;border-radius:8px;padding:8px;margin-top:8px;text-align:center;color:#166534;font-weight:700;font-size:12px">🎉 Đã thu đủ!</div>'}
           ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
             <button class="btn-act btn-success btn-mini" style="flex:1" onclick="openMarkPaid('${c.id}')">✅ Đánh dấu đã đóng</button>
+            <button class="btn-act btn-teal btn-mini" onclick="openEditCollect('${c.id}')">✏️</button>
+            <button class="btn-act btn-warning btn-mini" onclick="openHandoverModal('${c.id}')">💸</button>
             <button class="btn-act btn-danger btn-mini" onclick="delCollect('${c.id}')">🗑️</button>
           </div>` : ''}
         </div>`;
@@ -1125,6 +1225,62 @@ function delCollect(id) {
   saveData();
   toast('🗑️ Đã xóa!');
 }
+function openEditCollect(id) {
+  if (!canEdit()) return;
+  const c = currentClass.collects.find(x => String(x.id) === String(id));
+  if (!c) return;
+  document.getElementById('editColId').value = c.id;
+  document.getElementById('editColName').value = c.name;
+  document.getElementById('editColAmount').value = c.amount;
+  document.getElementById('editColDate').value = c.date || today();
+  document.getElementById('editColNote').value = c.note || '';
+  document.getElementById('editCollectModal').classList.add('active');
+}
+function closeEditCollect() { document.getElementById('editCollectModal').classList.remove('active'); }
+function saveEditCollect() {
+  if (!canEdit()) return;
+  const id = document.getElementById('editColId').value;
+  const c = currentClass.collects.find(x => String(x.id) === String(id));
+  if (!c) return;
+  const name = document.getElementById('editColName').value.trim();
+  const amount = parseInt(document.getElementById('editColAmount').value) || 0;
+  const date = document.getElementById('editColDate').value || today();
+  const note = document.getElementById('editColNote').value.trim();
+  if (!name || amount <= 0) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
+  Object.assign(c, { name, amount, date, note });
+  saveData(); closeEditCollect(); toast('✏️ Đã cập nhật!');
+}
+function openHandoverModal(id) {
+  if (!canEdit()) return;
+  const c = currentClass.collects.find(x => String(x.id) === String(id));
+  if (!c) return;
+  const collected = (c.payments||[]).reduce((a,p) => a + (p.amount||c.amount), 0);
+  const handed = (c.handovers||[]).reduce((a,h) => a + h.amount, 0);
+  const balance = collected - handed;
+  document.getElementById('hoCollectId').value = c.id;
+  document.getElementById('hoAmount').value = balance > 0 ? balance : 0;
+  document.getElementById('hoTo').value = '';
+  document.getElementById('hoDate').value = today();
+  document.getElementById('hoNote').value = '';
+  document.getElementById('handoverModal').classList.add('active');
+}
+function closeHandoverModal() { document.getElementById('handoverModal').classList.remove('active'); }
+function saveHandover() {
+  if (!canEdit()) return;
+  const id = document.getElementById('hoCollectId').value;
+  const c = currentClass.collects.find(x => String(x.id) === String(id));
+  if (!c) return;
+  const amount = parseInt(document.getElementById('hoAmount').value) || 0;
+  const to = document.getElementById('hoTo').value.trim();
+  const date = document.getElementById('hoDate').value || today();
+  const note = document.getElementById('hoNote').value.trim();
+  if (amount <= 0 || !to) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
+  if (!c.handovers) c.handovers = [];
+  c.handovers.push({ id: uid(), amount, to, date, note });
+  saveData();
+  closeHandoverModal();
+  toast('✅ Bàn giao!');
+}
 function renderExpList() {
   const box = document.getElementById('qExpList');
   const exps = currentClass?.exps || [];
@@ -1132,7 +1288,7 @@ function renderExpList() {
     box.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:14px">Chưa có</p>';
     return;
   }
-  box.innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Ngày</th><th>Nội dung</th><th style="text-align:right">Số tiền</th><th style="width:10%"></th></tr></thead><tbody>${exps.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(e => `<tr><td>${esc(e.date)}</td><td><b>${esc(e.title)}</b></td><td style="text-align:right;color:#dc2626;font-weight:700">${e.amt.toLocaleString('vi-VN')}đ</td><td>${canEdit() ? `<button class="btn-act btn-danger btn-mini" onclick="delExp('${e.id}')">🗑️</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  box.innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Ngày</th><th>Nội dung</th><th style="text-align:right">Số tiền</th><th style="width:10%"></th></tr></thead><tbody>${exps.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(e => `<tr><td>${esc(e.date)}</td><td><b>${esc(e.title)}</b></td><td style="text-align:right;color:#dc2626;font-weight:700">${e.amt.toLocaleString('vi-VN')}đ</td><td style="white-space:nowrap">${canEdit() ? `<button class="btn-act btn-teal btn-mini" onclick="openExpenseEdit('${e.id}')">✏️</button> <button class="btn-act btn-danger btn-mini" onclick="delExp('${e.id}')">🗑️</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function delExp(id) {
   if (!canEdit()) return;
@@ -1141,8 +1297,35 @@ function delExp(id) {
   saveData();
   toast('🗑️ Đã xóa!');
 }
+function openExpenseEdit(id) {
+  if (!canEdit()) return;
+  const e = currentClass.exps.find(x => String(x.id) === String(id));
+  if (!e) return;
+  document.getElementById('editExpId').value = e.id;
+  document.getElementById('editExDate').value = e.date || today();
+  document.getElementById('editExTitle').value = e.title || '';
+  document.getElementById('editExUnit').value = '';
+  document.getElementById('editExQty').value = 1;
+  document.getElementById('editExPrice').value = e.amt || 0;
+  document.getElementById('editExAmtDisplay').value = (e.amt || 0).toLocaleString('vi-VN') + 'đ';
+  document.getElementById('expModalTitle').textContent = '✏️ ' + e.title;
+  document.getElementById('expenseModal').classList.add('active');
+}
+function closeExpenseEdit() { document.getElementById('expenseModal').classList.remove('active'); }
+function saveExpenseEdit() {
+  if (!canEdit()) return;
+  const id = document.getElementById('editExpId').value;
+  const e = currentClass.exps.find(x => String(x.id) === String(id));
+  if (!e) return;
+  const date = document.getElementById('editExDate').value || today();
+  const title = document.getElementById('editExTitle').value.trim();
+  const qty = parseInt(document.getElementById('editExQty').value) || 1;
+  const price = parseInt(document.getElementById('editExPrice').value) || 0;
+  if (!title || price <= 0) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
+  Object.assign(e, { date, title, amt: qty * price });
+  saveData(); closeExpenseEdit(); toast('✏️ Đã cập nhật!');
+}
 
-/* ═══════════════ PHẠT ═══════════════ */
 const P_LABELS = { nhac_nho:'💬 Nhắc nhở', ve_sinh:'🧹 Vệ sinh', chep_phat:'📝 Chép phạt', kiem_diem:'📄 Kiểm điểm', thong_bao:'📞 Báo PH', khac:'📌 Khác' };
 function daysBetween(dateStr) {
   if (!dateStr) return null;
@@ -1232,6 +1415,7 @@ function renderPunishList() {
             const extra = isTrucNhat && p.deadline ? ` <span class="badge badge-btvn" style="font-size:10px">${deadlineInfo(p).txt}</span>` : '';
             return `<span class="unpaid-item">${idx}. ${esc(st?.name||'?')}${extra}
               ${canEdit() ? `<button class="btn-act btn-success btn-mini" style="padding:2px 6px;font-size:10px;margin-left:4px" onclick="event.stopPropagation();completePunish('${p.id}')">✅</button>
+              <button class="btn-act btn-warning btn-mini" style="padding:2px 6px;font-size:10px" onclick="event.stopPropagation();openEditPunish('${p.id}')">✏️</button>
               <button class="btn-act btn-danger btn-mini" style="padding:2px 6px;font-size:10px" onclick="event.stopPropagation();delPunish('${p.id}')">🗑️</button>` : ''}
             </span>`;
           }).join('')}
@@ -1282,8 +1466,41 @@ function delGroup(gid) {
   saveData();
   toast('🗑️ Đã xóa!');
 }
+function openEditPunish(id) {
+  if (!canEdit()) return;
+  const p = currentClass.punishments.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const selSt = document.getElementById('editPtStudent');
+  selSt.innerHTML = currentClass.students.map(s => `<option value="${s.id}" ${String(s.id)===String(p.stId)?'selected':''}>${esc(s.name)}</option>`).join('');
+  document.getElementById('editPtId').value = p.id;
+  document.getElementById('editPtType').value = p.type;
+  document.getElementById('editPtLevel').value = p.level;
+  document.getElementById('editPtReason').value = p.reason;
+  document.getElementById('editPtStart').value = p.start || '';
+  document.getElementById('editPtDeadline').value = p.deadline || '';
+  document.getElementById('editPtNote').value = p.note || '';
+  document.getElementById('editPunishModal').classList.add('active');
+}
+function closeEditPunish() { document.getElementById('editPunishModal').classList.remove('active'); }
+function saveEditPunish() {
+  if (!canEdit()) return;
+  const id = document.getElementById('editPtId').value;
+  const p = currentClass.punishments.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const stId = document.getElementById('editPtStudent').value;
+  const type = document.getElementById('editPtType').value;
+  const level = document.getElementById('editPtLevel').value;
+  const reason = document.getElementById('editPtReason').value.trim();
+  const start = document.getElementById('editPtStart').value;
+  const deadline = document.getElementById('editPtDeadline').value;
+  const note = document.getElementById('editPtNote').value.trim();
+  if (!stId || !reason || !start) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
+  Object.assign(p, { stId, type, level, reason, start, deadline: deadline || '', note });
+  saveData();
+  closeEditPunish();
+  toast('✏️ Đã cập nhật!');
+}
 
-/* ═══════════════ KHEN THƯỞNG ═══════════════ */
 function createReward() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
   const reason = document.getElementById('rReason').value.trim();
@@ -1343,14 +1560,136 @@ function delReward(id) {
   toast('🗑️ Đã xóa!');
 }
 
-/* ═══════════════ LƯU DỮ LIỆU ═══════════════ */
+function openAccountModal() {
+  if (!currentUser) return;
+  document.getElementById('accEmail').value = currentUser.email;
+  const roleLabels = { owner:'👑 Chủ lớp', editor:'✏️ Chỉnh sửa', viewer:'👁️ Chỉ xem' };
+  document.getElementById('accRole').value = roleLabels[currentRole] || '';
+  document.getElementById('accountModal').classList.add('active');
+}
+
+function saveConfig() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  currentClass.config = currentClass.config || {};
+  currentClass.config.school = document.getElementById('cfSchool').value.trim();
+  currentClass.config.teacher = document.getElementById('cfTeacher').value.trim();
+  currentClass.config.className = document.getElementById('cfClass').value.trim();
+  currentClass.config.year = document.getElementById('cfYear').value.trim();
+  saveData();
+  toast('✅ Đã lưu!');
+}
+function exportJSON() {
+  if (!currentClass) return;
+  const data = JSON.stringify(currentClass, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Backup_${currentClass.config?.className || 'Lop'}_${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📥 Đã tải!', '#10b981');
+}
+function copyBackup() {
+  if (!currentClass) return;
+  navigator.clipboard.writeText(JSON.stringify(currentClass))
+    .then(() => toast('📋 Đã copy!', '#f59e0b'))
+    .catch(() => alert('Không copy được. Dùng Tải file.'));
+}
+function importJSON(event) {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!confirm('Thay thế toàn bộ dữ liệu lớp hiện tại?')) { event.target.value = ''; return; }
+      const keep = { id: currentClass.id, members: currentClass.members, ownerId: currentClass.ownerId };
+      currentClass = { ...data, ...keep };
+      ['students','logs','scores','collects','exps','punishments','rewards','randomHistory'].forEach(k => {
+        currentClass[k] = currentClass[k] || [];
+      });
+      saveData();
+      toast('🎉 Đã phục hồi!', '#10b981');
+    } catch (err) {
+      toast('❌ File lỗi!', '#ef4444');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+function resetAll() {
+  if (!isSuperAdminUser()) { toast('⚠️ Chỉ Super Admin!', '#ef4444'); return; }
+  if (!confirm('⚠️ XÓA TẤT CẢ? Không hoàn tác!')) return;
+  if (!confirm('XÁC NHẬN LẦN CUỐI?')) return;
+  currentClass.students = [];
+  currentClass.logs = [];
+  currentClass.scores = [];
+  currentClass.collects = [];
+  currentClass.exps = [];
+  currentClass.punishments = [];
+  currentClass.rewards = [];
+  currentClass.randomHistory = [];
+  saveData();
+  toast('🧹 Đã reset!', '#ef4444');
+}
+
+function renderAll() {
+  if (!currentClass) return;
+  const cfg = currentClass.config || {};
+  const className = cfg.className || '...';
+  document.getElementById('hClassName').textContent = className;
+  document.getElementById('hSchool').textContent = cfg.school || '— Chưa cập nhật —';
+  document.getElementById('hTeacher').textContent = cfg.teacher || '— Chưa cập nhật —';
+  document.getElementById('hYear').textContent = cfg.year || '— Chưa cập nhật —';
+  document.getElementById('hUserEmail').textContent = currentUser?.email || '';
+  const roleLabels = { owner:'👑 Chủ lớp', editor:'✏️ Chỉnh sửa', viewer:'👁️ Chỉ xem' };
+  document.getElementById('hUserRole').textContent = roleLabels[currentRole] || '';
+  document.getElementById('userRole').textContent = roleLabels[currentRole] || '';
+  document.getElementById('readonlyBanner').style.display = canEdit() ? 'none' : 'block';
+  document.title = `Quản Lý Lớp ${className}`;
+  document.getElementById('cfSchool').value = cfg.school || '';
+  document.getElementById('cfTeacher').value = cfg.teacher || '';
+  document.getElementById('cfClass').value = cfg.className || '';
+  document.getElementById('cfYear').value = cfg.year || '';
+  renderStats();
+  renderStudents();
+  renderChk('ccChk', 'ccChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
+  renderCCView();
+  renderChk('dChk', 'dChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
+  renderScoreView();
+  renderCollectList();
+  renderExpList();
+  renderChk('pChk', 'pChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
+  renderPunishList();
+  renderChk('rChk', 'rChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
+  renderRewardList();
+  const qIn = (currentClass.collects || []).reduce((s,c) => s + (c.payments||[]).reduce((a,p) => a + (p.amount||c.amount), 0), 0);
+  const qOut = (currentClass.exps || []).reduce((s,e) => s + e.amt, 0);
+  document.getElementById('qIn').textContent = fmt(qIn);
+  document.getElementById('qOut').textContent = fmt(qOut);
+  document.getElementById('qBal').textContent = fmt(qIn - qOut);
+  const pActive = (currentClass.punishments || []).filter(p => p.status !== 'done');
+  const pDone = (currentClass.punishments || []).filter(p => p.status === 'done');
+  const pWarn = pActive.filter(p => {
+    const d = daysBetween(p.deadline);
+    return d !== null && d >= 0 && d <= 3;
+  });
+  document.getElementById('dgPActive').textContent = pActive.length;
+  document.getElementById('dgPWarn').textContent = pWarn.length;
+  document.getElementById('dgPDone').textContent = pDone.length;
+  document.getElementById('dgRActive').textContent = (currentClass.rewards || []).filter(r => r.status === 'active').length;
+  if (document.getElementById('sec-chon')?.classList.contains('active')) initRandom();
+}
+
 function saveData() {
   renderAll();
   if (currentUser && currentClass && canEdit()) syncToCloud();
 }
+</script>
 
- <script>
-/* ═══════════════ NGƯỜI ĐƯỢC CHỌN ═══════════════ */
+<script>
 let wwSpinning = false;
 function getWWParticipants() {
   return [...document.querySelectorAll('input[name="wwChk"]:checked')]
@@ -1435,141 +1774,20 @@ function initRandom() {
   renderWWHistory();
 }
 
-/* ═══════════════ CÀI ĐẶT & BACKUP ═══════════════ */
-function saveConfig() {
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  currentClass.config = currentClass.config || {};
-  currentClass.config.school = document.getElementById('cfSchool').value.trim();
-  currentClass.config.teacher = document.getElementById('cfTeacher').value.trim();
-  currentClass.config.className = document.getElementById('cfClass').value.trim();
-  currentClass.config.year = document.getElementById('cfYear').value.trim();
-  saveData();
-  toast('✅ Đã lưu!');
-}
-function exportJSON() {
-  if (!currentClass) return;
-  const data = JSON.stringify(currentClass, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Backup_${currentClass.config?.className || 'Lop'}_${today()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('📥 Đã tải!', '#10b981');
-}
-function copyBackup() {
-  if (!currentClass) return;
-  navigator.clipboard.writeText(JSON.stringify(currentClass))
-    .then(() => toast('📋 Đã copy!', '#f59e0b'))
-    .catch(() => alert('Không copy được. Dùng Tải file.'));
-}
-function importJSON(event) {
-  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!confirm('Thay thế toàn bộ dữ liệu lớp hiện tại?')) { event.target.value = ''; return; }
-      const keep = { id: currentClass.id, members: currentClass.members, ownerId: currentClass.ownerId };
-      currentClass = { ...data, ...keep };
-      ['students','logs','scores','collects','exps','punishments','rewards','randomHistory'].forEach(k => {
-        currentClass[k] = currentClass[k] || [];
-      });
-      saveData();
-      toast('🎉 Đã phục hồi!', '#10b981');
-    } catch (err) {
-      toast('❌ File lỗi!', '#ef4444');
-    }
-    event.target.value = '';
-  };
-  reader.readAsText(file);
-}
-function resetAll() {
-  if (!isSuperAdminUser()) { toast('⚠️ Chỉ Super Admin!', '#ef4444'); return; }
-  if (!confirm('⚠️ XÓA TẤT CẢ? Không hoàn tác!')) return;
-  if (!confirm('XÁC NHẬN LẦN CUỐI?')) return;
-  currentClass.students = [];
-  currentClass.logs = [];
-  currentClass.scores = [];
-  currentClass.collects = [];
-  currentClass.exps = [];
-  currentClass.punishments = [];
-  currentClass.rewards = [];
-  currentClass.randomHistory = [];
-  saveData();
-  toast('🧹 Đã reset!', '#ef4444');
-}
-
-/* ═══════════════ ACCOUNT ═══════════════ */
-function openAccountModal() {
-  if (!currentUser) return;
-  document.getElementById('accEmail').value = currentUser.email;
-  const roleLabels = { owner:'👑 Chủ lớp', editor:'✏️ Chỉnh sửa', viewer:'👁️ Chỉ xem' };
-  document.getElementById('accRole').value = roleLabels[currentRole] || '';
-  document.getElementById('accountModal').classList.add('active');
-}
-
-/* ═══════════════ RENDER ALL ═══════════════ */
-function renderAll() {
-  if (!currentClass) return;
-  const cfg = currentClass.config || {};
-  const className = cfg.className || '...';
-  document.getElementById('hClassName').textContent = className;
-  document.getElementById('hSchool').textContent = cfg.school || '— Chưa cập nhật —';
-  document.getElementById('hTeacher').textContent = cfg.teacher || '— Chưa cập nhật —';
-  document.getElementById('hYear').textContent = cfg.year || '— Chưa cập nhật —';
-  document.getElementById('hUserEmail').textContent = currentUser?.email || '';
-  const roleLabels = { owner:'👑 Chủ lớp', editor:'✏️ Chỉnh sửa', viewer:'👁️ Chỉ xem' };
-  document.getElementById('hUserRole').textContent = roleLabels[currentRole] || '';
-  document.getElementById('userRole').textContent = roleLabels[currentRole] || '';
-  document.getElementById('readonlyBanner').style.display = canEdit() ? 'none' : 'block';
-  document.title = `Quản Lý Lớp ${className}`;
-  document.getElementById('cfSchool').value = cfg.school || '';
-  document.getElementById('cfTeacher').value = cfg.teacher || '';
-  document.getElementById('cfClass').value = cfg.className || '';
-  document.getElementById('cfYear').value = cfg.year || '';
-  renderStats();
-  renderStudents();
-  renderChk('ccChk', 'ccChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
-  renderCCView();
-  renderChk('dChk', 'dChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
-  renderScoreView();
-  renderCollectList();
-  renderExpList();
-  renderChk('pChk', 'pChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
-  renderPunishList();
-  renderChk('rChk', 'rChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
-  renderRewardList();
-  const qIn = (currentClass.collects || []).reduce((s,c) => s + (c.payments||[]).reduce((a,p) => a + (p.amount||c.amount), 0), 0);
-  const qOut = (currentClass.exps || []).reduce((s,e) => s + e.amt, 0);
-  document.getElementById('qIn').textContent = fmt(qIn);
-  document.getElementById('qOut').textContent = fmt(qOut);
-  document.getElementById('qBal').textContent = fmt(qIn - qOut);
-  const pActive = (currentClass.punishments || []).filter(p => p.status !== 'done');
-  const pDone = (currentClass.punishments || []).filter(p => p.status === 'done');
-  const pWarn = pActive.filter(p => {
-    const d = daysBetween(p.deadline);
-    return d !== null && d >= 0 && d <= 3;
-  });
-  document.getElementById('dgPActive').textContent = pActive.length;
-  document.getElementById('dgPWarn').textContent = pWarn.length;
-  document.getElementById('dgPDone').textContent = pDone.length;
-  document.getElementById('dgRActive').textContent = (currentClass.rewards || []).filter(r => r.status === 'active').length;
-  if (document.getElementById('sec-chon')?.classList.contains('active')) initRandom();
-}
-
-/* ═══════════════ INIT ═══════════════ */
 document.getElementById('dSub').innerHTML = SUBJECTS.map(s => `<option>${s}</option>`).join('');
-['ccDate','dDate','pStart','rDate'].forEach(id => {
+['ccDate','dDate','pStart','rDate','hoDate'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.value = today();
 });
-console.log('%c✅ App v10.0 — Tinh gọn + Nhập giọng nói + Badge trực nhật', 'color:#10b981;font-size:16px;font-weight:bold');
-</script> 
-<!-- PHẦN 3/3 SẼ DÁN TIẾP SAU PHẦN 2/3 (RANDOM + BACKUP + KHỞI TẠO + FOOTER) -->
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+console.log('%c✅ App v10.0 — Sẵn sàng!', 'color:#10b981;font-size:16px;font-weight:bold');
+</script>
 
 <div id="ownerFooter">
   <div style="font-size:12.5px;font-weight:bold;">📚 Công cụ hỗ trợ quản lý lớp học</div>
