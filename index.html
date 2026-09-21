@@ -302,6 +302,7 @@ body.dark .match-item .mi-name{color:#93c5fd}
     <button class="nav-btn" onclick="showTab('diem',this)">💯 Sổ Điểm</button>
     <button class="nav-btn" onclick="showTab('quy',this)">💰 Quỹ</button>
     <button class="nav-btn" onclick="showTab('dg',this)">⚖️ Đánh Giá</button>
+    <button class="nav-btn" onclick="showTab('trucnhat',this)">🧹 Trực Nhật</button>
     <button class="nav-btn" onclick="showTab('chon',this)">🎯 Người Được Chọn</button>
     <button class="nav-btn" onclick="showTab('ds',this)">👥 Danh Sách</button>
     <button class="nav-btn" onclick="showTab('cai',this)">⚙️ Cài Đặt</button>
@@ -526,6 +527,33 @@ body.dark .match-item .mi-name{color:#93c5fd}
   <div id="pListBox"></div>
 </div>
 
+  <!-- ═══════ TAB TRỰC NHẬT ═══════ -->
+<div id="sec-trucnhat" class="section-pane">
+  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
+    <h3 style="color:#166534">🧹 PHÂN CÔNG TRỰC NHẬT</h3>
+    <div class="grid-2">
+      <div class="form-group"><label>Ngày</label><input type="date" id="dutyDate"></div>
+      <div class="form-group"><label>Nhiệm vụ</label><input type="text" id="dutyTask" placeholder="VD: Quét lớp..."></div>
+    </div>
+    <div class="form-group">
+      <label>👤 Chọn HS trực:</label>
+      <input type="text" class="search-input" id="dutySearch" oninput="filterChk('dutySearch','dutyChk')" placeholder="🔍 Tìm tên..." style="margin-bottom:6px">
+      <div class="checkbox-toolbar">
+        <button class="btn-act btn-mini" onclick="toggleAll('dutyChk',true)">✔ Tất cả</button>
+        <button class="btn-act btn-mini btn-warning" onclick="toggleAll('dutyChk',false)">✖ Bỏ</button>
+      </div>
+      <div class="checkbox-group" id="dutyChk"></div>
+    </div>
+    <button class="btn-act btn-success btn-full" onclick="createDuty()">➕ Tạo phân công</button>
+  </div>
+  
+  <div class="card" style="border:2px solid #f59e0b;background:#fffbeb">
+    <h3 style="color:#92400e">📋 Lịch Sử Trực Nhật</h3>
+    <input type="text" class="search-input" id="dutyViewSearch" oninput="renderDutyList()" placeholder="🔍 Tìm theo tên, ngày, nhiệm vụ...">
+  </div>
+  <div id="dutyListBox"></div>
+</div>
+  
 <!-- ═══════ TAB NGƯỜI ĐƯỢC CHỌN ═══════ -->
 <div id="sec-chon" class="section-pane">
   <div class="card ww-card-hero">
@@ -968,7 +996,7 @@ async function loadClassFromCloud(classId) {
     const doc = await db.collection('classes').doc(classId).get();
     if (!doc.exists) { toast('⚠️ Lớp không tồn tại!', '#ef4444'); return false; }
     currentClass = { id: classId, ...doc.data() };
-    ['students','logs','scores','collects','exps','punishments','rewards','randomHistory'].forEach(k => { currentClass[k] = currentClass[k] || []; });
+    ['students','logs','scores','collects','exps','punishments','rewards','randomHistory','duties'].forEach(k => { currentClass[k] = currentClass[k] || []; });
     currentClass.members = currentClass.members || {};
     currentClass.config = currentClass.config || {};
     const u = currentUser.uid;
@@ -1034,6 +1062,7 @@ function showTab(id, btn) {
   document.getElementById('sec-' + id).classList.add('active');
   btn.classList.add('active');
   if (id === 'chon') initRandom();
+  if (id === 'trucnhat') renderDutyList();
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -2097,7 +2126,7 @@ function importJSON(event) {
       if (!confirm('Thay thế toàn bộ dữ liệu lớp?')) { event.target.value = ''; return; }
       const keep = { id: currentClass.id, members: currentClass.members, ownerId: currentClass.ownerId };
       currentClass = { ...data, ...keep };
-      ['students','logs','scores','collects','exps','punishments','rewards','randomHistory'].forEach(k => { currentClass[k] = currentClass[k] || []; });
+      ['students','logs','scores','collects','exps','punishments','rewards','randomHistory','duties'].forEach(k => { currentClass[k] = currentClass[k] || []; });
       saveData();
       toast('🎉 Đã phục hồi!', '#10b981');
     } catch (err) { toast('❌ File lỗi!', '#ef4444'); }
@@ -2109,7 +2138,7 @@ function resetAll() {
   if (!isSuperAdminUser()) { toast('⚠️ Chỉ Super Admin!', '#ef4444'); return; }
   if (!confirm('⚠️ XÓA TẤT CẢ? Không hoàn tác!')) return;
   if (!confirm('XÁC NHẬN LẦN CUỐI?')) return;
-  ['students','logs','scores','collects','exps','punishments','rewards','randomHistory'].forEach(k => { currentClass[k] = []; });
+['students','logs','scores','collects','exps','punishments','rewards','randomHistory','duties'].forEach(k => { currentClass[k] = []; });
   saveData();
   toast('🧹 Đã reset!', '#ef4444');
 }
@@ -2144,6 +2173,8 @@ function renderAll() {
   renderExpList();
   renderChk('pChk', 'pChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
   renderPunishList();
+  renderChk('dutyChk', 'dutyChk', currentClass.students || [], (s,i) => `${i+1}. ${esc(s.name)}`);
+  renderDutyList();
   const qIn = (currentClass.collects || []).reduce((s,c) => s + (c.payments||[]).reduce((a,p) => a + (p.amount||c.amount), 0), 0);
   const qOut = (currentClass.exps || []).reduce((s,e) => s + e.amt, 0);
   document.getElementById('qIn').textContent = fmt(qIn);
@@ -2160,6 +2191,114 @@ function renderAll() {
 function saveData() {
   renderAll();
   if (currentUser && currentClass && canEdit()) syncToCloud();
+}
+
+  /* ═══════════════ TRỰC NHẬT ═══════════════ */
+function createDuty() {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const date = document.getElementById('dutyDate').value || today();
+  const task = document.getElementById('dutyTask').value.trim() || 'Trực nhật';
+  const checked = [...document.querySelectorAll('input[name="dutyChk"]:checked')];
+  if (!checked.length) { toast('⚠️ Chưa chọn HS!', '#ef4444'); return; }
+  if (!currentClass.duties) currentClass.duties = [];
+  checked.forEach(cb => {
+    currentClass.duties.push({
+      id: uid(), date, task, stId: cb.value, done: false, createdAt: new Date().toISOString()
+    });
+  });
+  document.getElementById('dutyTask').value = '';
+  document.querySelectorAll('input[name="dutyChk"]').forEach(c => c.checked = false);
+  saveData();
+  toast(`✅ Đã tạo ${checked.length} phân công!`, '#10b981');
+}
+
+function renderDutyList() {
+  const box = document.getElementById('dutyListBox');
+  if (!box) return;
+  const kw = (document.getElementById('dutyViewSearch')?.value || '').toLowerCase().trim();
+  const duties = currentClass?.duties || [];
+  if (!duties.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:20px;font-weight:700">🎉 Chưa có phân công nào!</div>';
+    return;
+  }
+  const groups = {};
+  duties.forEach(d => {
+    const key = d.date + '||' + (d.task || '');
+    (groups[key] = groups[key] || []).push(d);
+  });
+  let keys = Object.keys(groups).sort((a, b) => (b.split('||')[0] || '').localeCompare(a.split('||')[0] || ''));
+  if (kw) {
+    keys = keys.filter(k => {
+      if (k.toLowerCase().includes(kw)) return true;
+      return groups[k].some(d => {
+        const st = currentClass.students.find(s => String(s.id) === String(d.stId));
+        return (st?.name || '').toLowerCase().includes(kw);
+      });
+    });
+  }
+  if (!keys.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:20px">Không có kết quả</div>';
+    return;
+  }
+  box.innerHTML = keys.map(key => {
+    const [date, task] = key.split('||');
+    const items = groups[key];
+    const doneCount = items.filter(d => d.done).length;
+    const total = items.length;
+    const pct = total ? doneCount / total * 100 : 0;
+    const dateVN = date.split('-').reverse().join('/');
+    const dow = (() => { try { return ['CN','T2','T3','T4','T5','T6','T7'][new Date(date + 'T00:00:00').getDay()]; } catch (e) { return ''; } })();
+    return `<div class="collect-card ${doneCount === total ? 'done' : 'has-unpaid'}" style="margin-bottom:12px">
+      <div class="collect-name">
+        <span>📅 <b>${dow}, ${dateVN}</b> — ${esc(task)}</span>
+        <span class="badge ${doneCount === total ? 'badge-paid' : 'badge-late'}">${doneCount}/${total} xong</span>
+      </div>
+      <div class="progress-track" style="margin-top:6px"><div class="progress-fill" style="width:${pct}%">${pct.toFixed(0)}%</div></div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        ${items.map(d => {
+          const st = currentClass.students.find(s => String(s.id) === String(d.stId));
+          const idx = currentClass.students.indexOf(st) + 1;
+          const done = d.done;
+          return `<div style="display:flex;align-items:center;gap:8px;background:${done ? '#f0fdf4' : '#fff'};border:1px solid ${done ? '#86efac' : '#e2e8f0'};border-radius:8px;padding:8px 10px">
+            <span style="font-size:20px">${done ? '✅' : '⬜'}</span>
+            <div style="flex:1;min-width:0"><b style="font-size:13px">${idx}. ${esc(st?.name || '(đã xóa)')}</b></div>
+            ${canEdit() ? `
+              <button class="btn-act ${done ? 'btn-warning' : 'btn-success'} btn-mini" onclick="toggleDutyDone('${d.id}')">${done ? '↩️ Bỏ' : '✅ Xong'}</button>
+              <button class="btn-act btn-danger btn-mini" onclick="deleteDuty('${d.id}')">🗑️</button>
+            ` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+      ${canEdit() ? `<div style="margin-top:10px"><button class="btn-act btn-success btn-mini" style="width:100%" onclick="completeAllDuties('${date}','${esc(task)}')">✅ Hoàn thành tất cả</button></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleDutyDone(id) {
+  if (!canEdit()) return;
+  const d = currentClass.duties.find(x => String(x.id) === String(id));
+  if (!d) return;
+  d.done = !d.done;
+  d.completedAt = d.done ? new Date().toISOString() : null;
+  saveData();
+  toast(d.done ? '✅ Đã xong' : '↩️ Đã bỏ tích', d.done ? '#10b981' : '#f59e0b');
+}
+
+function deleteDuty(id) {
+  if (!canEdit()) return;
+  if (!confirm('Xóa phân công này?')) return;
+  currentClass.duties = currentClass.duties.filter(x => String(x.id) !== String(id));
+  saveData();
+  toast('🗑️ Đã xóa!');
+}
+
+function completeAllDuties(date, task) {
+  if (!canEdit()) return;
+  const items = currentClass.duties.filter(d => d.date === date && (d.task || '') === task);
+  if (!confirm(`Đánh dấu TẤT CẢ ${items.length} HS đã xong?`)) return;
+  items.forEach(d => { d.done = true; d.completedAt = new Date().toISOString(); });
+  saveData();
+  toast('🎉 Đã hoàn thành tất cả!', '#10b981');
 }
 
 /* ═══════════════ INIT ═══════════════ */
@@ -2330,30 +2469,223 @@ function parseDateFromText(text) {
   return null;
 }
 
-/* ═══ NHẬN DIỆN LOẠI VI PHẠM ═══ */
-function parseCCType(text) {
-  const t = removeDiacritics(text);
-  if (/(vang khong phep|nghi khong phep|vang ko phep|vang kp)/.test(t)) return 'v_khongphep';
-  if (/(vang co phep|nghi co phep|vang phep|nghi phep)/.test(t)) return 'v_cophep';
-  if (/(di muon|tre|muon hoc)/.test(t)) return 'di_muon';
-  if (/(chua lam bai|khong lam bai|chua btvn|chua bai tap|khong bai tap)/.test(t)) return 'chua_btvn';
-  if (/(vi pham sdb|so dau bai|sdb)/.test(t)) return 'so_daubai';
-  return null;
-}
+/* ═══════════════ LOGIC HIỂU CÂU LỆNH v3 — MẠNH ═══════════════ */
 
-/* ═══ NHẬN DIỆN ĐIỂM ═══ */
+/* ─── 1. PARSE SCORE — CHẶT ─── */
 function parseScore(text) {
   const t = removeDiacritics(text);
-  // "9 điểm" hoặc "được 9 điểm" hoặc "9 d" hoặc "9đ"
-  let m = t.match(/(\d+(?:[.,]\d+)?)\s*(diem|d\b|d$)/);
-  if (!m) m = t.match(/(?:duoc|them|cho)\s+(\d+(?:[.,]\d+)?)/);
+  let m = t.match(/(\d+(?:[.,]\d+)?)\s*(diem|d\b|đ\b)/);
+  if (!m) m = t.match(/(?:duoc|them|cho|dat)\s+(\d+(?:[.,]\d+)?)\s*(diem|d\b|đ\b)/);
   if (!m) return null;
   const val = parseFloat(m[1].replace(',', '.'));
   if (isNaN(val) || val < 0 || val > 10) return null;
   return val;
 }
 
-/* ═══ NHẬN DIỆN MÔN HỌC ═══ */
+/* ─── 2. PARSE CHUYÊN CẦN — LINH HOẠT ─── */
+function parseCCType(text) {
+  const t = removeDiacritics(text).replace(/\s+/g, ' ').trim();
+  if (/\b(vang|nghi)\s*(hoc\s*)?(khong|ko|hong|hok|k)\s*(phep|fep|pep|phet|p)?\b/.test(t)) return 'v_khongphep';
+  if (/\b(vang|nghi)\b/.test(t) && /\b(khong phep|ko phep|kp)\b/.test(t)) return 'v_khongphep';
+  if (/\b(vang|nghi)\s*(hoc\s*)?(co|k|z|v|cp)\s*(phep|fep|pep|phet|p)\b/.test(t)) return 'v_cophep';
+  if (/\b(vang|nghi)\b/.test(t) && /\b(co phep|cp)\b/.test(t)) return 'v_cophep';
+  if (/\b(di|den|toi)\s*(hoc\s*)?(muon|moun|mun|tre|che)\b/.test(t)) return 'di_muon';
+  if (/\b(chua|khong|ko|hong|hok)\s*(lam|soan|hoc)?\s*(bai|btvn|bai tap|bai ve nha)\b/.test(t)) return 'chua_btvn';
+  if (/\b(sdb|sđb|so dau bai|vi pham so dau bai)\b/.test(t)) return 'so_daubai';
+  if (/\b(vang|nghi)\b/.test(t)) return 'v_khongphep';
+  if (/\b(muon|tre|che)\b/.test(t)) return 'di_muon';
+  return null;
+}
+
+/* ─── 3. DETECT HÀNH ĐỘNG TRONG 1 PHẦN ─── */
+function detectActionInPart(pt) {
+  const p = removeDiacritics(pt);
+  // Chuyên cần
+  const cc = parseCCType(p);
+  if (cc) return { action: 'addCC', ccType: cc };
+  // Điểm
+  const sc = parseScore(p);
+  if (sc !== null) return { action: 'addScore', score: sc, subject: parseSubject(p) || 'Toán' };
+  // Trực nhật (kiểm tra trước phạt)
+  if (/\b(truc nhat|truc|ve sinh)\b/.test(p) && !/\bphat\b/.test(p)) {
+    const task = p.replace(/\b(truc nhat|truc|ve sinh)\b/g, '').trim();
+    return { action: 'addDuty', task: task || 'Trực nhật' };
+  }
+  // Phạt
+  if (/\b(phat|trung phat|chep phat|chep bai|kiem diem|bao ph|bao phu huynh)\b/.test(p)) {
+    let type = 'nhac_nho';
+    if (/chep/.test(p)) type = 'chep_phat';
+    else if (/kiem diem/.test(p)) type = 'kiem_diem';
+    else if (/bao ph/.test(p)) type = 'thong_bao';
+    const reason = p.replace(/\b(phat|trung phat|chep phat|chep bai|kiem diem|bao ph|bao phu huynh)\b/g, '').trim();
+    return { action: 'addPunish', punishType: type, reason: reason || 'Vi phạm' };
+  }
+  // Thu/Chi
+  const money = parseMoney(p);
+  if (money) {
+    if (/\b(chi|mua|tra tien|thanh toan)\b/.test(p)) {
+      const title = p.replace(/\b(chi|mua|tra tien|thanh toan)\b/g, '').replace(/\d+\s*(trieu|nghin|ngan|k)\b/g, '').replace(/\d{4,}/g, '').trim();
+      return { action: 'addExpense', amount: money, title: title || 'Chi khác' };
+    }
+    if (/\b(thu|nop|dong|ck|chuyen khoan|tien mat|quy|nhan tien)\b/.test(p)) {
+      const method = /(ck|chuyen khoan)/.test(p) ? 'transfer' : 'cash';
+      return { action: 'addPayment', amount: money, method };
+    }
+  }
+  // Mở tab
+  if (/\b(mo tab|chuyen tab|vao tab)\b/.test(p)) return { action: 'openTab' };
+  return null;
+}
+
+/* ─── 4. MATCH 1 HS TRONG 1 PHẦN ─── */
+function matchStudentInPart(part, students) {
+  const matches = fuzzyFindStudents(part, 3);
+  if (!matches.length) return null;
+  if (matches[0].score >= 100) return matches[0].student;
+  return null;
+}
+
+/* ─── 5. PARSE KHI KHÔNG CÓ DẤU PHẨY ─── */
+function parseWithoutComma(t) {
+  const result = { nameParts: [], _students: [] };
+  // Nhận diện hành động
+  const cc = parseCCType(t);
+  if (cc) { result.action = 'addCC'; result.actionType = cc; }
+  const sc = parseScore(t);
+  if (sc !== null) { result.action = 'addScore'; result.scoreVal = sc; result.subject = parseSubject(t) || 'Toán'; }
+  const money = parseMoney(t);
+  if (money) {
+    if (/\b(chi|mua)\b/.test(t)) { result.action = 'addExpense'; result.amount = money; }
+    else if (/\b(thu|nop|dong|ck|chuyen khoan)\b/.test(t)) { result.action = 'addPayment'; result.amount = money; result.method = /(ck|chuyen khoan)/.test(t) ? 'transfer' : 'cash'; }
+  }
+  if (/\b(phat|trung phat|chep phat|kiem diem|bao ph)\b/.test(t)) result.action = 'addPunish';
+  if (/\b(truc nhat|ve sinh)\b/.test(t) && !/\bphat\b/.test(t)) result.action = 'addDuty';
+  // Bỏ từ khóa hành động
+  let nameText = t;
+  const removeActions = [
+    /\b(vang|nghi)\s*(hoc\s*)?(khong|ko|hong|hok|k|co|cp|z|v)\s*(phep|fep|pep|phet|p)?\b/g,
+    /\b(di|den|toi)\s*(hoc\s*)?(muon|moun|mun|tre|che)\b/g,
+    /\b(chua|khong|ko|hong|hok)\s*(lam|soan|hoc)?\s*(bai|btvn|bai tap|bai ve nha)\b/g,
+    /\b(vi pham|sdb|sđb|so dau bai)\b/g,
+    /\b(phat|trung phat|chep phat|chep bai|kiem diem|bao ph|bao phu huynh)\b/g,
+    /\b(truc nhat|ve sinh)\b/g,
+    /\b(diem|duoc|them|cho|dat|mon)\b/g,
+    /\b\d+([.,]\d+)?\s*(diem|d\b|đ\b)/g,
+    /\b(toan|van|su|dia|ly|hoa|anh|sinh|tin|gdkt|phap luat)\b/g,
+    /\b(thu|nop|dong|chi|mua|ck|chuyen khoan|tien mat|quy)\b/g,
+    /\b\d+\s*(trieu|nghin|ngan|k)\b/g,
+    /\b\d{4,}\b/g,
+    /\b(hom nay|hom qua|hom kia|sang nay|chieu nay|toi nay|tuan truoc)\b/g,
+    /\bthu\s*[2-7]|chu nhat\b/g,
+    /\bngay\s*\d+|thang\s*\d+\b/g,
+    /\b\d{1,2}[\/\-]\d{1,2}([\/\-]\d{2,4})?\b/g,
+  ];
+  removeActions.forEach(r => { nameText = nameText.replace(r, ' '); });
+  nameText = nameText.replace(/\s+/g, ' ').trim();
+  // Sliding window
+  const allStudents = currentClass?.students || [];
+  const found = [];
+  const words = nameText.split(/\s+/).filter(w => w.length >= 2);
+  let i = 0;
+  while (i < words.length) {
+    let matched = false;
+    for (let len = Math.min(4, words.length - i); len >= 1; len--) {
+      const chunk = words.slice(i, i + len).join(' ');
+      const matches = fuzzyFindStudents(chunk, 3);
+      if (matches.length > 0 && matches[0].score >= 80) {
+        found.push(matches[0].student);
+        i += len;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) i++;
+  }
+  const uniqueFound = [];
+  const seenIds = new Set();
+  found.forEach(s => { if (!seenIds.has(String(s.id))) { seenIds.add(String(s.id)); uniqueFound.push(s); } });
+  result.nameParts = uniqueFound.map(s => s.name);
+  result._students = uniqueFound;
+  return result;
+}
+
+/* ─── 6. HÀM CHÍNH — SMART PARSE ─── */
+function smartParseCommand(text) {
+  const t = removeDiacritics(text).replace(/\s+/g, ' ').trim();
+  const date = parseDateFromText(text);
+  console.log('%c━━━ PHÂN TÍCH ━━━', 'color:#8b5cf6;font-weight:bold');
+  console.log('%c📝 Gốc: ' + text, 'color:#f59e0b');
+  console.log('%c📝 Bỏ dấu: ' + t, 'color:#f59e0b');
+
+  // Tách theo dấu phẩy
+  const rawParts = text.split(/[,，;]/).map(s => s.trim()).filter(Boolean);
+  let action = null, actionType = null, scoreVal = null, subject = null, amount = null, method = null, duration = null, dutyTask = null, punishType = null, punishReason = null, expenseTitle = null;
+  let nameParts = [];
+
+  if (rawParts.length > 1) {
+    // Có dấu phẩy — mỗi phần là 1 đơn vị
+    rawParts.forEach(part => {
+      const detected = detectActionInPart(part);
+      if (detected) {
+        if (detected.action === 'addCC') { action = 'addCC'; actionType = detected.ccType; }
+        else if (detected.action === 'addScore') { action = 'addScore'; scoreVal = detected.score; subject = detected.subject; }
+        else if (detected.action === 'addDuty') { action = 'addDuty'; dutyTask = detected.task; }
+        else if (detected.action === 'addPunish') { action = 'addPunish'; punishType = detected.punishType; punishReason = detected.reason; }
+        else if (detected.action === 'addExpense') { action = 'addExpense'; amount = detected.amount; expenseTitle = detected.title; }
+        else if (detected.action === 'addPayment') { action = 'addPayment'; amount = detected.amount; method = detected.method; }
+        else if (detected.action === 'openTab') { action = 'openTab'; }
+      } else {
+        nameParts.push(part);
+      }
+    });
+  } else {
+    // Không có dấu phẩy — dùng sliding window
+    const result = parseWithoutComma(t);
+    action = result.action;
+    actionType = result.actionType;
+    scoreVal = result.scoreVal;
+    subject = result.subject;
+    amount = result.amount;
+    method = result.method;
+    nameParts = result.nameParts;
+    // Gán _students để dùng luôn
+    if (result._students && result._students.length) {
+      return buildParseResult(action, actionType, scoreVal, subject, amount, method, duration, dutyTask, punishType, punishReason, expenseTitle, result._students, text, date);
+    }
+  }
+
+  // Tìm HS từ các phần tên
+  const allStudents = currentClass?.students || [];
+  const matchedStudents = [];
+  nameParts.forEach(part => {
+    const st = matchStudentInPart(part, allStudents);
+    if (st) matchedStudents.push(st);
+  });
+
+  return buildParseResult(action, actionType, scoreVal, subject, amount, method, duration, dutyTask, punishType, punishReason, expenseTitle, matchedStudents, text, date);
+}
+
+function buildParseResult(action, ccType, score, subject, amount, method, duration, dutyTask, punishType, punishReason, expenseTitle, students, rawText, date) {
+  if (!action) action = 'unknown';
+  console.log('%c✅ Action: ' + action, 'color:#10b981;font-weight:bold');
+  console.log('%c👥 HS khớp: ' + students.length, 'color:#10b981');
+  if (students.length) console.log('%c  → ' + students.map(s => s.name).join(', '), 'color:#10b981');
+  
+  const typeMap = { addCC: 'addCC', addScore: 'addScore', addDuty: 'addDuty', addPunish: 'addPunish', addExpense: 'addExpense', addPayment: 'addPayment', openTab: 'openTab', unknown: 'unknown' };
+  return {
+    action: typeMap[action] || action,
+    type: ccType,
+    score, subject, amount, method, duration,
+    task: dutyTask,
+    punishType, reason: punishReason || 'Vi phạm',
+    title: expenseTitle,
+    date: date || today(),
+    students,  // Array HS đã match
+    rawText
+  };
+}
+
+  /* ═══ NHẬN DIỆN MÔN HỌC ═══ */
 function parseSubject(text) {
   const t = removeDiacritics(text);
   const map = {
@@ -2389,73 +2721,7 @@ function parseMoney(text) {
   return null;
 }
 
-/* ═══ PHÂN TÍCH CÂU LỆNH ═══ */
-function analyzeVoiceCommand(text) {
-  if (!text || !currentClass) return null;
-  const t = removeDiacritics(text);
-  const date = parseDateFromText(text);
 
-  // 1) Mở tab
-  if (/(mo tab|chuyen tab|vao tab)/.test(t)) {
-    if (/diem|so diem/.test(t)) return { action: 'openTab', tab: 'diem', tabName: 'Sổ Điểm' };
-    if (/chuyen can|diem danh/.test(t)) return { action: 'openTab', tab: 'cc', tabName: 'Chuyên Cần' };
-    if (/quy|thu chi/.test(t)) return { action: 'openTab', tab: 'quy', tabName: 'Quỹ' };
-    if (/phat|danh gia/.test(t)) return { action: 'openTab', tab: 'dg', tabName: 'Đánh Giá' };
-    if (/hoc sinh|danh sach/.test(t)) return { action: 'openTab', tab: 'ds', tabName: 'Danh Sách' };
-    return { action: 'openTab', tab: 'hs', tabName: 'Học Sinh' };
-  }
-
-  // 2) Điểm
-  const scoreVal = parseScore(text);
-  const subject = parseSubject(text);
-  if (scoreVal !== null || (subject && /diem/.test(t))) {
-    if (scoreVal !== null) {
-      return {
-        action: 'addScore',
-        score: scoreVal,
-        subject: subject || 'Toán',
-        date: date || today()
-      };
-    }
-  }
-
-  // 3) Chuyên cần
-  const ccType = parseCCType(text);
-  if (ccType) {
-    return { action: 'addCC', type: ccType, date: date || today() };
-  }
-
-  // 4) Thu/chi quỹ
-  const money = parseMoney(text);
-  const isThu = /(thu|nop|dong|chuyen khoan|tien mat|ck|quy)/.test(t);
-  const isChi = /(chi|mua|tra tien|thanh toan)/.test(t);
-  if (money && isChi) {
-    return { action: 'addExpense', amount: money, date: date || today(), title: extractTitleAfter(text, /(chi|mua|tra tien|thanh toan)/) };
-  }
-  if (money && isThu) {
-    const method = /(chuyen khoan|ck)/.test(t) ? 'transfer' : 'cash';
-    const collectName = extractCollectName(text);
-    return { action: 'addPayment', amount: money, method, date: date || today(), collectName };
-  }
-
-  // 5) Phạt
-  if (/(phat|trung phat)/.test(t)) {
-    let type = 'nhac_nho';
-    if (/(ve sinh|truc nhat|truc)/.test(t)) type = 've_sinh';
-    else if (/(chep phat|chep bai)/.test(t)) type = 'chep_phat';
-    else if (/(kiem diem)/.test(t)) type = 'kiem_diem';
-    else if (/(bao ph|bao phu huynh|goi dien)/.test(t)) type = 'thong_bao';
-    const duration = parseDuration(text);
-    return { action: 'addPunish', type, reason: extractReason(text), date: date || today(), duration };
-  }
-
-  // 6) Khen (mặc dù bỏ tab, giữ fallback)
-  if (/(khen|tuyen duong)/.test(t)) {
-    return { action: 'addReward', reason: extractReason(text), date: date || today() };
-  }
-
-  return { action: 'unknown', raw: text };
-}
 
 function parseDuration(text) {
   const t = removeDiacritics(text);
@@ -2539,8 +2805,7 @@ function extractStudentQuery(text) {
   return words.join(' ').trim();
 }
 
-/* ═══ POPUP GỢI Ý ═══ */
-function showVoicePopup(transcript, parsed) {
+  function showVoicePopup(transcript, parsed) {
   voiceParsedResult = parsed;
   document.getElementById('voiceTranscript').textContent = transcript;
   const detectBox = document.getElementById('voiceDetectContent');
@@ -2553,7 +2818,7 @@ function showVoicePopup(transcript, parsed) {
     detectHtml = `<div style="font-size:14px;line-height:1.8">
       📋 <b>Hành động:</b> Nhập điểm<br>
       💯 <b>Điểm:</b> <span style="color:#2563eb;font-weight:800;font-size:18px">${parsed.score}</span><br>
-      📚 <b>Môn:</b> ${esc(parsed.subject)}<br>
+      📚 <b>Môn:</b> ${esc(parsed.subject || 'Toán')}<br>
       📅 <b>Ngày:</b> ${parsed.date}
     </div>`;
     manualSearch.style.display = 'block';
@@ -2565,21 +2830,26 @@ function showVoicePopup(transcript, parsed) {
       📅 <b>Ngày:</b> ${parsed.date}
     </div>`;
     manualSearch.style.display = 'block';
-  } else if (parsed.action === 'addPunish') {
-    const typeNames = { nhac_nho:'💬 Nhắc nhở', ve_sinh:'🧹 Vệ sinh', chep_phat:'📝 Chép phạt', kiem_diem:'📄 Kiểm điểm', thong_bao:'📞 Báo PH', khac:'📌 Khác' };
+  } else if (parsed.action === 'addDuty') {
     detectHtml = `<div style="font-size:14px;line-height:1.8">
-      📋 <b>Hành động:</b> Tạo phiếu phạt<br>
-      🏷️ <b>Hình thức:</b> ${typeNames[parsed.type] || parsed.type}<br>
-      📝 <b>Lý do:</b> ${esc(parsed.reason)}<br>
-      📅 <b>Ngày BĐ:</b> ${parsed.date}
-      ${parsed.duration ? `<br>⏱️ <b>Thời gian:</b> ${parsed.duration.num} ${parsed.duration.unit}` : ''}
+      📋 <b>Hành động:</b> Phân công TRỰC NHẬT<br>
+      🧹 <b>Nhiệm vụ:</b> ${esc(parsed.task || 'Trực nhật')}<br>
+      📅 <b>Ngày:</b> ${parsed.date}
+    </div>`;
+    manualSearch.style.display = 'block';
+  } else if (parsed.action === 'addPunish') {
+    const typeNames = { nhac_nho:'💬 Nhắc nhở', chep_phat:'📝 Chép phạt', kiem_diem:'📄 Kiểm điểm', thong_bao:'📞 Báo PH', khac:'📌 Khác' };
+    detectHtml = `<div style="font-size:14px;line-height:1.8">
+      📋 <b>Hành động:</b> Tạo PHIẾU PHẠT<br>
+      🏷️ <b>Hình thức:</b> ${typeNames[parsed.punishType] || 'Nhắc nhở'}<br>
+      📝 <b>Lý do:</b> ${esc(parsed.reason || 'Vi phạm')}<br>
+      📅 <b>Ngày:</b> ${parsed.date}
     </div>`;
     manualSearch.style.display = 'block';
   } else if (parsed.action === 'addPayment') {
     detectHtml = `<div style="font-size:14px;line-height:1.8">
       📋 <b>Hành động:</b> Đánh dấu đã nộp quỹ<br>
       💰 <b>Số tiền:</b> <span style="color:#2563eb;font-weight:800;font-size:18px">${parsed.amount.toLocaleString('vi-VN')}đ</span><br>
-      🏷️ <b>Đợt:</b> ${esc(parsed.collectName)}<br>
       💳 <b>Hình thức:</b> ${parsed.method === 'transfer' ? '🏦 Chuyển khoản' : '💵 Tiền mặt'}<br>
       📅 <b>Ngày:</b> ${parsed.date}
     </div>`;
@@ -2588,68 +2858,60 @@ function showVoicePopup(transcript, parsed) {
     detectHtml = `<div style="font-size:14px;line-height:1.8">
       📋 <b>Hành động:</b> Ghi khoản chi<br>
       💰 <b>Số tiền:</b> <span style="color:#dc2626;font-weight:800;font-size:18px">${parsed.amount.toLocaleString('vi-VN')}đ</span><br>
-      📝 <b>Nội dung:</b> ${esc(parsed.title)}<br>
+      📝 <b>Nội dung:</b> ${esc(parsed.title || 'Chi khác')}<br>
       📅 <b>Ngày:</b> ${parsed.date}
     </div>`;
+    manualSearch.style.display = 'block';
   } else if (parsed.action === 'openTab') {
-    detectHtml = `<div style="font-size:14px;line-height:1.8">
-      📋 <b>Hành động:</b> Mở tab <b>${esc(parsed.tabName)}</b>
-    </div>`;
+    detectHtml = `<div style="font-size:14px;line-height:1.8">📋 <b>Hành động:</b> Mở tab</div>`;
   } else {
-    detectHtml = `<div style="font-size:14px;color:#991b1b">❌ Không nhận diện được câu lệnh.<br>Vui lòng nói lại rõ hơn. VD: <i>"Duy Anh 9 điểm Toán"</i></div>`;
+    detectHtml = `<div style="font-size:14px;color:#991b1b">❌ Không nhận diện được câu lệnh.<br>Ví dụ: <i>"Duy Anh, Việt Anh, không làm bài"</i></div>`;
+    manualSearch.style.display = 'block';
   }
   detectBox.innerHTML = detectHtml;
 
-   // Tìm HS
-  const query = extractStudentQuery(transcript);
-  console.log('%c🔍 Query tìm HS:', 'color:#8b5cf6;font-weight:bold', '"' + query + '"');
-  let matches = [];
-  if (query.length >= 2) {
-    matches = fuzzyFindStudents(query, 10);
-    console.log('%c👥 Tìm được:', 'color:#10b981;font-weight:bold', matches.length + ' HS');
-  }
-  // Thêm STT nếu có "số X"
-  const sttMatch = removeDiacritics(transcript).match(/(?:so|ban|stt)\s+(\d+)/);
-  if (sttMatch) {
-    const byIdx = findStudentByIndex(parseInt(sttMatch[1]));
-    if (byIdx && !matches.find(m => String(m.student.id) === String(byIdx.id))) {
-      matches.unshift({ student: byIdx, idx: currentClass.students.indexOf(byIdx), score: 999, name: byIdx.name });
+  // Lấy HS đã match sẵn
+  let matches = (parsed.students || []).map(st => ({
+    student: st,
+    idx: currentClass.students.indexOf(st),
+    score: 999,
+    name: st.name
+  }));
+
+  // Nếu không có HS nào match, thử fallback
+  if (!matches.length && parsed.rawText) {
+    const query = extractStudentQuery(parsed.rawText);
+    if (query.length >= 2) {
+      matches = fuzzyFindStudents(query, 10);
     }
   }
-  // ═══ FALLBACK: nếu không tìm thấy, hiện TẤT CẢ HS ═══
-  if (matches.length === 0) {
-    console.log('%c⚠️ Fallback: hiện tất cả HS', 'color:#f59e0b;font-weight:bold');
+
+  // Fallback: hiện tất cả HS
+  if (!matches.length) {
     matches = getAllStudentsAsMatches(50);
-    if (matches.length > 0) {
-      matchBox.innerHTML = '<p style="color:#f59e0b;font-size:12px;text-align:center;padding:6px;background:#fef3c7;border-radius:6px;margin-bottom:8px">⚠️ Không tìm thấy tên khớp. Hiện tất cả HS — bạn tick chọn đúng người:</p>' + matches.map(m => {
-        return `<label class="match-item" onclick="toggleMatchItem(this)">
-          <input type="checkbox" class="voice-match-chk" value="${m.student.id}" onchange="updateMatchHighlight(this)">
-          <div class="mi-info">
-            <div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div>
-            <div class="mi-meta">${m.student.role ? '👑 ' + esc(m.student.role) : ''}</div>
-          </div>
-          <span class="mi-score low">?</span>
-        </label>`;
-      }).join('');
-    } else {
-      matchBox.innerHTML = '<p style="color:#94a3b8;font-size:13px;text-align:center;padding:14px">Lớp chưa có HS nào.</p>';
-    }
+    matchBox.innerHTML = '<p style="color:#f59e0b;font-size:12px;text-align:center;padding:6px;background:#fef3c7;border-radius:6px;margin-bottom:8px">⚠️ Không tìm thấy tên khớp. Hiện tất cả HS — tick chọn đúng người:</p>' + matches.map(m => {
+      return `<label class="match-item" onclick="toggleMatchItem(this)">
+        <input type="checkbox" class="voice-match-chk" value="${m.student.id}" onchange="updateMatchHighlight(this)">
+        <div class="mi-info"><div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div></div>
+        <span class="mi-score low">?</span>
+      </label>`;
+    }).join('');
     document.getElementById('voicePopup').classList.add('active');
     return;
   }
 
-  // Hiển thị bình thường
-  matchBox.innerHTML = matches.map((m, i) => {
+  // Hiển thị
+  matchBox.innerHTML = matches.map(m => {
     const score = Math.min(100, Math.round(m.score / 3));
     const cls = score >= 80 ? 'high' : score >= 60 ? 'mid' : 'low';
-    const auto = i === 0 && score >= 80 ? 'checked' : '';
+    const auto = score >= 80 ? 'checked' : '';
     return `<label class="match-item ${auto ? 'selected' : ''}" onclick="toggleMatchItem(this)">
       <input type="checkbox" class="voice-match-chk" value="${m.student.id}" ${auto} onchange="updateMatchHighlight(this)">
       <div class="mi-info">
         <div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div>
         <div class="mi-meta">${m.student.role ? '👑 ' + esc(m.student.role) : ''}</div>
       </div>
-      <span class="mi-score ${cls}">${score}%</span>
+      <span class="mi-score ${cls}">${score >= 999 ? '✓' : score + '%'}</span>
     </label>`;
   }).join('');
 
@@ -2696,7 +2958,6 @@ function closeVoicePopup() {
   voiceParsedResult = null;
 }
 
-/* ═══ XÁC NHẬN VÀ LƯU ═══ */
 function confirmVoiceAction() {
   if (!voiceParsedResult) { toast('⚠️ Không có dữ liệu!', '#ef4444'); return; }
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
@@ -2704,10 +2965,7 @@ function confirmVoiceAction() {
   const selectedIds = [...document.querySelectorAll('.voice-match-chk:checked')].map(c => c.value);
 
   if (p.action === 'openTab') {
-    const navBtns = document.querySelectorAll('.nav-btn');
-    const tabMap = { cc: 0, diem: 1, quy: 2, dg: 3, chon: 4, ds: 5, cai: 6 };
-    const btn = navBtns[tabMap[p.tab] || 0];
-    if (btn) { btn.click(); toast('✅ Đã mở tab ' + p.tabName, '#10b981'); }
+    showTab('cc', document.querySelectorAll('.nav-btn')[0]);
     closeVoicePopup();
     return;
   }
@@ -2715,7 +2973,7 @@ function confirmVoiceAction() {
   if (p.action === 'addScore') {
     if (!selectedIds.length) { toast('⚠️ Chưa chọn HS!', '#ef4444'); return; }
     selectedIds.forEach(stId => {
-      currentClass.scores.push({ id: uid(), stId, val: p.score, sub: p.subject, date: p.date, createdAt: new Date().toISOString() });
+      currentClass.scores.push({ id: uid(), stId, val: p.score, sub: p.subject || 'Toán', date: p.date, createdAt: new Date().toISOString() });
     });
     saveData();
     toast(`✅ Đã nhập ${p.score}đ ${p.subject} cho ${selectedIds.length} HS!`, '#10b981');
@@ -2734,28 +2992,30 @@ function confirmVoiceAction() {
     return;
   }
 
+  if (p.action === 'addDuty') {
+    if (!selectedIds.length) { toast('⚠️ Chưa chọn HS!', '#ef4444'); return; }
+    if (!currentClass.duties) currentClass.duties = [];
+    selectedIds.forEach(stId => {
+      currentClass.duties.push({
+        id: uid(), date: p.date, task: p.task || 'Trực nhật',
+        stId, done: false, createdAt: new Date().toISOString()
+      });
+    });
+    saveData();
+    toast(`🧹 Đã tạo ${selectedIds.length} phân công trực nhật!`, '#10b981');
+    closeVoicePopup();
+    return;
+  }
+
   if (p.action === 'addPunish') {
     if (!selectedIds.length) { toast('⚠️ Chưa chọn HS!', '#ef4444'); return; }
     const gid = 'g_' + uid();
     const now = new Date().toISOString();
-    let days = null, deadline = '';
-    if (p.type === 've_sinh' && p.duration) {
-      // Tạo buổi từ hôm nay đến N ngày (chỉ T2-T7)
-      const startD = new Date(p.date);
-      const totalDays = p.duration.unit === 'tuan' ? p.duration.num * 7 : p.duration.num;
-      days = [];
-      for (let i = 0; i < totalDays; i++) {
-        const d = new Date(startD); d.setDate(d.getDate() + i);
-        if (d.getDay() !== 0) days.push({ date: d.toISOString().split('T')[0], done: false });
-      }
-      if (days.length) deadline = days[days.length - 1].date;
-    }
     selectedIds.forEach(stId => {
       currentClass.punishments.push({
         id: uid(), groupId: gid, stId,
-        type: p.type, level: 'vua', reason: p.reason,
-        start: p.date, deadline: deadline || '',
-        days: days ? days.map(d => ({...d})) : null,
+        type: p.punishType || 'nhac_nho', level: 'vua', reason: p.reason || 'Vi phạm',
+        start: p.date, deadline: '', days: null,
         status: 'active', createdAt: now
       });
     });
@@ -2769,7 +3029,7 @@ function confirmVoiceAction() {
     if (!selectedIds.length) { toast('⚠️ Chưa chọn HS!', '#ef4444'); return; }
     let collect = currentClass.collects.find(c => c.name === p.collectName);
     if (!collect) collect = currentClass.collects[currentClass.collects.length - 1];
-    if (!collect) { toast('⚠️ Không có đợt thu nào! Hãy tạo đợt thu trước.', '#ef4444'); return; }
+    if (!collect) { toast('⚠️ Chưa có đợt thu nào! Tạo đợt thu trước.', '#ef4444'); return; }
     if (!collect.payments) collect.payments = [];
     selectedIds.forEach(stId => {
       if (!collect.payments.find(x => String(x.stId) === String(stId))) {
@@ -2783,7 +3043,7 @@ function confirmVoiceAction() {
   }
 
   if (p.action === 'addExpense') {
-    currentClass.exps.push({ id: uid(), title: p.title || 'Chi', amt: p.amount, date: p.date, createdAt: new Date().toISOString() });
+    currentClass.exps.push({ id: uid(), title: p.title || 'Chi khác', amt: p.amount, date: p.date, createdAt: new Date().toISOString() });
     saveData();
     toast(`💸 Đã ghi chi ${p.amount.toLocaleString('vi-VN')}đ!`, '#ef4444');
     closeVoicePopup();
@@ -2793,7 +3053,7 @@ function confirmVoiceAction() {
   toast('⚠️ Hành động chưa hỗ trợ', '#f59e0b');
   closeVoicePopup();
 }
-
+  
 /* ═══ NÚT MIC TO ═══ */
 function toggleBigMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2861,7 +3121,7 @@ function toggleBigMic() {
     const text = finalTranscript.trim();
     if (!text) return;
     // Phân tích câu
-    const parsed = analyzeVoiceCommand(text);
+    const parsed = smartParseCommand(text);
     if (!parsed) { toast('❌ Không hiểu câu lệnh', '#ef4444'); return; }
     if (parsed.action === 'unknown') {
       toast('❌ Không nhận diện được. Thử lại rõ hơn.', '#ef4444');
