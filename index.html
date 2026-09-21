@@ -193,6 +193,41 @@ body.dark .match-item.selected{background:#064e3b;border-color:#10b981}
 body.dark .match-item .mi-name{color:#93c5fd}
 #ownerFooter{margin-top:20px;background:linear-gradient(135deg,#1e3a8a 0,#2563eb 45%,#7c3aed 100%);color:#fff;text-align:center;padding:14px 16px;border-radius:12px;line-height:1.5;width:100%}
 #ownerFooter .owner-name{display:inline-block;padding:2px 10px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin:0 2px}
+/* ═══ NGƯỜI ĐƯỢC CHỌN — NÂNG CẤP ═══ */
+.ww-card-hero{background:linear-gradient(135deg,#6C5CE7 0%,#E84393 50%,#FFD700 100%);color:#fff;border:none;text-align:center;padding:24px 20px;position:relative;overflow:hidden;border-radius:14px;box-shadow:0 12px 40px rgba(232,67,147,.35)}
+.ww-card-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(2px 2px at 20% 30%,rgba(255,255,255,.85),transparent),radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 80% 20%,rgba(255,255,255,.9),transparent),radial-gradient(1px 1px at 40% 90%,rgba(255,255,255,.6),transparent),radial-gradient(2px 2px at 90% 60%,rgba(255,255,255,.8),transparent);animation:wwTwinkle 3s ease-in-out infinite alternate;pointer-events:none}
+@keyframes wwTwinkle{0%{opacity:.35}100%{opacity:1}}
+.ww-card-hero .icon{font-size:56px;margin-bottom:6px;filter:drop-shadow(0 0 20px rgba(255,215,0,.9));animation:wwIconFloat 3s ease-in-out infinite;position:relative}
+@keyframes wwIconFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(-3deg)}}
+.ww-card-hero h2{font-size:24px;letter-spacing:4px;font-weight:900;text-shadow:0 2px 14px rgba(0,0,0,.4);position:relative;margin:0}
+.ww-card-hero p{font-size:13px;margin-top:8px;opacity:.97;font-style:italic;position:relative}
+.ww-fs-btn{margin-top:14px;background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.6);padding:10px 24px;font-size:13px;font-weight:800;letter-spacing:1.5px;border-radius:50px;cursor:pointer;position:relative;transition:.2s}
+.ww-fs-btn:hover{background:rgba(255,255,255,.4);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+
+.ww-display-box{font-size:44px;font-weight:900;padding:40px 20px;background:linear-gradient(135deg,#f5f3ff 0%,#ede9fe 50%,#fce7f3 100%);border-radius:16px;color:#6d28d9;min-height:180px;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(.34,1.56,.64,1);word-break:break-word;position:relative;overflow:hidden;border:3px solid #c4b5fd;box-shadow:inset 0 0 40px rgba(139,92,246,.1)}
+.ww-display-box::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 20% 20%,rgba(139,92,246,.15),transparent 50%),radial-gradient(circle at 80% 80%,rgba(232,67,147,.15),transparent 50%);animation:wwBgPulse 4s ease-in-out infinite}
+@keyframes wwBgPulse{0%,100%{opacity:.6}50%{opacity:1}}
+.ww-display-box.spinning{animation:wwShake .1s infinite;color:#E84393}
+@keyframes wwShake{0%,100%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}75%{transform:translate(2px,-1px)}}
+.ww-display-box.winner{background:linear-gradient(135deg,#fef3c7,#fde68a,#fbbf24);color:#78350f;animation:wwWinnerPop .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes wwWinnerPop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* FULLSCREEN OVERLAY */
+#wwFullscreen{position:fixed;inset:0;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%);z-index:99997;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:hidden}
+#wwFullscreen.active{display:flex}
+#wwFullscreen::before{content:'';position:absolute;inset:0;background-image:radial-gradient(2px 2px at 15% 25%,#fff,transparent),radial-gradient(1px 1px at 40% 60%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 70% 20%,#fff,transparent),radial-gradient(1px 1px at 85% 75%,rgba(255,255,255,.8),transparent),radial-gradient(2px 2px at 25% 85%,#fff,transparent),radial-gradient(1px 1px at 55% 40%,rgba(255,255,255,.6),transparent),radial-gradient(2px 2px at 90% 45%,#fff,transparent);animation:wwTwinkle 3s ease-in-out infinite alternate;pointer-events:none}
+#wwFullscreen .ww-fs-close{position:absolute;top:20px;right:20px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:24px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10}
+#wwFullscreen .ww-fs-close:hover{background:rgba(255,255,255,.3)}
+#wwFullscreen .ww-fs-title{font-size:clamp(28px,5vw,48px);font-weight:900;letter-spacing:6px;text-transform:uppercase;color:#FFD700;text-shadow:0 0 30px #FFD700,0 0 60px #E84393,0 4px 12px rgba(0,0,0,.6);margin-bottom:30px;position:relative;text-align:center}
+#wwFullscreen .ww-fs-name{font-size:clamp(40px,10vw,120px);font-weight:900;color:#fff;text-align:center;padding:40px 30px;background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.05));backdrop-filter:blur(10px);border-radius:24px;border:3px solid rgba(255,215,0,.5);box-shadow:0 0 60px rgba(255,215,0,.4),inset 0 0 60px rgba(232,67,147,.2);margin-bottom:30px;min-width:60%;word-break:break-word;transition:.3s;position:relative}
+#wwFullscreen .ww-fs-name.spinning{animation:wwFsSpin .08s infinite}
+@keyframes wwFsSpin{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.05) rotate(.5deg)}}
+#wwFullscreen .ww-fs-name.winner{background:linear-gradient(135deg,#FFD700,#E84393);color:#1a1a3e;border-color:#FFD700;box-shadow:0 0 100px rgba(255,215,0,.9),0 0 60px rgba(232,67,147,.7);animation:wwFsWinner 1s cubic-bezier(.34,1.56,.64,1)}
+@keyframes wwFsWinner{0%{transform:scale(.5) rotate(-10deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+#wwFullscreen .ww-fs-btn{background:linear-gradient(135deg,#FFD700,#E84393);color:#1a1a3e;border:none;padding:22px 60px;font-size:clamp(18px,2.5vw,24px);font-weight:900;letter-spacing:3px;border-radius:60px;cursor:pointer;box-shadow:0 12px 40px rgba(255,215,0,.6),0 0 0 4px rgba(255,215,0,.3);transition:.2s;position:relative}
+#wwFullscreen .ww-fs-btn:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 16px 50px rgba(255,215,0,.8),0 0 0 6px rgba(255,215,0,.4)}
+#wwFullscreen .ww-fs-btn:disabled{opacity:.5;cursor:not-allowed}
+#wwFullscreen .ww-fs-history{margin-top:30px;color:#fff;font-size:14px;opacity:.7;text-align:center;position:relative}
 @media(max-width:520px){.grid-3{grid-template-columns:1fr 1fr}#micBig{width:60px;height:60px;font-size:26px;bottom:16px;right:16px}#micHint{right:16px;bottom:84px}}
 </style>
 </head>
@@ -263,18 +298,18 @@ body.dark .match-item .mi-name{color:#93c5fd}
 
 <div class="nav-container">
   <div class="nav-tabs">
-    <button class="nav-btn active" onclick="showTab('hs',this)">👥 Học Sinh</button>
-    <button class="nav-btn" onclick="showTab('cc',this)">📋 Chuyên Cần</button>
+    <button class="nav-btn active" onclick="showTab('cc',this)">📋 Chuyên Cần</button>
     <button class="nav-btn" onclick="showTab('diem',this)">💯 Sổ Điểm</button>
     <button class="nav-btn" onclick="showTab('quy',this)">💰 Quỹ</button>
     <button class="nav-btn" onclick="showTab('dg',this)">⚖️ Đánh Giá</button>
     <button class="nav-btn" onclick="showTab('chon',this)">🎯 Người Được Chọn</button>
+    <button class="nav-btn" onclick="showTab('ds',this)">👥 Danh Sách</button>
     <button class="nav-btn" onclick="showTab('cai',this)">⚙️ Cài Đặt</button>
   </div>
 </div>
 
-<!-- ═══════ TAB HỌC SINH ═══════ -->
-<div id="sec-hs" class="section-pane active">
+<!-- ═══════ TAB DANH SACH ═══════ -->
+<div id="sec-ds" class="section-pane">
   <div class="card">
     <h3>➕ Thêm Học Sinh Nhanh</h3>
     <div class="form-group">
@@ -313,7 +348,7 @@ body.dark .match-item .mi-name{color:#93c5fd}
 </div>
 
 <!-- ═══════ TAB CHUYÊN CẦN ═══════ -->
-<div id="sec-cc" class="section-pane">
+<div id="sec-cc" class="section-pane active">
   <div class="card" style="border:2px solid #ef4444;background:linear-gradient(135deg,#fef2f2,#fee2e2)">
     <h3 style="color:#991b1b">⚠️ HS Cần Chú Ý (vắng ≥3 lần không phép)</h3>
     <div id="ccWarningBox"></div>
@@ -493,10 +528,11 @@ body.dark .match-item .mi-name{color:#93c5fd}
 
 <!-- ═══════ TAB NGƯỜI ĐƯỢC CHỌN ═══════ -->
 <div id="sec-chon" class="section-pane">
-  <div class="card" style="background:linear-gradient(135deg,#6C5CE7,#E84393,#FFD700);color:#fff;text-align:center;padding:20px;border:none">
-    <div style="font-size:48px">🎯</div>
-    <h2 style="font-size:20px;letter-spacing:2px;margin-top:6px">NGƯỜI ĐƯỢC CHỌN</h2>
-    <p style="font-size:13px;margin-top:6px;opacity:.95">Vận may gọi tên ai?</p>
+  <div class="card ww-card-hero">
+    <div class="icon">🎯</div>
+    <h2>NGƯỜI ĐƯỢC CHỌN</h2>
+    <p>Vận may gọi tên ai?</p>
+    <button class="ww-fs-btn" onclick="toggleFullscreenRandom()">⛶ TOÀN MÀN HÌNH</button>
   </div>
   <div class="card">
     <h3>👥 Chọn Người Tham Gia</h3>
@@ -511,13 +547,22 @@ body.dark .match-item .mi-name{color:#93c5fd}
     <div style="margin-top:8px;font-size:12px;color:#64748b;text-align:center" id="wwCount">Chưa chọn ai</div>
   </div>
   <div class="card" style="text-align:center">
-    <div id="wwDisplay" style="font-size:44px;font-weight:900;padding:30px 10px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:12px;color:#6d28d9;min-height:130px;display:flex;align-items:center;justify-content:center;transition:.3s;word-break:break-word">?</div>
-    <button id="wwStart" class="btn-act" style="background:linear-gradient(135deg,#6C5CE7,#E84353,#FFD700);padding:16px 40px;font-size:16px;letter-spacing:2px;margin-top:12px;border-radius:50px;box-shadow:0 8px 24px rgba(232,67,147,.5)" onclick="spinRandom()">🎯 BẮT ĐẦU CHỌN!</button>
+    <div id="wwDisplay" class="ww-display-box">?</div>
+    <button id="wwStart" class="btn-act" style="background:linear-gradient(135deg,#6C5CE7,#E84353,#FFD700);padding:18px 48px;font-size:16px;letter-spacing:2px;margin-top:16px;border-radius:50px;box-shadow:0 8px 24px rgba(232,67,147,.5);font-weight:900" onclick="spinRandom()">🎯 BẮT ĐẦU CHỌN!</button>
   </div>
   <div class="card">
     <h3>📜 Lịch Sử <button class="btn-act btn-danger btn-mini" onclick="clearRandomHistory()">🗑️ Xóa</button></h3>
     <div id="wwHistory"></div>
   </div>
+</div>
+
+<!-- FULLSCREEN OVERLAY -->
+<div id="wwFullscreen">
+  <button class="ww-fs-close" onclick="closeFullscreenRandom()">✖</button>
+  <div class="ww-fs-title">🎯 NGƯỜI ĐƯỢC CHỌN 🎯</div>
+  <div class="ww-fs-name" id="wwFsName">?</div>
+  <button class="ww-fs-btn" id="wwFsStart" onclick="spinRandomFullscreen()">▶ BẮT ĐẦU</button>
+  <div class="ww-fs-history" id="wwFsInfo">Đang chuẩn bị...</div>
 </div>
 
 <!-- ═══════ TAB CÀI ĐẶT ═══════ -->
@@ -785,6 +830,13 @@ body.dark .match-item .mi-name{color:#93c5fd}
   </div>
 </div>
 
+  <!-- ═══════ MODAL CHI TIẾT NHÓM CHUYÊN CẦN ═══════ -->
+<div class="modal-overlay" id="ccGroupModal" onclick="if(event.target===this)closeModal('ccGroupModal')">
+  <div class="modal-card" style="max-width:640px">
+    <div class="modal-body" id="ccGroupModalBody" style="padding:0"></div>
+  </div>
+</div>
+  
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -1145,7 +1197,7 @@ function quickPunishFromCC(stId) {
   const st = currentClass.students.find(s => String(s.id) === String(stId));
   if (!st) return;
   if (!confirm(`Chuyển sang tab Phạt và tạo phiếu cho "${st.name}"?`)) return;
-  showTab('dg', document.querySelector('.nav-btn:nth-child(5)'));
+  showTab('dg', document.querySelectorAll('.nav-btn')[3]);
   document.querySelectorAll('input[name="pChk"]').forEach(cb => { cb.checked = String(cb.value) === String(stId); });
   document.getElementById('pType').value = 'nhac_nho';
   document.getElementById('pReason').value = 'Vắng không phép nhiều lần';
@@ -1175,59 +1227,196 @@ function renderCCView() {
   }
   box.innerHTML = dates.map(date => {
     const items = byDate[date];
-    const byType = {};
-    items.forEach(l => { (byType[l.type] = byType[l.type] || []).push(l); });
-    const typeHtml = Object.entries(byType).map(([t, arr]) => `<div style="background:#f8fafc;border-left:4px solid #3b82f6;border-radius:8px;padding:8px 10px;margin-bottom:6px">
-      <b style="color:#1e40af;font-size:12px">${CC_LABELS[t]||t} — ${arr.length} HS</b>
-      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
-        ${arr.map(l => {
-          const st = currentClass.students.find(s => String(s.id) === String(l.stId));
-          const idx = currentClass.students.indexOf(st) + 1;
-          const note = l.note ? ` <i style="color:#64748b">(${esc(l.note)})</i>` : '';
-          const editBtn = canEdit() ? `<button onclick="event.stopPropagation();openEditLog('${l.id}')" style="background:transparent;border:none;cursor:pointer;font-size:12px;padding:0 2px;color:#64748b">✏️</button>` : '';
-          return `<span class="badge ${CC_CLS[t]||'badge-perm'}">${idx}. ${esc(st?.name||'?')}${note}${editBtn}</span>`;
-        }).join('')}
-      </div>
-    </div>`).join('');
-    return `<div class="card"><div style="font-size:14px;font-weight:700;color:#1e3a8a;margin-bottom:8px">📅 ${date.split('-').reverse().join('/')} <span class="badge badge-perm">${items.length}</span></div>${typeHtml}</div>`;
-  }).join('');
+    const dayLogs = items.filter(l => {
+      if (!kw) return true;
+      const st = currentClass.students.find(s => String(s.id) === String(l.stId));
+      return (st?.name||'').toLowerCase().includes(kw);
+    });
+    if (!dayLogs.length) return '';
+    // Nhóm theo (type + note)
+    const groups = {};
+    dayLogs.forEach(l => {
+      const key = l.type + '||' + (l.note || '');
+      (groups[key] = groups[key] || []).push(l);
+    });
+    const groupsArr = Object.values(groups);
+    const groupsHtml = groupsArr.map(groupArr => {
+      const sample = groupArr[0];
+      const type = sample.type;
+      const note = sample.note || '';
+      const typeLabel = CC_LABELS[type] || type;
+      const cls = CC_CLS[type] || 'badge-perm';
+      const count = groupArr.length;
+      const groupKey = date + '||' + type + '||' + note;
+      // Lấy danh sách HS sắp theo STT
+      const studentsList = groupArr.map(l => currentClass.students.find(s => String(s.id) === String(l.stId))).filter(Boolean);
+      studentsList.sort((a, b) => currentClass.students.indexOf(a) - currentClass.students.indexOf(b));
+      // 1 người → hiện tên + lỗi
+      if (count === 1) {
+        const st = studentsList[0];
+        const idx = currentClass.students.indexOf(st) + 1;
+        return `<div style="background:#fff;border-left:4px solid #3b82f6;border-radius:8px;padding:8px 12px;margin-bottom:6px;cursor:pointer;transition:.15s" onclick="openCCGroupDetail('${date}','${type}','${encodeURIComponent(note)}')" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#fff'">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap">
+            <div style="font-size:13px"><b>${idx}. ${esc(st.name)}</b> <span style="color:#64748b">—</span> <span class="badge ${cls}">${typeLabel.replace(/^[^\s]+\s/,'')}</span>${note ? `<i style="color:#64748b;font-size:12px">(${esc(note)})</i>` : ''}</div>
+            <div style="font-size:11px;color:#94a3b8">👆 Nhấn để xem/sửa</div>
+          </div>
+        </div>`;
+      }
+      // 2+ người → gộp lỗi + tên
+      const namesStr = studentsList.map(s => `${currentClass.students.indexOf(s)+1}. ${esc(s.name)}`).join(', ');
+      return `<div style="background:#fff;border-left:4px solid #ef4444;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:.15s" onclick="openCCGroupDetail('${date}','${type}','${encodeURIComponent(note)}')" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#fff'">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <b style="color:#dc2626;font-size:14px">${typeLabel.replace(/^[^\s]+\s/,'')} <span style="background:#dc2626;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;margin-left:6px">${count} HS</span></b>
+          <div style="font-size:11px;color:#94a3b8">👆 Nhấn để xem/sửa</div>
+        </div>
+        ${note ? `<div style="font-size:12px;color:#64748b;margin-bottom:6px;font-style:italic">📝 ${esc(note)}</div>` : ''}
+        <div style="font-size:13px;color:#1e3a8a;line-height:1.6;font-weight:500">${namesStr}</div>
+      </div>`;
+    }).join('');
+    return `<div class="card"><div style="font-size:14px;font-weight:700;color:#1e3a8a;margin-bottom:8px">📅 ${date.split('-').reverse().join('/')} <span class="badge badge-perm">${dayLogs.length}</span></div>${groupsHtml}</div>`;
+  }).filter(Boolean).join('');
 }
 
-function openEditLog(id) {
-  if (!canEdit()) return;
-  const l = currentClass.logs.find(x => String(x.id) === String(id));
-  if (!l) return;
-  const sel = document.getElementById('editLogStudent');
-  sel.innerHTML = currentClass.students.map((s, i) => `<option value="${s.id}" ${String(s.id) === String(l.stId) ? 'selected' : ''}>${i+1}. ${esc(s.name)}</option>`).join('');
-  document.getElementById('editLogId').value = l.id;
-  document.getElementById('editLogType').value = l.type;
-  document.getElementById('editLogDate').value = l.date || today();
-  document.getElementById('editLogNote').value = l.note || '';
-  document.getElementById('editLogModal').classList.add('active');
+/* ═══ POPUP CHI TIẾT NHÓM CHUYÊN CẦN ═══ */
+let ccGroupContext = null;
+function openCCGroupDetail(date, type, noteEncoded) {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const note = decodeURIComponent(noteEncoded);
+  ccGroupContext = { date, type, note };
+  // Lấy danh sách HS trong nhóm
+  const groupLogs = currentClass.logs.filter(l => l.date === date && l.type === type && (l.note || '') === note);
+  const stIds = new Set(groupLogs.map(l => String(l.stId)));
+  const studentsInGroup = currentClass.students.filter(s => stIds.has(String(s.id)));
+  studentsInGroup.sort((a, b) => currentClass.students.indexOf(a) - currentClass.students.indexOf(b));
+  const typeLabel = CC_LABELS[type] || type;
+
+  const html = `
+    <div class="modal-header"><h3>📝 ${esc(typeLabel.replace(/^[^\s]+\s/,''))} ${note ? '— ' + esc(note) : ''}</h3><button class="modal-close" onclick="closeModal('ccGroupModal')">×</button></div>
+    <div class="modal-body">
+      <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:6px">📋 Thông tin nhóm</div>
+        <div style="font-size:13px;line-height:1.8">
+          📅 <b>Ngày:</b> <input type="date" id="ccGroupDate" value="${esc(date)}" style="padding:4px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:13px">
+          <br>🏷️ <b>Loại:</b> 
+          <select id="ccGroupType" style="padding:4px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:13px">
+            <option value="v_khongphep" ${type==='v_khongphep'?'selected':''}>🔴 Nghỉ không phép</option>
+            <option value="di_muon" ${type==='di_muon'?'selected':''}>🟡 Đi muộn</option>
+            <option value="chua_btvn" ${type==='chua_btvn'?'selected':''}>📝 Chưa làm BTVN</option>
+            <option value="so_daubai" ${type==='so_daubai'?'selected':''}>📕 Vi phạm SĐB</option>
+            <option value="v_cophep" ${type==='v_cophep'?'selected':''}>🔵 Nghỉ có phép</option>
+          </select>
+          <br>📝 <b>Ghi chú chung:</b> 
+          <input type="text" id="ccGroupNote" value="${esc(note)}" placeholder="VD: Không soạn văn..." style="padding:4px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:13px;width:60%">
+        </div>
+      </div>
+      
+      <div style="font-size:12px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:6px">👥 ${studentsInGroup.length} HS trong nhóm</div>
+      <div id="ccGroupList" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;margin-bottom:12px">
+        ${studentsInGroup.map((s, i) => {
+          const log = groupLogs.find(l => String(l.stId) === String(s.id));
+          const idx = currentClass.students.indexOf(s) + 1;
+          return `<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:700;color:#1e3a8a">${idx}. ${esc(s.name)}</div>
+              <div style="margin-top:4px;display:flex;gap:6px;align-items:center">
+                <span style="font-size:11px;color:#64748b">📝 Ghi chú riêng:</span>
+                <input type="text" value="${esc(log?.note || '')}" placeholder="Thêm ghi chú..." onchange="updateCCLogNote('${log?.id}', this.value)" style="flex:1;padding:4px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+            </div>
+            ${canEdit() ? `<button class="btn-act btn-danger btn-mini" onclick="removeCCLog('${log?.id}')" title="Xóa khỏi nhóm">🗑️</button>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+      
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px">
+        <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:6px">➕ Thêm HS khác vào nhóm này</div>
+        <input type="text" class="search-input" id="ccAddSearch" placeholder="🔍 Tìm tên HS chưa có trong nhóm..." oninput="filterCCAddList()" style="margin-bottom:6px">
+        <div id="ccAddList" style="max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn-act btn-success" style="flex:1;min-width:100px;padding:12px" onclick="saveCCGroupEdit()">💾 Lưu thay đổi</button>
+        <button class="btn-act btn-danger" style="padding:12px 16px" onclick="deleteCCGroup()">🗑️ Xóa cả nhóm</button>
+        <button class="btn-act btn-warning" style="flex:1;min-width:100px;padding:12px" onclick="closeModal('ccGroupModal')">✖ Đóng</button>
+      </div>
+    </div>`;
+  document.getElementById('ccGroupModalBody').innerHTML = html;
+  document.getElementById('ccGroupModal').classList.add('active');
+  renderCCAddList();
 }
-function saveEditLog() {
-  if (!canEdit()) return;
-  const id = document.getElementById('editLogId').value;
-  const l = currentClass.logs.find(x => String(x.id) === String(id));
-  if (!l) return;
-  Object.assign(l, {
-    stId: document.getElementById('editLogStudent').value,
-    type: document.getElementById('editLogType').value,
-    date: document.getElementById('editLogDate').value || today(),
-    note: document.getElementById('editLogNote').value.trim()
+
+function renderCCAddList() {
+  const box = document.getElementById('ccAddList');
+  if (!box || !ccGroupContext) return;
+  const groupLogs = currentClass.logs.filter(l => l.date === ccGroupContext.date && l.type === ccGroupContext.type && (l.note||'') === ccGroupContext.note);
+  const stIdsInGroup = new Set(groupLogs.map(l => String(l.stId)));
+  const available = currentClass.students.filter(s => !stIdsInGroup.has(String(s.id)));
+  const kw = (document.getElementById('ccAddSearch')?.value || '').toLowerCase();
+  const list = kw ? available.filter(s => s.name.toLowerCase().includes(kw)) : available.slice(0, 20);
+  if (!list.length) { box.innerHTML = '<p style="font-size:12px;color:#94a3b8;text-align:center;padding:8px">Không có HS nào</p>'; return; }
+  box.innerHTML = list.map(s => {
+    const idx = currentClass.students.indexOf(s) + 1;
+    return `<button class="btn-act btn-mini" style="justify-content:flex-start;background:#fff;color:#1e3a8a;border:1px solid #cbd5e1;padding:6px 10px;font-size:12px" onclick="addCCLogToGroup('${s.id}')">➕ ${idx}. ${esc(s.name)}</button>`;
+  }).join('');
+}
+function filterCCAddList() { renderCCAddList(); }
+function addCCLogToGroup(stId) {
+  if (!canEdit() || !ccGroupContext) return;
+  const exists = currentClass.logs.find(l => l.date === ccGroupContext.date && l.type === ccGroupContext.type && (l.note||'') === ccGroupContext.note && String(l.stId) === String(stId));
+  if (exists) { toast('⚠️ HS đã trong nhóm!', '#ef4444'); return; }
+  currentClass.logs.push({
+    id: uid(), stId,
+    type: ccGroupContext.type,
+    date: ccGroupContext.date,
+    note: ccGroupContext.note,
+    createdAt: new Date().toISOString()
   });
-  closeModal('editLogModal');
   saveData();
-  toast('✏️ Đã cập nhật!');
+  toast('➕ Đã thêm HS vào nhóm!');
+  openCCGroupDetail(ccGroupContext.date, ccGroupContext.type, ccGroupContext.note);
 }
-function deleteEditLog() {
+function updateCCLogNote(logId, newNote) {
   if (!canEdit()) return;
-  const id = document.getElementById('editLogId').value;
-  if (!confirm('Xóa vi phạm này?')) return;
-  currentClass.logs = currentClass.logs.filter(x => String(x.id) !== String(id));
-  closeModal('editLogModal');
+  const log = currentClass.logs.find(l => String(l.id) === String(logId));
+  if (!log) return;
+  log.note = newNote.trim();
   saveData();
-  toast('🗑️ Đã xóa!');
+  toast('✏️ Đã cập nhật ghi chú', '#10b981');
+}
+function removeCCLog(logId) {
+  if (!canEdit()) return;
+  if (!confirm('Xóa HS này khỏi nhóm?')) return;
+  currentClass.logs = currentClass.logs.filter(l => String(l.id) !== String(logId));
+  saveData();
+  toast('🗑️ Đã xóa khỏi nhóm');
+  if (ccGroupContext) openCCGroupDetail(ccGroupContext.date, ccGroupContext.type, ccGroupContext.note);
+}
+function saveCCGroupEdit() {
+  if (!canEdit() || !ccGroupContext) return;
+  const newDate = document.getElementById('ccGroupDate').value || ccGroupContext.date;
+  const newType = document.getElementById('ccGroupType').value;
+  const newNote = document.getElementById('ccGroupNote').value.trim();
+  // Cập nhật TẤT CẢ log trong nhóm cũ
+  currentClass.logs.forEach(l => {
+    if (l.date === ccGroupContext.date && l.type === ccGroupContext.type && (l.note||'') === ccGroupContext.note) {
+      l.date = newDate;
+      l.type = newType;
+      // Chỉ đổi note chung nếu note trước đó giống note chung cũ
+      if ((l.note||'') === ccGroupContext.note) l.note = newNote;
+    }
+  });
+  saveData();
+  toast('✅ Đã lưu thay đổi nhóm!');
+  closeModal('ccGroupModal');
+}
+function deleteCCGroup() {
+  if (!canEdit() || !ccGroupContext) return;
+  const groupLogs = currentClass.logs.filter(l => l.date === ccGroupContext.date && l.type === ccGroupContext.type && (l.note||'') === ccGroupContext.note);
+  if (!confirm(`Xóa cả nhóm ${groupLogs.length} vi phạm?`)) return;
+  currentClass.logs = currentClass.logs.filter(l => !(l.date === ccGroupContext.date && l.type === ccGroupContext.type && (l.note||'') === ccGroupContext.note));
+  saveData();
+  toast('🗑️ Đã xóa cả nhóm!');
+  closeModal('ccGroupModal');
 }
 
 /* ═══════════════ SỔ ĐIỂM ═══════════════ */
@@ -1808,6 +1997,8 @@ function spinRandom() {
       saveData();
       wwSpinning = false;
       startBtn.disabled = false;
+      display.classList.add('winner');
+      setTimeout(() => display.classList.remove('winner'), 2000);
       toast('🎉 ' + winner.name, '#E84393');
     }
   }, 70);
@@ -2144,7 +2335,7 @@ function analyzeVoiceCommand(text) {
     if (/chuyen can|diem danh/.test(t)) return { action: 'openTab', tab: 'cc', tabName: 'Chuyên Cần' };
     if (/quy|thu chi/.test(t)) return { action: 'openTab', tab: 'quy', tabName: 'Quỹ' };
     if (/phat|danh gia/.test(t)) return { action: 'openTab', tab: 'dg', tabName: 'Đánh Giá' };
-    if (/hoc sinh|danh sach/.test(t)) return { action: 'openTab', tab: 'hs', tabName: 'Học Sinh' };
+    if (/hoc sinh|danh sach/.test(t)) return { action: 'openTab', tab: 'ds', tabName: 'Danh Sách' };
     return { action: 'openTab', tab: 'hs', tabName: 'Học Sinh' };
   }
 
@@ -2418,7 +2609,7 @@ function confirmVoiceAction() {
 
   if (p.action === 'openTab') {
     const navBtns = document.querySelectorAll('.nav-btn');
-    const tabMap = { hs: 0, cc: 1, diem: 2, quy: 3, dg: 4, chon: 5, cai: 6 };
+    const tabMap = { cc: 0, diem: 1, quy: 2, dg: 3, chon: 4, ds: 5, cai: 6 };
     const btn = navBtns[tabMap[p.tab] || 0];
     if (btn) { btn.click(); toast('✅ Đã mở tab ' + p.tabName, '#10b981'); }
     closeVoicePopup();
@@ -2582,7 +2773,7 @@ function toggleBigMic() {
     }
     if (parsed.action === 'openTab') {
       const navBtns = document.querySelectorAll('.nav-btn');
-      const tabMap = { hs: 0, cc: 1, diem: 2, quy: 3, dg: 4, chon: 5, cai: 6 };
+      const tabMap = { cc: 0, diem: 1, quy: 2, dg: 3, chon: 4, ds: 5, cai: 6 };
       const btn2 = navBtns[tabMap[parsed.tab] || 0];
       if (btn2) { btn2.click(); toast('✅ Đã mở tab ' + parsed.tabName, '#10b981'); }
       return;
@@ -2603,6 +2794,75 @@ setTimeout(() => {
   }
 }, 3000);
 
+  /* ═══════════════ FULLSCREEN NGƯỜI ĐƯỢC CHỌN ═══════════════ */
+function toggleFullscreenRandom() {
+  const fs = document.getElementById('wwFullscreen');
+  fs.classList.add('active');
+  updateFsInfo();
+  const disp = document.getElementById('wwFsName');
+  disp.textContent = '?';
+  disp.classList.remove('winner', 'spinning');
+}
+function closeFullscreenRandom() {
+  document.getElementById('wwFullscreen').classList.remove('active');
+}
+function updateFsInfo() {
+  const parts = getWWParticipants();
+  document.getElementById('wwFsInfo').textContent = parts.length ? `📊 ${parts.length} người tham gia` : '⚠️ Chưa chọn người tham gia';
+}
+function spinRandomFullscreen() {
+  const fsBtn = document.getElementById('wwFsStart');
+  if (fsBtn.disabled) return;
+  const parts = getWWParticipants();
+  if (parts.length < 2) { toast('⚠️ Cần ít nhất 2 người!', '#ef4444'); return; }
+  fsBtn.disabled = true;
+  fsBtn.textContent = '⏳ ĐANG CHỌN...';
+  const disp = document.getElementById('wwFsName');
+  disp.classList.remove('winner');
+  disp.classList.add('spinning');
+  const winner = parts[Math.floor(Math.random() * parts.length)];
+  let count = 0;
+  const maxCount = 30 + Math.floor(Math.random() * 15);
+  const interval = setInterval(() => {
+    const rand = parts[Math.floor(Math.random() * parts.length)];
+    disp.textContent = rand.name;
+    count++;
+    if (count >= maxCount) {
+      clearInterval(interval);
+      disp.textContent = '🎉 ' + winner.name + ' 🎉';
+      disp.classList.remove('spinning');
+      disp.classList.add('winner');
+      // Lưu lịch sử
+      currentClass.randomHistory.unshift({ id: uid(), name: winner.name, at: new Date().toISOString(), total: parts.length });
+      if (currentClass.randomHistory.length > 30) currentClass.randomHistory = currentClass.randomHistory.slice(0, 30);
+      saveData();
+      fsBtn.disabled = false;
+      fsBtn.textContent = '▶ CHỌN LẠI';
+      // Hiệu ứng confetti
+      fireConfetti();
+      toast('🎉 ' + winner.name, '#E84393');
+    }
+  }, 70);
+}
+function fireConfetti() {
+  // Tạo confetti đơn giản bằng DOM
+  const colors = ['#FFD700','#E84393','#6C5CE7','#4ADEDE','#FF6B6B','#10b981'];
+  const fs = document.getElementById('wwFullscreen');
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.style.cssText = `position:absolute;width:10px;height:10px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${Math.random()*100}%;top:-20px;border-radius:${Math.random()>0.5?'50%':'2px'};pointer-events:none;z-index:5;animation:confettiFall ${2+Math.random()*2}s linear forwards;transform:rotate(${Math.random()*360}deg)`;
+    fs.appendChild(c);
+    setTimeout(() => c.remove(), 4500);
+  }
+  // Thêm keyframes nếu chưa có
+  if (!document.getElementById('confettiStyle')) {
+    const s = document.createElement('style');
+    s.id = 'confettiStyle';
+    s.textContent = '@keyframes confettiFall{to{top:110vh;transform:rotate(720deg)}}';
+    document.head.appendChild(s);
+  }
+}
+  
 /* ═══ INIT CUỐI ═══ */
 console.log('%c🎤 Voice AI v11.0 — Loaded', 'color:#8b5cf6;font-size:14px;font-weight:bold');
 </script>
