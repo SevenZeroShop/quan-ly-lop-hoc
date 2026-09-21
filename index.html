@@ -2655,37 +2655,86 @@ function parseVoiceCommand(text) {
     if (!subject) subject = 'Toán';
   }
 
-  /* ─── TÌM HS ─── */
+   /* ─── TÌM HS — PHIÊN BẢN MỚI: TÁCH NHIỀU TÊN ─── */
   const found = [];
+  const foundIds = new Set();
+  
+  // ─── CÁCH 1: Nếu câu có dấu phẩy → tách theo dấu phẩy ───
   const rawParts = text.split(/[,，;]/).map(s => s.trim()).filter(Boolean);
   if (rawParts.length > 1) {
     rawParts.forEach(part => {
       const c = _voiceClean(part);
       if (c.length >= 2) {
         const m = fuzzyFindStudents(c, 1);
-        if (m.length && m[0].score >= 100 && !found.find(s => String(s.id) === String(m[0].student.id))) found.push(m[0].student);
+        if (m.length && m[0].score >= 80) {
+          if (!foundIds.has(String(m[0].student.id))) {
+            foundIds.add(String(m[0].student.id));
+            found.push(m[0].student);
+          }
+        }
       }
     });
+    console.log('%c📌 Cách 1 (dấu phẩy): ' + found.length + ' HS', 'color:#3b82f6');
   }
+  
+  // ─── CÁCH 2: Nếu chưa tìm được → dùng sliding window mạnh ───
   if (!found.length) {
     const cleaned = _voiceClean(text);
     console.log('%c🧹 Sau khi bỏ từ khóa: "' + cleaned + '"', 'color:#f59e0b');
-    if (cleaned) {
+    if (cleaned && cleaned.length >= 2) {
       const words = cleaned.split(/\s+/).filter(w => w.length >= 2);
+      // Thử từ cụm DÀI đến NGẮN — ưu tiên khớp cả tên đầy đủ
       let i = 0;
+      const used = new Array(words.length).fill(false);
       while (i < words.length) {
         let matched = false;
+        // Thử cụm 4 từ trước, giảm dần xuống 1 từ
         for (let len = Math.min(4, words.length - i); len >= 1; len--) {
-          const chunk = words.slice(i, i + len).join(' ');
-          const m = fuzzyFindStudents(chunk, 1);
-          if (m.length && m[0].score >= 100) {
-            if (!found.find(s => String(s.id) === String(m[0].student.id))) found.push(m[0].student);
-            i += len; matched = true; break;
+          if (used[i]) { i++; matched = true; break; }
+          const chunk = words.slice(i, i + len).filter((_, idx) => !used[i + idx]).join(' ').trim();
+          if (!chunk || chunk.length < 2) continue;
+          const m = fuzzyFindStudents(chunk, 3);
+          if (m.length && m[0].score >= 80) {
+            if (!foundIds.has(String(m[0].student.id))) {
+              foundIds.add(String(m[0].student.id));
+              found.push(m[0].student);
+            }
+            for (let k = 0; k < len; k++) used[i + k] = true;
+            i += len;
+            matched = true;
+            break;
           }
         }
         if (!matched) i++;
       }
     }
+    console.log('%c📌 Cách 2 (sliding window): ' + found.length + ' HS', 'color:#3b82f6');
+  }
+  
+  // ─── CÁCH 3: Nếu vẫn không tìm được → tìm TẤT CẢ HS có tên khớp bất kỳ từ nào ───
+  if (!found.length) {
+    console.log('%c⚠️ Thử cách 3 — quét toàn bộ HS', 'color:#f59e0b');
+    const tClean = t.replace(/\s+/g, ' ');
+    const students = currentClass?.students || [];
+    students.forEach(st => {
+      const stName = removeDiacritics(st.name).trim();
+      const stWords = stName.split(/\s+/).filter(w => w.length >= 2);
+      // Kiểm tra từng từ trong tên HS có xuất hiện trong câu không
+      let matched = 0;
+      stWords.forEach(sw => {
+        if (sw.length >= 2 && new RegExp('\\b' + sw + '\\b').test(tClean)) matched++;
+      });
+      // Nếu khớp ít nhất 1 từ cuối (last name) hoặc 2+ từ
+      const lastName = stWords[stWords.length - 1];
+      const lastNameMatch = lastName && new RegExp('\\b' + lastName + '\\b').test(tClean);
+      if ((lastNameMatch && matched >= 1) || matched >= 2) {
+        if (!foundIds.has(String(st.id))) {
+          foundIds.add(String(st.id));
+          found.push(st);
+        }
+      }
+    });
+    console.log('%c📌 Cách 3 (quét toàn bộ): ' + found.length + ' HS', 'color:#3b82f6');
   }
 
   console.log('%c🎯 Action: ' + (action || 'KHÔNG'), 'color:#10b981;font-weight:bold');
@@ -2713,7 +2762,8 @@ function showVoicePopup(transcript, parsed) {
   const detectBox = document.getElementById('voiceDetectContent');
   const matchBox = document.getElementById('voiceMatchList');
   const manualSearch = document.getElementById('voiceManualSearch');
-
+  manualSearch.style.display = 'block';
+  
   let detectHtml = '';
   if (parsed.action === 'addScore') {
     detectHtml = `<div style="font-size:14px;line-height:1.8">📋 <b>Hành động:</b> Nhập điểm<br>💯 <b>Điểm:</b> <span style="color:#2563eb;font-weight:800;font-size:18px">${parsed.score}</span><br>📚 <b>Môn:</b> ${esc(parsed.subject || 'Toán')}<br>📅 <b>Ngày:</b> ${parsed.date}</div>`;
@@ -2743,30 +2793,49 @@ function showVoicePopup(transcript, parsed) {
   }
   detectBox.innerHTML = detectHtml;
 
-  let matches = (parsed.students || []).map(st => ({
-    student: st, idx: currentClass.students.indexOf(st), score: 999, name: st.name
-  }));
-
-  if (!matches.length && parsed.rawText) {
-    const query = extractStudentQuery(parsed.rawText);
-    if (query.length >= 2) matches = fuzzyFindStudents(query, 10);
-  }
-
-  if (!matches.length) {
-    matches = getAllStudentsAsMatches(50);
-    matchBox.innerHTML = '<p style="color:#f59e0b;font-size:12px;text-align:center;padding:6px;background:#fef3c7;border-radius:6px;margin-bottom:8px">⚠️ Không tìm thấy tên khớp. Hiện tất cả HS — tick chọn:</p>' + matches.map(m => {
-      return `<label class="match-item" onclick="toggleMatchItem(this)"><input type="checkbox" class="voice-match-chk" value="${m.student.id}" onchange="updateMatchHighlight(this)"><div class="mi-info"><div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div></div><span class="mi-score low">?</span></label>`;
+    // ─── CHUẨN BỊ DANH SÁCH GỢI Ý ───
+  const matched = parsed.students || [];
+  const matchedIds = new Set(matched.map(s => String(s.id)));
+  const allStudents = currentClass.students || [];
+  
+  // Đánh dấu HS nào đã match và điểm bao nhiêu
+  let html = '';
+  
+  if (matched.length) {
+    // Hiện các HS đã match lên đầu, tick sẵn
+    html += `<div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;margin-bottom:6px">✅ Đã nhận diện (${matched.length})</div>`;
+    html += matched.map(st => {
+      const idx = allStudents.indexOf(st) + 1;
+      return `<label class="match-item selected" onclick="toggleMatchItem(this)">
+        <input type="checkbox" class="voice-match-chk" value="${st.id}" checked onchange="updateMatchHighlight(this)">
+        <div class="mi-info"><div class="mi-name">${idx}. ${esc(st.name)}</div><div class="mi-meta">${st.role ? '👑 ' + esc(st.role) : '✓ khớp giọng nói'}</div></div>
+        <span class="mi-score high">✓</span>
+      </label>`;
     }).join('');
-    document.getElementById('voicePopup').classList.add('active');
-    return;
   }
-
-  matchBox.innerHTML = matches.map(m => {
-    const sc = Math.min(100, Math.round(m.score / 3));
-    const cls = sc >= 80 ? 'high' : sc >= 60 ? 'mid' : 'low';
-    const auto = sc >= 80 ? 'checked' : '';
-    return `<label class="match-item ${auto ? 'selected' : ''}" onclick="toggleMatchItem(this)"><input type="checkbox" class="voice-match-chk" value="${m.student.id}" ${auto} onchange="updateMatchHighlight(this)"><div class="mi-info"><div class="mi-name">${m.idx + 1}. ${esc(m.student.name)}</div><div class="mi-meta">${m.student.role ? '👑 ' + esc(m.student.role) : ''}</div></div><span class="mi-score ${cls}">${sc >= 999 ? '✓' : sc + '%'}</span></label>`;
-  }).join('');
+  
+  // Hiện thêm các HS CHƯA match — để bạn có thể tự thêm nếu cần
+  const unmatched = allStudents.filter(s => !matchedIds.has(String(s.id)));
+  if (unmatched.length && (matched.length > 0 || true)) {
+    html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin:12px 0 6px">📋 Chọn thêm (${unmatched.length} HS khác)</div>`;
+    // Sắp xếp theo STT
+    unmatched.sort((a, b) => allStudents.indexOf(a) - allStudents.indexOf(b));
+    // Giới hạn 100 HS để không nặng
+    html += unmatched.slice(0, 100).map(st => {
+      const idx = allStudents.indexOf(st) + 1;
+      return `<label class="match-item" onclick="toggleMatchItem(this)">
+        <input type="checkbox" class="voice-match-chk" value="${st.id}" onchange="updateMatchHighlight(this)">
+        <div class="mi-info"><div class="mi-name">${idx}. ${esc(st.name)}</div><div class="mi-meta">${st.role ? '👑 ' + esc(st.role) : ''}</div></div>
+        <span class="mi-score low">—</span>
+      </label>`;
+    }).join('');
+  }
+  
+  if (!matched.length && !unmatched.length) {
+    html = '<p style="color:#94a3b8;font-size:13px;text-align:center;padding:14px">Lớp chưa có HS nào.</p>';
+  }
+  
+  matchBox.innerHTML = html;
 
   document.getElementById('voicePopup').classList.add('active');
 }
