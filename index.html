@@ -864,6 +864,40 @@ body.dark .match-item .mi-name{color:#93c5fd}
     <div class="modal-body" id="ccGroupModalBody" style="padding:0"></div>
   </div>
 </div>
+
+  <!-- ═══════ MODAL SỬA PAYMENT ═══════ -->
+<div class="modal-overlay" id="editPaymentModal" onclick="if(event.target===this)closeEditPayment()">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-header"><h3>✏️ Sửa Đóng Quỹ</h3><button class="modal-close" onclick="closeEditPayment()">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editPayCollectId">
+      <input type="hidden" id="editPayStId">
+      <div class="form-group"><label>Học sinh</label><input type="text" id="editPayStName" readonly style="background:#f1f5f9;font-weight:bold;color:#1e3a8a"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Số tiền (đ)</label><input type="number" id="editPayAmount" step="1000" min="0"></div>
+        <div class="form-group"><label>Hình thức</label>
+          <select id="editPayMethod">
+            <option value="cash">💵 Tiền mặt</option>
+            <option value="transfer">🏦 Chuyển khoản</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Ngày đóng</label><input type="date" id="editPayDate"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="editPayNote" placeholder="VD: Đóng muộn, phụ huynh CK..."></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-act btn-success" style="flex:1;padding:12px" onclick="saveEditPayment()">💾 Cập nhật</button>
+        <button class="btn-act btn-warning" style="flex:1;padding:12px" onclick="closeEditPayment()">✖ Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- ═══════ MODAL CHI TIẾT ĐIỂM ═══════ -->
+<div class="modal-overlay" id="scoreDetailModal" onclick="if(event.target===this)closeScoreDetailModal()">
+  <div class="modal-card" style="max-width:640px">
+    <div class="modal-body" id="scoreDetailModalBody" style="padding:0"></div>
+  </div>
+</div>
   
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -1488,19 +1522,102 @@ function renderScoreView() {
       <td style="text-align:center"><button class="btn-act btn-teal btn-mini" onclick="showStudentScores('${s.id}')">📋 Chi tiết</button></td></tr>`;
   }).join('') || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">Không có kết quả</td></tr>';
 }
+/* ═══ BIẾN LƯU HS ĐANG XEM CHI TIẾT ═══ */
+let _scoreDetailStId = null;
+
+/* ═══ MODAL CHI TIẾT ĐIỂM — CÓ SỬA/XÓA ═══ */
 function showStudentScores(stId) {
   const st = currentClass.students.find(s => String(s.id) === String(stId));
   if (!st) return;
+  _scoreDetailStId = stId;
   const scores = currentClass.scores.filter(x => String(x.stId) === String(stId)).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-  if (!scores.length) { alert(`"${st.name}" chưa có điểm nào.`); return; }
-  const detail = scores.map(s => `• ${s.date} - ${s.sub}: ${s.val}đ`).join('\n');
-  alert(`📋 Điểm của ${st.name}:\n\n${detail}`);
+  const idx = currentClass.students.indexOf(st) + 1;
+  const avg = scores.length ? (scores.reduce((a,b)=>a+b.val,0)/scores.length).toFixed(2) : '—';
+  const cls = scores.length ? classify(parseFloat(avg)) : null;
+  
+  const html = `
+    <div class="modal-header">
+      <h3>📋 Điểm của ${esc(st.name)}</h3>
+      <button class="modal-close" onclick="closeScoreDetailModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <b style="color:#1e3a8a">${idx}. ${esc(st.name)}</b>
+          <span style="color:#64748b"> • </span>
+          Tổng: <b>${scores.length}</b> đầu điểm
+        </div>
+        <div>
+          ĐTB: <b style="color:#1e40af;font-size:15px">${avg}</b>
+          ${cls ? ` <span class="badge ${cls.c}">${cls.l}</span>` : ''}
+        </div>
+      </div>
+      
+      ${scores.length ? `<div class="table-wrapper"><table style="min-width:520px"><thead><tr>
+        <th style="width:15%">Ngày</th>
+        <th style="width:22%">Môn</th>
+        <th style="width:13%;text-align:center">Điểm</th>
+        <th>Ghi chú</th>
+        ${canEdit() ? '<th style="width:16%;text-align:center">Thao tác</th>' : ''}
+      </tr></thead><tbody>
+        ${scores.map(s => `<tr>
+          <td>${esc(s.date || '')}</td>
+          <td><b>${esc(s.sub || '')}</b></td>
+          <td style="text-align:center"><b style="color:#2563eb;font-size:16px">${s.val}đ</b></td>
+          <td style="font-size:12px;color:#64748b">${esc(s.note || '—')}</td>
+          ${canEdit() ? `<td style="text-align:center;white-space:nowrap">
+            <button class="btn-act btn-teal btn-mini" onclick="editScoreFromDetail('${s.id}')" title="Sửa">✏️</button>
+            <button class="btn-act btn-danger btn-mini" onclick="deleteScoreFromDetail('${s.id}')" title="Xóa">🗑️</button>
+          </td>` : ''}
+        </tr>`).join('')}
+      </tbody></table></div>` : '<p style="text-align:center;color:#94a3b8;padding:24px">📭 Chưa có điểm nào. Vào tab "Sổ Điểm" để nhập.</p>'}
+      
+      <div style="margin-top:14px;padding:10px;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;font-size:12px;color:#78350f">
+        💡 <b>Mẹo:</b> Bấm ✏️ để sửa điểm • Bấm 🗑️ để xóa điểm này
+      </div>
+    </div>`;
+  document.getElementById('scoreDetailModalBody').innerHTML = html;
+  document.getElementById('scoreDetailModal').classList.add('active');
 }
+
+function closeScoreDetailModal() {
+  _scoreDetailStId = null;
+  document.getElementById('scoreDetailModal').classList.remove('active');
+}
+
 function showScoreDetail(stId, val) { showStudentScores(stId); }
+
+function editScoreFromDetail(scoreId) {
+  // Đóng detail nhưng KHÔNG clear _scoreDetailStId để tự mở lại sau save
+  document.getElementById('scoreDetailModal').classList.remove('active');
+  openEditScore(scoreId);
+}
+
+function deleteScoreFromDetail(scoreId) {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const sc = currentClass.scores.find(x => String(x.id) === String(scoreId));
+  if (!sc) return;
+  const st = currentClass.students.find(s => String(s.id) === String(sc.stId));
+  if (!confirm(`Xóa đầu điểm ${sc.val}đ môn ${sc.sub} của "${st?.name || '?'}"?`)) return;
+  const stId = sc.stId;
+  currentClass.scores = currentClass.scores.filter(x => String(x.id) !== String(scoreId));
+  saveData();
+  toast('🗑️ Đã xóa!', '#ef4444');
+  // Mở lại detail nếu vẫn còn điểm, không thì đóng
+  const remaining = currentClass.scores.filter(x => String(x.stId) === String(stId));
+  if (remaining.length) {
+    setTimeout(() => showStudentScores(stId), 150);
+  } else {
+    closeScoreDetailModal();
+    toast('ℹ️ HS không còn điểm nào', '#f59e0b');
+  }
+}
+
+/* ═══ MỞ MODAL SỬA ĐIỂM ═══ */
 function openEditScore(id) {
   if (!canEdit()) return;
   const sc = currentClass.scores.find(x => String(x.id) === String(id));
-  if (!sc) return;
+  if (!sc) { toast('⚠️ Không tìm thấy điểm!', '#ef4444'); return; }
   const st = currentClass.students.find(s => String(s.id) === String(sc.stId));
   document.getElementById('editScoreId').value = sc.id;
   document.getElementById('editScoreStudent').value = st?.name || '?';
@@ -1509,6 +1626,8 @@ function openEditScore(id) {
   document.getElementById('editScoreDate').value = sc.date || today();
   document.getElementById('editScoreModal').classList.add('active');
 }
+
+/* ═══ LƯU SỬA ĐIỂM + TỰ MỞ LẠI DETAIL ═══ */
 function saveEditScore() {
   if (!canEdit()) return;
   const id = document.getElementById('editScoreId').value;
@@ -1524,6 +1643,11 @@ function saveEditScore() {
   closeModal('editScoreModal');
   saveData();
   toast('✏️ Đã cập nhật!');
+  // Nếu đang xem chi tiết → mở lại để thấy kết quả
+  if (_scoreDetailStId) {
+    const stId = _scoreDetailStId;
+    setTimeout(() => showStudentScores(stId), 200);
+  }
 }
 
 /* ═══════════════ QUỸ ═══════════════ */
@@ -1571,6 +1695,11 @@ function renderCollectList() {
         const s = calcCollect(c);
         const paidIds = new Set((c.payments||[]).map(p => String(p.stId)));
         const unpaidList = (currentClass.students || []).filter(st => !paidIds.has(String(st.id)));
+        // Danh sách HS đã đóng — sắp theo STT
+        const paidList = (c.payments||[]).map(p => {
+          const st = (currentClass.students || []).find(s => String(s.id) === String(p.stId));
+          return st ? { st, p } : null;
+        }).filter(Boolean).sort((a, b) => currentClass.students.indexOf(a.st) - currentClass.students.indexOf(b.st));
         const done = s.unpaid === 0 && s.total > 0;
         return `<div class="collect-card ${done?'done':s.unpaid>0?'has-unpaid':''}">
           <div class="collect-name"><span>📌 ${esc(c.name)} <small style="color:#64748b;font-size:12px">${c.date}</small></span><span style="color:#1e40af">${c.amount.toLocaleString('vi-VN')}đ/HS</span></div>
@@ -1584,15 +1713,99 @@ function renderCollectList() {
             ${unpaidList.map((st,i) => `<span class="unpaid-item">${i+1}. ${esc(st.name)}</span>`).join('')}
             <button class="btn-act btn-mini btn-teal" style="margin-top:8px" onclick="copyUnpaid('${c.id}')">📋 Copy gửi Zalo</button>
           </div>` : '<div style="background:#dcfce7;border:2px solid #86efac;border-radius:8px;padding:8px;margin-top:8px;text-align:center;color:#166534;font-weight:700;font-size:12px">🎉 Đã thu đủ!</div>'}
+          
+          ${paidList.length ? `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px;margin-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+              <b style="color:#166534;font-size:13px">✅ Đã đóng (${paidList.length} HS)</b>
+              <button class="btn-act btn-mini" style="background:#0d9488" onclick="togglePaidList('${c.id}')" id="togglePaidBtn_${c.id}">👁️ Xem & Sửa</button>
+            </div>
+            <div id="paidList_${c.id}" style="display:none;margin-top:8px;max-height:280px;overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:6px">
+              ${paidList.map(({st, p}) => {
+                const idx = currentClass.students.indexOf(st) + 1;
+                return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px;border-bottom:1px solid #f1f5f9;flex-wrap:wrap">
+                  <div style="flex:1;min-width:150px">
+                    <b style="font-size:13px;color:#1e3a8a">${idx}. ${esc(st.name)}</b>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px">
+                      📅 ${esc(p.date || c.date)} • 💰 ${(p.amount || c.amount).toLocaleString('vi-VN')}đ • ${p.method === 'transfer' ? '🏦 CK' : '💵 TM'}
+                    </div>
+                  </div>
+                  ${canEdit() ? `<div style="display:flex;gap:3px">
+                    <button class="btn-act btn-teal btn-mini" onclick="editPayment('${c.id}','${st.id}')" title="Sửa">✏️</button>
+                    <button class="btn-act btn-danger btn-mini" onclick="unmarkPaid('${c.id}','${st.id}')" title="Bỏ đánh dấu">🗑️</button>
+                  </div>` : ''}
+                </div>`;
+              }).join('')}
+            </div>
+          </div>` : ''}
+          
           ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
             <button class="btn-act btn-success btn-mini" style="flex:1" onclick="openMarkPaid('${c.id}')">✅ Đánh dấu đã đóng</button>
-            <button class="btn-act btn-teal btn-mini" onclick="openEditCollect('${c.id}')">✏️</button>
-            <button class="btn-act btn-warning btn-mini" onclick="openHandoverModal('${c.id}')">💸</button>
-            <button class="btn-act btn-danger btn-mini" onclick="delCollect('${c.id}')">🗑️</button>
+            <button class="btn-act btn-teal btn-mini" onclick="openEditCollect('${c.id}')" title="Sửa đợt thu">✏️</button>
+            <button class="btn-act btn-warning btn-mini" onclick="openHandoverModal('${c.id}')" title="Bàn giao">💸</button>
+            <button class="btn-act btn-danger btn-mini" onclick="delCollect('${c.id}')" title="Xóa đợt">🗑️</button>
           </div>` : ''}
         </div>`;
       }).join('');
   }).join('');
+}
+
+/* ═══ TOGGLE HIỆN/ẨN DS ĐÃ ĐÓNG ═══ */
+function togglePaidList(collectId) {
+  const box = document.getElementById('paidList_' + collectId);
+  const btn = document.getElementById('togglePaidBtn_' + collectId);
+  if (!box) return;
+  const isHidden = box.style.display === 'none';
+  box.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? '🙈 Ẩn danh sách' : '👁️ Xem & Sửa';
+}
+
+/* ═══ SỬA 1 PAYMENT ═══ */
+function editPayment(collectId, stId) {
+  if (!canEdit()) return;
+  const c = currentClass.collects.find(x => String(x.id) === String(collectId));
+  if (!c) return;
+  const p = (c.payments||[]).find(x => String(x.stId) === String(stId));
+  if (!p) { toast('⚠️ Không tìm thấy!', '#ef4444'); return; }
+  const st = currentClass.students.find(s => String(s.id) === String(stId));
+  document.getElementById('editPayCollectId').value = collectId;
+  document.getElementById('editPayStId').value = stId;
+  document.getElementById('editPayStName').value = st?.name || '?';
+  document.getElementById('editPayAmount').value = p.amount || c.amount;
+  document.getElementById('editPayMethod').value = p.method || 'cash';
+  document.getElementById('editPayDate').value = p.date || c.date || today();
+  document.getElementById('editPayNote').value = p.note || '';
+  document.getElementById('editPaymentModal').classList.add('active');
+}
+function closeEditPayment() { document.getElementById('editPaymentModal').classList.remove('active'); }
+function saveEditPayment() {
+  if (!canEdit()) return;
+  const collectId = document.getElementById('editPayCollectId').value;
+  const stId = document.getElementById('editPayStId').value;
+  const c = currentClass.collects.find(x => String(x.id) === String(collectId));
+  if (!c) return;
+  const p = (c.payments||[]).find(x => String(x.stId) === String(stId));
+  if (!p) { toast('⚠️ Không tìm thấy!', '#ef4444'); return; }
+  const amount = parseInt(document.getElementById('editPayAmount').value) || 0;
+  if (amount <= 0) { toast('⚠️ Số tiền > 0!', '#ef4444'); return; }
+  p.amount = amount;
+  p.method = document.getElementById('editPayMethod').value;
+  p.date = document.getElementById('editPayDate').value || today();
+  p.note = document.getElementById('editPayNote').value.trim();
+  saveData();
+  closeEditPayment();
+  toast('✏️ Đã cập nhật!', '#10b981');
+}
+
+/* ═══ BỎ ĐÁNH DẤU 1 PAYMENT ═══ */
+function unmarkPaid(collectId, stId) {
+  if (!canEdit()) return;
+  const c = currentClass.collects.find(x => String(x.id) === String(collectId));
+  if (!c) return;
+  const st = currentClass.students.find(s => String(s.id) === String(stId));
+  if (!confirm(`Bỏ đánh dấu đã đóng cho "${st?.name || '?'}"?`)) return;
+  c.payments = (c.payments||[]).filter(p => String(p.stId) !== String(stId));
+  saveData();
+  toast('↩️ Đã bỏ đánh dấu!', '#f59e0b');
 }
 function copyUnpaid(id) {
   const c = currentClass.collects.find(x => String(x.id) === String(id));
@@ -1616,11 +1829,23 @@ function openMarkPaid(id) {
     <div class="modal-card" style="max-width:520px">
       <div class="modal-header"><h3>✅ Đánh dấu đã đóng: ${esc(c.name)}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
       <div class="modal-body">
+        <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:10px;margin-bottom:10px">
+          <div class="grid-2" style="margin-bottom:8px">
+            <div class="form-group" style="margin-bottom:0"><label>Số tiền (đ)</label><input type="number" id="qkAmount" value="${c.amount}" step="1000" min="0" style="font-weight:bold;color:#1e40af"></div>
+            <div class="form-group" style="margin-bottom:0"><label>Phương thức</label>
+              <select id="qkMethod"><option value="cash">💵 Tiền mặt</option><option value="transfer">🏦 Chuyển khoản</option></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0"><label>Ngày đóng</label><input type="date" id="qkDate" value="${today()}"></div>
+        </div>
         <div class="checkbox-toolbar">
           <button class="btn-act btn-mini" onclick="toggleAll('qkChk',true)">✔ Tất cả</button>
           <button class="btn-act btn-mini btn-warning" onclick="toggleAll('qkChk',false)">✖ Bỏ</button>
         </div>
-        <div class="checkbox-group" id="qkChk">${unpaid.map(s => `<label class="checkbox-item"><input type="checkbox" name="qkChk" value="${s.id}"> ${esc(s.name)}</label>`).join('')}</div>
+        <div class="checkbox-group" id="qkChk">${unpaid.map(s => {
+          const idx = currentClass.students.indexOf(s) + 1;
+          return `<label class="checkbox-item"><input type="checkbox" name="qkChk" value="${s.id}"> ${idx}. ${esc(s.name)}</label>`;
+        }).join('')}</div>
         <div style="display:flex;gap:6px;margin-top:10px">
           <button class="btn-act btn-success" style="flex:1;padding:12px" onclick="markPaidBatch('${c.id}', this)">💾 Lưu</button>
           <button class="btn-act btn-warning" style="flex:1;padding:12px" onclick="this.closest('.modal-overlay').remove()">✖ Hủy</button>
@@ -1635,14 +1860,24 @@ function markPaidBatch(id, btn) {
   if (!c) return;
   const checked = [...document.querySelectorAll('input[name="qkChk"]:checked')];
   if (!checked.length) { toast('⚠️ Chưa chọn!', '#ef4444'); return; }
+  // Lấy số tiền + ngày + phương thức từ form trong modal
+  const modal = btn.closest('.modal-overlay');
+  const amtInput = modal?.querySelector('#qkAmount');
+  const dateInput = modal?.querySelector('#qkDate');
+  const methodInput = modal?.querySelector('#qkMethod');
+  const amount = parseInt(amtInput?.value) || c.amount;
+  const date = dateInput?.value || today();
+  const method = methodInput?.value || 'cash';
   if (!c.payments) c.payments = [];
   const paidIds = new Set(c.payments.map(p => String(p.stId)));
   checked.forEach(cb => {
-    if (!paidIds.has(String(cb.value))) c.payments.push({ stId: cb.value, date: today(), amount: c.amount });
+    if (!paidIds.has(String(cb.value))) {
+      c.payments.push({ stId: cb.value, date, method, amount, note: '' });
+    }
   });
   btn.closest('.modal-overlay').remove();
   saveData();
-  toast(`✅ Đã đánh dấu ${checked.length} HS!`);
+  toast(`✅ Đã đánh dấu ${checked.length} HS!`, '#10b981');
 }
 function delCollect(id) {
   if (!canEdit()) return;
