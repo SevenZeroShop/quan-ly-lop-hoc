@@ -347,8 +347,12 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
     <h3>📝 Ghi Vi Phạm Mới</h3>
     <div class="grid-2">
       <div class="form-group"><label>Loại Vi Phạm:</label>
-        <select id="ddType" onchange="onCCTypeChange()"></select>
-        <button class="btn-act btn-mini btn-purple" style="margin-top:6px;width:100%;" onclick="addCustomCCType()">➕ Thêm loại mới</button>
+                <select id="ddType" onchange="onCCTypeChange()"></select>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <input type="text" id="ccNewTypeInput" placeholder="Nhập loại mới..." maxlength="40" style="flex:1;padding:7px 9px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+          <button class="btn-act btn-mini btn-purple" onclick="addCustomCCType()" title="Thêm loại vi phạm mới">➕</button>
+        </div>
+        <div id="ccCustomTypeManage" style="margin-top:6px;font-size:11px;color:#64748b;"></div>
       </div>
       <div class="form-group"><label>Ngày:</label><input type="date" id="ddDate"></div>
     </div>
@@ -598,7 +602,7 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
     </div>
     <div class="grid-2">
       <div class="form-group"><label>Hình Thức:</label>
-        <select id="ptType">
+        <select id="ptType" onchange="onPunishTypeChange()">
           <option value="chep_phat">📝 Chép Phạt</option>
           <option value="ve_sinh">🧹 Vệ Sinh</option>
           <option value="nhac_nho">💬 Nhắc Nhở</option>
@@ -639,10 +643,33 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
         <option value="Không đội mũ bảo hiểm"><option value="Vô lễ với người lớn">
       </datalist>
     </div>
-    <div class="grid-2">
+        <div class="grid-2">
       <div class="form-group"><label>Ngày BĐ:</label><input type="date" id="ptStart"></div>
       <div class="form-group"><label>Hạn:</label><input type="date" id="ptDeadline"></div>
     </div>
+
+    <!-- KHU VỰC CHỌN NHIỀU BUỔI (chỉ hiện khi chọn Vệ sinh) -->
+    <div id="pMultiDayBox" style="display:none;background:#eff6ff;border:2px solid #93c5fd;border-radius:10px;padding:12px;margin-top:8px">
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:8px">📅 CÁC BUỔI TRỰC NHẬT</div>
+      <div class="grid-2" style="margin-bottom:8px">
+        <div class="form-group" style="margin-bottom:0"><label>Từ ngày</label><input type="date" id="pFromDate" onchange="buildPunishDays()"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Đến ngày</label><input type="date" id="pToDate" onchange="buildPunishDays()"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:6px">
+        <label>Chọn buổi trong tuần:</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px">
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="1" checked onchange="buildPunishDays()"> T2</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="2" checked onchange="buildPunishDays()"> T3</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="3" checked onchange="buildPunishDays()"> T4</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="4" checked onchange="buildPunishDays()"> T5</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="5" checked onchange="buildPunishDays()"> T6</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="6" checked onchange="buildPunishDays()"> T7</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:600;cursor:pointer"><input type="checkbox" class="p-dow" value="0" onchange="buildPunishDays()"> CN</label>
+        </div>
+      </div>
+      <div id="pPunishDaysPreview" style="font-size:12px;color:#475569;font-weight:600">Chưa chọn đủ ngày</div>
+    </div>
+
     <div class="form-group"><label>Ghi Chú:</label><input type="text" id="ptNote" maxlength="200" placeholder="VD: Vi phạm lần 2..."></div>
     <button class="btn-act btn-danger btn-full" onclick="createPunishment()">⚖️ Tạo Phiếu Phạt</button>
   </div>
@@ -1136,6 +1163,7 @@ function renderAllUI() {
   document.getElementById('hUserRole').textContent = roleLabels[currentRole] || '';
   document.getElementById('readonlyBanner').style.display = canEdit() ? 'none' : 'block';
   updateCCTypeOptions();
+  renderCustomTypeManager();
   updateSelects();
   renderSmartBars();
   renderTopStats();
@@ -1185,16 +1213,42 @@ function updateCCTypeOptions() {
   sel.innerHTML = Object.entries(all).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
   if (cur) sel.value = cur;
 }
-function onCCTypeChange() { /* hook nếu cần */ }
+function onCCTypeChange() { /* hook */ }
+
 function addCustomCCType() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
-  const label = prompt('Nhập tên loại vi phạm mới (VD: Không đeo khăn quàng):');
-  if (!label || !label.trim()) return;
+  const inp = document.getElementById('ccNewTypeInput');
+  const label = (inp?.value || '').trim();
+  if (!label) { toast('⚠️ Nhập tên loại mới!', '#ef4444'); return; }
+  const all = getAllCCTypes();
+  const dup = Object.values(all).some(v => removeDiacritics(v.label.replace(/^[^\s]+\s/,'')) === removeDiacritics(label));
+  if (dup) { toast('⚠️ Loại này đã tồn tại!', '#ef4444'); return; }
   const key = 'custom_' + uid();
   currentClass.customCCTypes = currentClass.customCCTypes || {};
-  currentClass.customCCTypes[key] = { label: '⭐ ' + label.trim(), cls: 'badge-custom', color: '#ec4899' };
+  currentClass.customCCTypes[key] = { label: '⭐ ' + label, cls: 'badge-custom', color: '#ec4899' };
+  inp.value = '';
   saveData();
-  toast('✅ Đã thêm loại vi phạm!', '#10b981');
+  // Auto-select loại vừa thêm
+  const sel = document.getElementById('ddType');
+  if (sel) sel.value = key;
+  toast(`✅ Đã thêm "${label}"!`, '#10b981');
+}
+function deleteCustomCCType(key) {
+  if (!canEdit()) return;
+  if (!currentClass.customCCTypes?.[key]) return;
+  const label = currentClass.customCCTypes[key].label;
+  if (!confirm(`Xóa loại vi phạm "${label}"?\n(Các log đã ghi vẫn giữ nguyên)`)) return;
+  delete currentClass.customCCTypes[key];
+  saveData();
+  toast('🗑️ Đã xóa loại!');
+}
+function renderCustomTypeManager() {
+  const box = document.getElementById('ccCustomTypeManage');
+  if (!box) return;
+  const cust = currentClass?.customCCTypes || {};
+  const keys = Object.keys(cust);
+  if (!keys.length) { box.innerHTML = ''; return; }
+  box.innerHTML = '⭐ <b>Loại tự thêm:</b> ' + keys.map(k => `<span style="display:inline-flex;align-items:center;gap:3px;background:#fce7f3;border:1px solid #f9a8d4;color:#9d174d;border-radius:6px;padding:2px 6px;font-size:10px;font-weight:600;margin:2px;">${esc(cust[k].label.replace(/^⭐\s/,''))} <button onclick="deleteCustomCCType('${k}')" style="background:transparent;border:none;color:#9d174d;cursor:pointer;font-size:12px;line-height:1;">×</button></span>`).join('');
 }
 
 function saveDiemDanhBatch() {
@@ -1910,43 +1964,42 @@ function renderPunishStudentSelector() {
   getPunishments().filter(p => p.status !== 'done').forEach(p => { activeCounts[p.stId] = (activeCounts[p.stId] || 0) + 1; });
   box.innerHTML = getStudents().map((s, i) => { const count = activeCounts[s.id] || 0; const marker = count > 0 ? ` ⚠️ (${count})` : ''; return `<label class="checkbox-item"><input type="checkbox" name="ptStudentCheck" value="${s.id}" ${checkedIds.has(String(s.id))?'checked':''}> ${i+1}. ${esc(s.name)}${marker}</label>`; }).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>';
 }
-function createPunishment() {
-  if (!canEdit()) return;
-  const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
-  const type = document.getElementById('ptType').value;
-  const level = document.getElementById('ptLevel').value;
-  const reason = document.getElementById('ptReason').value.trim();
-  const start = document.getElementById('ptStart').value;
-  const deadline = document.getElementById('ptDeadline').value;
-  const note = document.getElementById('ptNote').value.trim();
-  if (!checked.length || !reason || !start) { toast('⚠️ Nhập đủ!', '#ef4444'); return; }
-  const arr = getPunishments();
-  const now = new Date().toISOString();
-  const groupId = 'g_' + uid();
-  checked.forEach(cb => arr.push({ id: uid(), groupId, stId: cb.value, type, level, reason, start, deadline: deadline || '', note, status: 'active', createdAt: now }));
-  setPunishments(arr);
-  ['ptReason','ptNote','ptDeadline'].forEach(id => document.getElementById(id).value = '');
-  document.querySelectorAll('input[name="ptStudentCheck"]').forEach(c => c.checked = false);
-  saveData(); toast(`⚖️ Đã tạo ${checked.length} phiếu!`);
-}
+
+/* ═══════════ RENDER DANH SÁCH PHẠT ═══════════ */
 function renderPunishActive() {
   const box = document.getElementById('ptListActive'); if (!box) return;
   const students = getStudents();
   const search = (document.getElementById('searchPunishActive')?.value || '').toLowerCase().trim();
   let all = getPunishments().slice();
-  if (search) all = all.filter(p => { const st = students.find(s => String(s.id) === String(p.stId)); return (st && st.name.toLowerCase().includes(search)) || (p.reason || '').toLowerCase().includes(search); });
+
+  if (search) all = all.filter(p => {
+    const st = students.find(s => String(s.id) === String(p.stId));
+    return (st && st.name.toLowerCase().includes(search)) || (p.reason || '').toLowerCase().includes(search);
+  });
   if (ptDeadlineFilter !== 'all') all = all.filter(p => getPtDeadlineBucket(p) === ptDeadlineFilter);
+
   const activeTotal = all.filter(p => p.status !== 'done').length;
   document.getElementById('ptActiveCount').textContent = `(${activeTotal} HS đang chịu phạt)`;
-  if (!all.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có phiếu phạt nào!</div>'; return; }
+
+  if (!all.length) {
+    box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:24px;font-weight:bold;">🎉 Không có phiếu phạt nào!</div>';
+    return;
+  }
+
   const groups = sortPunishGroups(groupPunishments(all));
+
   box.innerHTML = groups.map(g => {
     const stats = calcPunishGroupStats(g);
     const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
     const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
     const isDone = stats.active === 0;
-    const info = isDone ? { cls: 'done', label: '✅ Hoàn thành', color: '#10b981' } : getDeadlineInfo({ status: 'active', deadline: g.deadline });
+    const isMultiDayGroup = g.items.some(p => p.days && p.days.length);
+    const multiDayTotal = isMultiDayGroup ? (g.items[0].days || []).length : 0;
+    const info = isDone
+      ? { cls: 'done', label: '✅ Hoàn thành', color: '#10b981' }
+      : getDeadlineInfo({ status: 'active', deadline: g.deadline });
     const cardCls = isDone ? 'done' : 'has-unpaid';
+
     const activeItems = sortPunishItemsByCreatedAt(g.items.filter(p => p.status !== 'done'));
     const doneItems = sortPunishItemsByCreatedAt(g.items.filter(p => p.status === 'done'));
     const SHOW_LIMIT = 5;
@@ -1955,12 +2008,172 @@ function renderPunishActive() {
     const doneShown = isExpanded ? doneItems : doneItems.slice(0, SHOW_LIMIT);
     const activeHiddenCount = activeItems.length - activeShown.length;
     const doneHiddenCount = doneItems.length - doneShown.length;
-    const activeListHTML = activeItems.length ? `<div style="background:#fef2f2;border:2px dashed #fca5a5;border-radius:10px;padding:12px;margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;"><h5 style="color:#991b1b;font-size:12px;text-transform:uppercase;margin:0;">🔴 Chưa Hoàn Thành (${activeItems.length} HS)</h5>${canEdit() ? `<div style="display:flex;gap:4px;flex-wrap:wrap;"><button class="btn-act btn-mini" onclick="toggleAllPunishCheck('${esc(g.key)}', true)">✔ Tất cả</button><button class="btn-act btn-mini btn-warning" onclick="toggleAllPunishCheck('${esc(g.key)}', false)">✖ Bỏ</button><button class="btn-act btn-mini btn-success" onclick="batchCompletePunish('${esc(g.key)}')">✅ Đánh Dấu Xong</button></div>` : ''}</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px;">${activeShown.map(p => { const st = students.find(s => String(s.id) === String(p.stId)); const idx = students.indexOf(st) + 1; const elapsed = getElapsedTime(p); return `<div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #fca5a5;border-radius:8px;padding:6px 8px;font-size:13px;cursor:${canEdit()?'pointer':'default'};" ${canEdit()?`onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON')openEditPunish('${p.id}')"`:''}>${canEdit()?`<input type="checkbox" class="pt-group-check" data-group-key="${esc(g.key)}" value="${p.id}" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;" onclick="event.stopPropagation()">`:''}<div style="flex:1;min-width:0;"><b style="font-size:13px;">${idx}. ${esc(st?.name || '(Đã xóa)')}</b><div style="font-size:10px;color:#64748b;margin-top:2px;">⏱ Đã ${elapsed}</div></div>${canEdit() ? `<div style="display:flex;gap:2px;flex-shrink:0;"><button class="btn-act btn-success btn-mini" onclick="event.stopPropagation();completePunishment('${p.id}')" title="Xong">✅</button>${g.type==='ve_sinh'?`<button class="btn-act btn-teal btn-mini" onclick="event.stopPropagation();sendToLabor('${p.id}')" title="Chuyển sang Lao động">🧹</button>`:''}<button class="btn-act btn-warning btn-mini" onclick="event.stopPropagation();openEditPunish('${p.id}')" title="Sửa">✏️</button></div>` : ''}</div>`; }).join('')}</div>${activeHiddenCount > 0 ? `<button class="btn-act btn-mini" style="margin-top:8px;width:100%;background:#fee2e2;color:#991b1b;border:1px dashed #fca5a5;" onclick="togglePtGroupShow('${esc(g.key)}')">▼ Xem thêm ${activeHiddenCount} HS</button>` : ''}</div>` : '';
-    const doneListHTML = doneItems.length ? `<div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:12px;margin-top:10px;"><h5 style="color:#166534;font-size:12px;text-transform:uppercase;margin:0 0 8px;">✅ Đã Hoàn Thành (${doneItems.length} HS)</h5><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px;">${doneShown.map(p => { const st = students.find(s => String(s.id) === String(p.stId)); const idx = students.indexOf(st) + 1; return `<div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #86efac;border-radius:8px;padding:6px 8px;font-size:13px;"><span>✅</span><div style="flex:1;min-width:0;"><b style="font-size:13px;">${idx}. ${esc(st?.name || '?')}</b></div>${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')">↩️</button>`:''}</div>`; }).join('')}</div>${doneHiddenCount > 0 ? `<button class="btn-act btn-mini" style="margin-top:8px;width:100%;background:#dcfce7;color:#166534;border:1px dashed #86efac;" onclick="togglePtGroupShow('${esc(g.key)}')">▼ Xem thêm ${doneHiddenCount} HS</button>` : ''}</div>` : '';
-    const collapseBtn = isExpanded && (activeItems.length > SHOW_LIMIT || doneItems.length > SHOW_LIMIT) ? `<button class="btn-act btn-mini" style="margin-top:8px;width:100%;" onclick="togglePtGroupShow('${esc(g.key)}')">▲ Thu gọn</button>` : '';
-    return `<div class="collect-card ${cardCls}" style="margin-bottom:14px;"><div class="collect-name" style="flex-wrap:wrap;"><span style="font-size:15px;">📋 <b>${esc(g.reason)}</b></span><div style="display:flex;gap:6px;flex-wrap:wrap;"><span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${PT_TYPE_NAMES[g.type] || 'Khác'}</span><span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${lvl.txt}</span></div></div><div class="collect-meta">📅 BĐ: <b>${esc(g.start)}</b>${g.deadline ? ` • ⏰ Hạn: <b>${esc(g.deadline)}</b>` : ''} <span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:6px;padding:2px 8px;font-size:11px;font-weight:bold;margin-left:6px;">${info.label}</span>${g.note ? `<br>📝 ${esc(g.note)}` : ''}</div><div class="progress-track"><div class="progress-fill" style="width:${stats.pct}%;background:linear-gradient(90deg,#10b981,#059669);">${stats.pct.toFixed(0)}%</div></div><div class="collect-stats"><div class="item"><span>Đã xong</span><b style="color:#10b981;">${stats.done}/${stats.total}</b></div><div class="item"><span>Chưa xong</span><b style="color:#ef4444;">${stats.active}</b></div></div>${activeListHTML}${doneListHTML}${collapseBtn}${canEdit() ? `<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;"><button class="btn-act btn-warning" style="flex:1;min-width:100px;" onclick="extendPunishGroup('${esc(g.key)}')">⏰ Gia Hạn Nhóm</button><button class="btn-act btn-danger" onclick="deletePunishGroup('${esc(g.key)}')">🗑️</button></div>` : ''}</div>`;
+
+    const activeListHTML = activeItems.length ? `
+      <div style="background:#fef2f2;border:2px dashed #fca5a5;border-radius:10px;padding:12px;margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <h5 style="color:#991b1b;font-size:12px;text-transform:uppercase;margin:0;">🔴 Chưa Hoàn Thành (${activeItems.length} HS)</h5>
+          ${canEdit() ? `<div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn-act btn-mini" onclick="toggleAllPunishCheck('${esc(g.key)}', true)">✔ Tất cả</button>
+            <button class="btn-act btn-mini btn-warning" onclick="toggleAllPunishCheck('${esc(g.key)}', false)">✖ Bỏ</button>
+            <button class="btn-act btn-mini btn-success" onclick="batchCompletePunish('${esc(g.key)}')">✅ Đánh Dấu Xong</button>
+          </div>` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px;">
+          ${activeShown.map(p => renderPunishItem(p, g, stats)).join('')}
+        </div>
+        ${activeHiddenCount > 0 ? `<button class="btn-act btn-mini" style="margin-top:8px;width:100%;background:#fee2e2;color:#991b1b;border:1px dashed #fca5a5;" onclick="togglePtGroupShow('${esc(g.key)}')">▼ Xem thêm ${activeHiddenCount} HS</button>` : ''}
+      </div>` : '';
+
+    const doneListHTML = doneItems.length ? `
+      <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:12px;margin-top:10px;">
+        <h5 style="color:#166534;font-size:12px;text-transform:uppercase;margin:0 0 8px;">✅ Đã Hoàn Thành (${doneItems.length} HS)</h5>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px;">
+          ${doneShown.map(p => {
+            const st = students.find(s => String(s.id) === String(p.stId));
+            const idx = students.indexOf(st) + 1;
+            const hasDays = p.days && p.days.length;
+            const doneCnt = hasDays ? p.days.filter(d => d.done).length : 0;
+            return `<div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #86efac;border-radius:8px;padding:6px 8px;font-size:13px;">
+              <span>✅</span>
+              <div style="flex:1;min-width:0;">
+                <b style="font-size:13px;">${idx}. ${esc(st?.name || '?')}</b>
+                ${hasDays ? `<div style="font-size:10px;color:#166534;margin-top:2px;">🧹 ${doneCnt}/${p.days.length} buổi</div>` : ''}
+              </div>
+              ${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="reopenPunishment('${p.id}')">↩️</button>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+        ${doneHiddenCount > 0 ? `<button class="btn-act btn-mini" style="margin-top:8px;width:100%;background:#dcfce7;color:#166534;border:1px dashed #86efac;" onclick="togglePtGroupShow('${esc(g.key)}')">▼ Xem thêm ${doneHiddenCount} HS</button>` : ''}
+      </div>` : '';
+
+    const collapseBtn = isExpanded && (activeItems.length > SHOW_LIMIT || doneItems.length > SHOW_LIMIT)
+      ? `<button class="btn-act btn-mini" style="margin-top:8px;width:100%;" onclick="togglePtGroupShow('${esc(g.key)}')">▲ Thu gọn</button>` : '';
+
+    return `<div class="collect-card ${cardCls}" style="margin-bottom:14px;">
+      <div class="collect-name" style="flex-wrap:wrap;">
+        <span style="font-size:15px;">📋 <b>${esc(g.reason)}</b></span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="background:${typeColor}20;color:${typeColor};border:1px solid ${typeColor}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${PT_TYPE_NAMES[g.type] || 'Khác'}</span>
+          <span style="background:${lvl.color}20;color:${lvl.color};border:1px solid ${lvl.color}50;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${lvl.txt}</span>
+          ${isMultiDayGroup ? `<span style="background:#ccfbf1;color:#115e59;border:1px solid #5eead4;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">🧹 ${multiDayTotal} buổi</span>` : ''}
+        </div>
+      </div>
+      <div class="collect-meta">
+        📅 BĐ: <b>${esc(g.start)}</b>${g.deadline ? ` • ⏰ Hạn: <b>${esc(g.deadline)}</b>` : ''}
+        <span style="background:${info.color}20;color:${info.color};border:1px solid ${info.color};border-radius:6px;padding:2px 8px;font-size:11px;font-weight:bold;margin-left:6px;">${info.label}</span>
+        ${g.note ? `<br>📝 ${esc(g.note)}` : ''}
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${stats.pct}%;background:linear-gradient(90deg,#10b981,#059669);">${stats.pct.toFixed(0)}%</div></div>
+      <div class="collect-stats">
+        <div class="item"><span>Đã xong</span><b style="color:#10b981;">${stats.done}/${stats.total}</b></div>
+        <div class="item"><span>Chưa xong</span><b style="color:#ef4444;">${stats.active}</b></div>
+      </div>
+      ${activeListHTML}
+      ${doneListHTML}
+      ${collapseBtn}
+      ${canEdit() ? `<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+        <button class="btn-act btn-warning" style="flex:1;min-width:100px;" onclick="extendPunishGroup('${esc(g.key)}')">⏰ Gia Hạn Nhóm</button>
+        <button class="btn-act btn-danger" onclick="deletePunishGroup('${esc(g.key)}')">🗑️</button>
+      </div>` : ''}
+    </div>`;
   }).join('');
 }
+
+/* ═══════════ RENDER 1 ITEM PHẠT (hỗ trợ nhiều buổi) ═══════════ */
+function renderPunishItem(p, group, groupStats) {
+  const students = getStudents();
+  const st = students.find(s => String(s.id) === String(p.stId));
+  const idx = students.indexOf(st) + 1;
+  const isMultiDay = !!(p.days && p.days.length);
+  const P_DOW_LOCAL = ['CN','T2','T3','T4','T5','T6','T7'];
+  const elapsed = getElapsedTime(p);
+
+  const daysHTML = isMultiDay ? `
+    <div class="duty-days" style="margin-top:6px;">
+      ${p.days.map((d, di) => {
+        const dt = new Date(d.date + 'T00:00:00');
+        const isToday = d.date === todayStr();
+        const cls = d.done ? 'done' : (isToday ? 'today' : 'pending');
+        return `<button class="duty-day ${cls}" onclick="event.stopPropagation();togglePunishDay('${p.id}', ${di})" title="${d.done ? 'Đã xong, click để bỏ tích' : 'Click để đánh dấu xong'}">
+          <span class="dd-label">${P_DOW_LOCAL[dt.getDay()]}</span>
+          <span class="dd-date">${dt.getDate()}/${dt.getMonth()+1}</span>
+          <span class="dd-status">${d.done ? '✅' : (isToday ? '⏰' : '⬜')}</span>
+        </button>`;
+      }).join('')}
+    </div>` : '';
+
+  const doneCount = isMultiDay ? p.days.filter(d => d.done).length : 0;
+  const totalCount = isMultiDay ? p.days.length : 0;
+
+  return `<div style="background:#fff;border:1px solid #fca5a5;border-radius:8px;padding:8px;${isMultiDay ? 'grid-column:1/-1;' : ''}" ${canEdit() ? `onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON')openEditPunish('${p.id}')"` : ''}>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;">
+        ${canEdit() && groupStats ? `<input type="checkbox" class="pt-group-check" data-group-key="${esc(group.key)}" value="${p.id}" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;" onclick="event.stopPropagation()">` : ''}
+        <div style="min-width:0;">
+          <b style="font-size:13px;">${idx}. ${esc(st?.name || '(Đã xóa)')}</b>
+          ${isMultiDay
+            ? `<span style="font-size:11px;color:#64748b;margin-left:6px;">(${doneCount}/${totalCount} buổi)</span>`
+            : `<div style="font-size:10px;color:#64748b;margin-top:2px;">⏱ Đã ${elapsed}</div>`}
+        </div>
+      </div>
+      ${canEdit() ? `<div style="display:flex;gap:2px;flex-shrink:0;flex-wrap:wrap;">
+        ${isMultiDay ? `<button class="btn-act btn-success btn-mini" onclick="event.stopPropagation();completeAllDays('${p.id}')" title="Đánh dấu TẤT CẢ buổi xong" style="background:#059669!important;">✅ Tất cả</button>` : ''}
+        <button class="btn-act btn-success btn-mini" onclick="event.stopPropagation();completePunishment('${p.id}')" title="Đánh dấu xong">✅</button>
+        ${group.type==='ve_sinh' ? `<button class="btn-act btn-teal btn-mini" onclick="event.stopPropagation();sendToLabor('${p.id}')" title="Chuyển sang Lao động">🧹</button>` : ''}
+        <button class="btn-act btn-warning btn-mini" onclick="event.stopPropagation();openEditPunish('${p.id}')" title="Sửa">✏️</button>
+        <button class="btn-act btn-danger btn-mini" onclick="event.stopPropagation();deletePunishment('${p.id}')" title="Xóa">🗑️</button>
+      </div>` : ''}
+    </div>
+    ${daysHTML}
+  </div>`;
+}
+
+/* ═══════════ TẠO PHIẾU PHẠT (có hỗ trợ nhiều buổi) ═══════════ */
+function createPunishment() {
+  if (!canEdit()) return;
+  const checked = [...document.querySelectorAll('input[name="ptStudentCheck"]:checked')];
+  const type = document.getElementById('ptType').value;
+  const level = document.getElementById('ptLevel').value;
+  const reason = document.getElementById('ptReason').value.trim();
+  const start = document.getElementById('ptStart').value || todayStr();
+  const deadline = document.getElementById('ptDeadline').value;
+  const note = document.getElementById('ptNote').value.trim();
+  if (!checked.length || !reason) { toast('⚠️ Chọn HS và nhập lý do!', '#ef4444'); return; }
+
+  let daysTemplate = null;
+  if (type === 've_sinh') {
+    const from = document.getElementById('pFromDate').value;
+    const to = document.getElementById('pToDate').value;
+    const dowChecked = [...document.querySelectorAll('.p-dow:checked')].map(c => parseInt(c.value));
+    if (!from || !to || !dowChecked.length) { toast('⚠️ Chọn khoảng ngày & buổi!', '#ef4444'); return; }
+    if (from > to) { toast('⚠️ Ngày bắt đầu phải ≤ ngày kết thúc!', '#ef4444'); return; }
+    daysTemplate = [];
+    const d1 = new Date(from), d2 = new Date(to);
+    for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+      if (dowChecked.includes(d.getDay())) daysTemplate.push({ date: d.toISOString().split('T')[0], done: false });
+    }
+    if (!daysTemplate.length) { toast('⚠️ Không có buổi nào khớp!', '#ef4444'); return; }
+    if (daysTemplate.length > 90) { toast('⚠️ Tối đa 90 buổi!', '#ef4444'); return; }
+  }
+
+  const gid = 'g_' + uid();
+  const now = new Date().toISOString();
+  checked.forEach(cb => currentClass.punishments.push({
+    id: uid(), groupId: gid, stId: cb.value,
+    type, level, reason, start,
+    deadline: deadline || (daysTemplate ? daysTemplate[daysTemplate.length-1].date : ''),
+    days: daysTemplate ? daysTemplate.map(d => ({...d})) : null,
+    note, status: 'active', createdAt: now
+  }));
+  document.getElementById('ptReason').value = '';
+  document.getElementById('ptDeadline').value = '';
+  document.querySelectorAll('input[name="ptStudentCheck"]').forEach(c => c.checked = false);
+  saveData();
+  const extraMsg = daysTemplate ? ` (${daysTemplate.length} buổi)` : '';
+  toast(`⚖️ Đã tạo ${checked.length} phiếu${extraMsg}!`);
+}
+  
 function toggleAllPunishCheck(groupKey, checked) { document.querySelectorAll('.pt-group-check').forEach(cb => { if (cb.dataset.groupKey === groupKey) cb.checked = checked; }); }
 function batchCompletePunish(groupKey) {
   if (!canEdit()) return;
@@ -2799,6 +3012,62 @@ function exportToExcel() {
   toast('📊 Đã xuất Excel!', '#217346');
 }
 
+  /* ═══════════ PHẠT NHIỀU BUỔI (VỆ SINH) ═══════════ */
+const P_DOW = ['CN','T2','T3','T4','T5','T6','T7'];
+
+function onPunishTypeChange() {
+  const type = document.getElementById('ptType')?.value;
+  const box = document.getElementById('pMultiDayBox');
+  if (!box) return;
+  box.style.display = (type === 've_sinh') ? 'block' : 'none';
+  if (type === 've_sinh') {
+    if (!document.getElementById('pFromDate').value) document.getElementById('pFromDate').value = todayStr();
+    if (!document.getElementById('pToDate').value) {
+      const d = new Date(); d.setDate(d.getDate() + 6);
+      document.getElementById('pToDate').value = d.toISOString().split('T')[0];
+    }
+    buildPunishDays();
+  }
+}
+
+function buildPunishDays() {
+  const from = document.getElementById('pFromDate').value;
+  const to = document.getElementById('pToDate').value;
+  const box = document.getElementById('pPunishDaysPreview');
+  if (!from || !to || from > to) { box.innerHTML = '<span style="color:#ef4444">⚠️ Chọn khoảng ngày hợp lệ</span>'; return; }
+  const dowChecked = [...document.querySelectorAll('.p-dow:checked')].map(c => parseInt(c.value));
+  if (!dowChecked.length) { box.innerHTML = '<span style="color:#ef4444">⚠️ Chưa chọn buổi nào</span>'; return; }
+  const days = [];
+  const d1 = new Date(from), d2 = new Date(to);
+  for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+    if (dowChecked.includes(d.getDay())) days.push(d.toISOString().split('T')[0]);
+  }
+  if (!days.length) { box.innerHTML = '<span style="color:#ef4444">⚠️ Không có buổi nào khớp</span>'; return; }
+  box.innerHTML = `<b style="color:#1e40af">📊 Sẽ tạo ${days.length} buổi:</b><div class="duty-days">${days.map(dt => { const dtObj = new Date(dt + 'T00:00:00'); return `<span class="duty-day pending"><span class="dd-label">${P_DOW[dtObj.getDay()]}</span><span class="dd-date">${dtObj.getDate()}/${dtObj.getMonth()+1}</span></span>`; }).join('')}</div>`;
+}
+
+function togglePunishDay(punishId, dayIdx) {
+  if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
+  const p = getPunishments().find(x => String(x.id) === String(punishId));
+  if (!p || !p.days || !p.days[dayIdx]) return;
+  p.days[dayIdx].done = !p.days[dayIdx].done;
+  if (p.days.every(d => d.done)) { p.status = 'done'; p.completedAt = new Date().toISOString(); toast('🎉 Đã xong hết! Phiếu tự chuyển Hoàn thành', '#10b981'); }
+  else if (p.status === 'done') p.status = 'active';
+  saveData();
+}
+
+function completeAllDays(punishId) {
+  if (!canEdit()) return;
+  const p = getPunishments().find(x => String(x.id) === String(punishId));
+  if (!p || !p.days || !p.days.length) { toast('⚠️ Không có buổi nào!', '#ef4444'); return; }
+  if (!confirm(`Đánh dấu TẤT CẢ ${p.days.length} buổi đã xong?`)) return;
+  p.days.forEach(d => d.done = true);
+  p.status = 'done';
+  p.completedAt = new Date().toISOString();
+  saveData();
+  toast('🎉 Đã hoàn thành tất cả buổi!', '#10b981');
+}
+  
 /* ═══════════ INIT ═══════════ */
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
 document.getElementById('exPrice')?.addEventListener('input', calcExpAmt);
