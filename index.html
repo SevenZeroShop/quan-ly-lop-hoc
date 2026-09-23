@@ -2526,46 +2526,23 @@ function toggleIndivAll(c) { document.querySelectorAll('input[name="indivCheck"]
 function updateReportCount() { const checked = [...document.querySelectorAll('input[name="rptType"]:checked')].map(c => c.value); const rc = document.getElementById('reportCount'); if (rc) rc.innerHTML = `<b>${checked.length}</b> mục`; const box = document.getElementById('indivOptionsBox'); if (box) box.style.display = checked.includes('individual') ? 'block' : 'none'; }
 function renderIndivChecklist() { const box = document.getElementById('indivChecklist'); if (!box) return; box.innerHTML = getStudents().map((s,i) => `<label class="checkbox-item"><input type="checkbox" name="indivCheck" value="${s.id}"> ${i+1}. ${esc(s.name)}</label>`).join('') || '<span style="color:#94a3b8;">Chưa có HS</span>'; }
 
-/* ═══════════ VOICE ═══════════ */
-function removeDiacritics(str) { return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
-function levenshtein(a, b) {
-  if (a === b) return 0; if (!a.length) return b.length; if (!b.length) return a.length;
-  const m = []; for (let i = 0; i <= b.length; i++) m[i] = [i]; for (let j = 0; j <= a.length; j++) m[0][j] = j;
-  for (let i = 1; i <= b.length; i++) for (let j = 1; j <= a.length; j++) m[i][j] = b[i-1] === a[j-1] ? m[i-1][j-1] : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
-  return m[b.length][a.length];
+/* ═══════════ VOICE v10.1 — Nhận diện cải tiến ═══════════ */
+function removeDiacritics(str) {
+  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
 }
-const STOP_WORDS = new Set(['hoc','khong','ko','hong','hok','phep','fep','pep','vang','nghi','di','den','toi','muon','tre','che','chua','lam','soan','bai','tap','btvn','ve','nha','sdb','so','dau','vipham','vp','vpham','toan','van','su','dia','ly','li','hoa','anh','sinh','tin','gdkt','phap','luat','giao','duc','tieng','ngu','diem','duoc','them','cho','dat','mon','khen','tuyen','duong','phat','trung','trunh','truc','nhat','chep','kiem','bao','ph','phu','huynh','goi','dien','tuan','ngay','buoi','mo','tab','chuyen','vao','ban','stt','thu','nay','qua','kia','truoc','sang','chieu','toi','hom','thang','va','cua','voi','thi','la','bi','da','se','nhe','nha','oi','u','nhi','the','do','gi','co','kong','k','z','n','v','cx','cung','luon','rat','hon','nua','dong','chi','mua','tra','tien','mat','khoan','ck','quy','trieu','nghin','ngan','tr','tram','nghitram']);
-
-function fuzzyFindStudents(query, maxResults = 8) {
-  const students = getStudents();
-  if (!students.length || !query) return [];
-  const q = removeDiacritics(query).trim();
-  const qWords = q.split(/\s+/).filter(w => w.length >= 2);
-  if (!qWords.length) return [];
-  const filteredWords = qWords.filter(w => !STOP_WORDS.has(w));
-  const useWords = filteredWords.length > 0 ? filteredWords : qWords;
-  const results = [];
-  students.forEach((st, idx) => {
-    const stName = removeDiacritics(st.name);
-    const stWords = stName.split(/\s+/).filter(Boolean);
-    let score = 0, matchedWords = 0;
-    useWords.forEach(qw => {
-      if (stWords.some(sw => sw === qw)) { score += 100; matchedWords++; return; }
-      if (stWords.some(sw => sw.startsWith(qw) && qw.length >= 2)) { score += 70; matchedWords++; return; }
-      if (qw.length >= 3 && stWords.some(sw => sw.length >= 3 && Math.abs(sw.length - qw.length) <= 3 && levenshtein(sw, qw) <= 2)) { score += 65; matchedWords++; return; }
-      if (qw.length >= 3 && stWords.some(sw => sw.includes(qw))) { score += 50; matchedWords++; return; }
-      if (qw.length >= 3 && stWords.some(sw => sw.length >= 3 && qw.includes(sw))) { score += 40; matchedWords++; }
-    });
-    if (matchedWords === 0) return;
-    if (matchedWords === useWords.length) score += 50 * matchedWords;
-    const lastName = stWords[stWords.length - 1];
-    if (useWords.some(qw => qw === lastName)) score += 100;
-    if (stWords.length >= 2) { const midName = stWords[stWords.length - 2]; if (useWords.some(qw => qw === midName)) score += 50; }
-    if (matchedWords === stWords.length) score += 60;
-    if (Math.abs(stName.length - q.length) <= 3) score += 10;
-    results.push({ student: st, idx, score, name: st.name });
-  });
-  return results.sort((a, b) => b.score - a.score).slice(0, maxResults);
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const m = [];
+  for (let i = 0; i <= b.length; i++) m[i] = [i];
+  for (let j = 0; j <= a.length; j++) m[0][j] = j;
+  for (let i = 1; i <= b.length; i++)
+    for (let j = 1; j <= a.length; j++)
+      m[i][j] = b[i-1] === a[j-1] ? m[i-1][j-1]
+        : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
+  return m[b.length][a.length];
 }
 
 const ACTION_KEYWORDS = {
@@ -2581,131 +2558,266 @@ const ACTION_KEYWORDS = {
   chi: ['chi','chi quy','chi tien','chi tieu','chi quy lop','mua','mua do','mua qua','mua but','mua vo','mua sach','mua banh keo','mua nuoc','mua hoa','mua phan','tra','tra tien','thanh toan']
 };
 
+/* ─── Điểm khớp giữa 1 cụm từ và tên HS (đã bỏ dấu, dạng mảng từ) ─── */
+function scoreNameMatch(qWords, stWords) {
+  if (!qWords.length || !stWords.length) return 0;
+  let score = 0, matched = 0;
+  const usedSt = new Array(stWords.length).fill(false);
+  qWords.forEach(qw => {
+    let bestS = 0, bestI = -1;
+    for (let i = 0; i < stWords.length; i++) {
+      if (usedSt[i]) continue;
+      const sw = stWords[i];
+      let s = 0;
+      if (sw === qw) s = 100;
+      else if (qw.length >= 3 && sw.length >= 3 && Math.abs(sw.length - qw.length) <= 2) {
+        const d = levenshtein(sw, qw);
+        if (d === 1) s = 80;
+        else if (d === 2 && qw.length >= 4) s = 55;
+      } else if (sw.length >= 3 && qw.length >= 3 &&
+                 (sw.startsWith(qw) || qw.startsWith(sw))) s = 60;
+      if (s > bestS) { bestS = s; bestI = i; }
+    }
+    if (bestS > 0) { score += bestS; matched++; usedSt[bestI] = true; }
+  });
+  if (!matched) return 0;
+  if (matched === qWords.length && matched === stWords.length) score += 100;
+  else if (matched === qWords.length) score += 40 * matched;
+  else if (matched >= 2) score += 15 * matched;
+  const lastName = stWords[stWords.length - 1];
+  if (qWords.some(qw => qw === lastName)) score += 80;
+  return score;
+}
+
+/* ─── Trích xuất tên HS bằng cửa sổ trượt n-gram 1→4 từ ─── */
+function extractStudentMatches(text) {
+  const students = getStudents();
+  if (!students.length) return [];
+  const t = removeDiacritics(text).replace(/\s+/g, ' ').trim();
+  const words = t.split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+
+  const stIndex = students.map(st => {
+    const stName = removeDiacritics(st.name).replace(/\s+/g, ' ').trim();
+    return { st, stWords: stName.split(/\s+/).filter(Boolean) };
+  });
+
+  const ACTION_WORDS = new Set();
+  Object.values(ACTION_KEYWORDS).forEach(arr => arr.forEach(kw =>
+    kw.split(/\s+/).forEach(w => { if (w.length >= 2) ACTION_WORDS.add(w); })));
+  ['khong','chua','ko','hong','hok','cho','va','cua','voi','se','nhe','nha','oi','u',
+   'the','do','gi','rat','hon','nua','cac','nhung','moi','tat','ca','het','cung','luon',
+   'duoc','them','mon','tien','trieu','nghin','ngan','tram','dong','so','ban','stt',
+   'hom','nay','qua','kia','truoc','sang','chieu','mai','ngay','thang','nam','tuan'
+  ].forEach(w => ACTION_WORDS.add(w));
+
+  const candidates = [];
+  const maxLen = Math.min(4, words.length);
+  for (let len = 1; len <= maxLen; len++) {
+    for (let i = 0; i + len <= words.length; i++) {
+      const chunkWords = words.slice(i, i + len);
+      const chunk = chunkWords.join(' ');
+      if (/^\d+$/.test(chunk)) continue;
+
+      let best = null, bestScore = 0;
+      stIndex.forEach(({ st, stWords }) => {
+        const sc = scoreNameMatch(chunkWords, stWords);
+        if (sc > bestScore) { bestScore = sc; best = st; }
+      });
+      if (!best) continue;
+
+      const threshold = len === 1 ? 130 : len === 2 ? 180 : 200;
+      if (len === 1 && ACTION_WORDS.has(chunk) && bestScore < 150) continue;
+      if (bestScore >= threshold)
+        candidates.push({ start: i, end: i + len, student: best, score: bestScore, len });
+    }
+  }
+
+  candidates.sort((a, b) => b.score - a.score || b.len - a.len || a.start - b.start);
+
+  const used = new Array(words.length).fill(false);
+  const result = [], seenIds = new Set();
+  for (const c of candidates) {
+    let overlap = false;
+    for (let k = c.start; k < c.end; k++) if (used[k]) { overlap = true; break; }
+    if (overlap) continue;
+    for (let k = c.start; k < c.end; k++) used[k] = true;
+    if (!seenIds.has(String(c.student.id))) {
+      seenIds.add(String(c.student.id));
+      result.push(c.student);
+    }
+  }
+  return result;
+}
+
+/* ─── Fuzzy tìm thủ công cho ô search trong popup ─── */
+function fuzzyFindStudents(query, maxResults = 8) {
+  const students = getStudents();
+  if (!students.length || !query) return [];
+  const qWords = removeDiacritics(query).replace(/\s+/g, ' ').trim()
+    .split(/\s+/).filter(w => w.length >= 2);
+  if (!qWords.length) return [];
+  const results = [];
+  students.forEach((st, idx) => {
+    const stWords = removeDiacritics(st.name).replace(/\s+/g, ' ').trim()
+      .split(/\s+/).filter(Boolean);
+    const sc = scoreNameMatch(qWords, stWords);
+    if (sc > 0) results.push({ student: st, idx, score: sc, name: st.name });
+  });
+  return results.sort((a, b) => b.score - a.score).slice(0, maxResults);
+}
+
+/* ─── Nhận diện hành động ─── */
 function _detectAction(t) {
   const scores = {};
   Object.keys(ACTION_KEYWORDS).forEach(k => { scores[k] = 0; });
+
   Object.keys(ACTION_KEYWORDS).forEach(actionKey => {
     ACTION_KEYWORDS[actionKey].forEach(kw => {
-      const re = new RegExp('(^|\\s)' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\s|$)', 'g');
+      const e = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp('(?:^|\\s)' + e + '(?:\\s|$)', 'g');
       const matches = t.match(re);
-      if (matches) scores[actionKey] += matches.length * (kw.length >= 10 ? 3 : kw.length >= 6 ? 2 : 1);
+      if (matches) {
+        const w = kw.length >= 12 ? 5 : kw.length >= 8 ? 4
+                : kw.length >= 5 ? 3 : kw.length >= 3 ? 2 : 1;
+        scores[actionKey] += matches.length * w;
+      }
     });
   });
-  if (/(vang|nghi)/.test(t) && /(khong|ko|hong)\s*(co\s+|xin\s+)?(phep|fep)/.test(t)) { scores.v_khongphep = Math.max(scores.v_khongphep, 10); scores.v_cophep = 0; }
-  if (/(vang|nghi)/.test(t) && /(co|cp)\s*(phep|fep)/.test(t) && !/(khong|ko)/.test(t)) scores.v_cophep = Math.max(scores.v_cophep, 10);
+
+  const hasAbsent = /\b(vang|nghi|bum|cup|tron|bo hoc|bo tiet|cat hoc|cat tiet)\b/.test(t);
+  const hasNoPermit = /\b(khong|ko|hong|hok)\s+(co\s+|xin\s+)?(phep|fep)\b/.test(t)
+                   || /\bkhong phep\b/.test(t) || /\bko phep\b/.test(t);
+  const hasPermit = /\b(phep|fep)\b/.test(t) && !hasNoPermit;
+
+  if (hasAbsent && hasNoPermit) {
+    scores.v_khongphep = Math.max(scores.v_khongphep, 30);
+    scores.v_cophep = 0;
+  } else if (hasAbsent && hasPermit) {
+    scores.v_cophep = Math.max(scores.v_cophep, 30);
+    scores.v_khongphep = 0;
+  } else if (hasAbsent) {
+    scores.v_khongphep = Math.max(scores.v_khongphep, 12);
+    scores.v_cophep = 0;
+  }
+
   let best = null, bestScore = 0;
-  ['v_khongphep','v_cophep','di_muon','chua_btvn','so_daubai','phat','trucnhat','thu','chi','diem'].forEach(k => { if (scores[k] > bestScore) { bestScore = scores[k]; best = k; } });
-  return bestScore >= 1 ? best : null;
+  Object.keys(scores).forEach(k => { if (scores[k] > bestScore) { bestScore = scores[k]; best = k; } });
+  return bestScore >= 2 ? best : null;
 }
 
-const VOICE_STOP_KEYWORDS = [].concat(
-  ACTION_KEYWORDS.v_khongphep, ACTION_KEYWORDS.v_cophep, ACTION_KEYWORDS.di_muon,
-  ACTION_KEYWORDS.chua_btvn, ACTION_KEYWORDS.so_daubai, ACTION_KEYWORDS.phat,
-  ACTION_KEYWORDS.trucnhat, ACTION_KEYWORDS.diem, ACTION_KEYWORDS.thu, ACTION_KEYWORDS.chi,
-  ['khong','chua','ko','hong','hok','co','cho','la','thi','va','cua','voi','bi','da','se','nhe','nha','oi','u','the','do','gi','rat','hon','nua','nguoi','em','anh','chi','cac','nhung','moi','tat','ca','het','cung','luon','duoc','them','dat','mon','quy','tien','trieu','nghin','ngan','tram','dong','so','ban','stt','hom','nay','qua','kia','truoc','sang','chieu','toi','mai','ngay','thang','nam','tuan','thu','toan','van','su','dia','hoa','ly','li','anh','sinh','tin','gdkt','phap','luat','giao','duc','ngu']
-).sort((a, b) => b.length - a.length);
-
-function _voiceClean(text) {
-  let t = ' ' + removeDiacritics(text).replace(/\s+/g, ' ') + ' ';
-  VOICE_STOP_KEYWORDS.forEach(kw => {
-    const e = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    t = t.replace(new RegExp('\\b' + e + '\\b', 'g'), ' ');
-  });
-  t = t.replace(/\b\d+([.,]\d+)?\b/g, ' ');
-  t = t.replace(/\d{1,2}[\/\-]\d{1,2}([\/\-]\d{2,4})?/g, ' ');
-  return t.replace(/\s+/g, ' ').trim();
-}
-
+/* ─── Parse câu lệnh ─── */
 function parseVoiceCommand(text) {
   if (!text || !currentClass) return null;
   const t = removeDiacritics(text).replace(/\s+/g, ' ').trim();
   const now = new Date();
   const curYear = now.getFullYear();
-  let date = now.toISOString().split('T')[0];
-  if (/\bhom qua\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 1); date = d.toISOString().split('T')[0]; }
-  else if (/\b(hom kia|hom truoc|hom no)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() - 2); date = d.toISOString().split('T')[0]; }
-  else if (/\b(ngay mai|mai)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate() + 1); date = d.toISOString().split('T')[0]; }
-  else {
-    let m = t.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
-    if (m) { const y = m[3] ? parseInt(m[3]) : curYear; date = `${y < 100 ? 2000 + y : y}-${String(parseInt(m[2])).padStart(2,'0')}-${String(parseInt(m[1])).padStart(2,'0')}`; }
-  }
-  const SUBJ_MAP = { 'toan':'Toán','ngu van':'Ngữ Văn','lich su':'Lịch Sử','dia ly':'Địa Lý','hoa hoc':'Hóa Học','vat ly':'Vật Lý','tieng anh':'Tiếng Anh','sinh hoc':'Sinh Học','tin hoc':'Tin Học','gdkt':'GDKT & PL' };
-  let subject = null;
-  const subjKeys = Object.keys(SUBJ_MAP).sort((a,b) => b.length - a.length);
-  for (const k of subjKeys) if (new RegExp('\\b' + k + '\\b').test(t)) { subject = SUBJ_MAP[k]; break; }
 
-  let action = null, type = null, score = null, amount = null, method = null, task = null, punishType = null, reason = null, title = null, note = null, collectName = null, tab = null, tabName = null;
+  let date = now.toISOString().split('T')[0];
+  if (/\bhom qua\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate()-1); date = d.toISOString().split('T')[0]; }
+  else if (/\b(hom kia|hom truoc|hom no)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate()-2); date = d.toISOString().split('T')[0]; }
+  else if (/\b(ngay mai|mai)\b/.test(t)) { const d = new Date(now); d.setDate(d.getDate()+1); date = d.toISOString().split('T')[0]; }
+  else {
+    const m = t.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+    if (m) {
+      const y = m[3] ? parseInt(m[3]) : curYear;
+      date = `${y<100?2000+y:y}-${String(parseInt(m[2])).padStart(2,'0')}-${String(parseInt(m[1])).padStart(2,'0')}`;
+    }
+  }
+
+  const SUBJ_MAP = { 'toan':'Toán','ngu van':'Ngữ Văn','lich su':'Lịch Sử','dia ly':'Địa Lý',
+    'hoa hoc':'Hóa Học','vat ly':'Vật Lý','tieng anh':'Tiếng Anh','sinh hoc':'Sinh Học',
+    'tin hoc':'Tin Học','gdkt':'GDKT & PL' };
+  let subject = null;
+  Object.keys(SUBJ_MAP).sort((a,b) => b.length - a.length)
+    .forEach(k => { if (!subject && new RegExp('\\b'+k+'\\b').test(t)) subject = SUBJ_MAP[k]; });
+
+  let action = null, type = null, score = null, amount = null, method = null,
+      task = null, punishType = null, reason = null, title = null,
+      note = null, collectName = null, tab = null, tabName = null;
+
   if (/\b(mo tab|chuyen tab|vao tab|mo trang)\b/.test(t)) {
     action = 'openTab';
-    if (/diem/.test(t)) { tab = 'bangdiem'; tabName = 'Sổ Điểm'; }
-    else if (/quy/.test(t)) { tab = 'thuquy'; tabName = 'Quỹ'; }
-    else if (/phat|danh gia/.test(t)) { tab = 'phat'; tabName = 'Đánh Giá'; }
-    else if (/danh sach|hoc sinh/.test(t)) { tab = 'danhsach'; tabName = 'Danh Sách'; }
-    else if (/chon|ngau nhien/.test(t)) { tab = 'random'; tabName = 'Người Được Chọn'; }
-    else if (/truc nhat|lao dong/.test(t)) { tab = 'laodong'; tabName = 'Trực Nhật'; }
-    else { tab = 'diemdanh'; tabName = 'Chuyên Cần'; }
+    if (/diem/.test(t))                        { tab = 'bangdiem'; tabName = 'Sổ Điểm'; }
+    else if (/quy|thu/.test(t))                { tab = 'thuquy';   tabName = 'Thu Quỹ'; }
+    else if (/chi/.test(t))                    { tab = 'ungquy';   tabName = 'Chi Quỹ'; }
+    else if (/phat|danh gia/.test(t))          { tab = 'phat';     tabName = 'Phạt'; }
+    else if (/danh sach|hoc sinh/.test(t))     { tab = 'danhsach'; tabName = 'Danh Sách'; }
+    else if (/chon|ngau nhien|random/.test(t)) { tab = 'random';   tabName = 'Người Được Chọn'; }
+    else if (/truc nhat|lao dong/.test(t))     { tab = 'laodong';  tabName = 'Lao Động'; }
+    else                                       { tab = 'diemdanh'; tabName = 'Chuyên Cần'; }
   } else {
+    const hasPunishKeyword = /\b(phat|trung phat|ky luat|xu phat)\b/.test(t);
     const detected = _detectAction(t);
-    if (/\b(phat|trung phat|ky luat)\b/.test(t)) {
+
+    if (hasPunishKeyword) {
       action = 'addPunish';
-      if (/chep phat|chep bai/.test(t)) punishType = 'chep_phat';
-      else if (/kiem diem/.test(t)) punishType = 'kiem_diem';
-      else if (/bao ph|bao phu huynh|goi dien/.test(t)) punishType = 'thong_bao';
-      else if (/truc nhat|ve sinh/.test(t)) punishType = 've_sinh';
-      else punishType = 'nhac_nho';
-      if (/khong lam bai|chua lam bai|khong soan bai/.test(t)) reason = 'Không làm bài tập';
-      else if (/noi chuyen|mat trat tu/.test(t)) reason = 'Nói chuyện riêng';
-      else if (/di muon|di tre/.test(t)) reason = 'Đi muộn';
-      else if (/nghi hoc|vang hoc/.test(t)) reason = 'Nghỉ học';
-      else reason = 'Vi phạm';
-    } else if (detected && detected !== 'diem') {
+      if (/\b(chep phat|chep bai)\b/.test(t))                       punishType = 'chep_phat';
+      else if (/\bkiem diem\b/.test(t))                             punishType = 'kiem_diem';
+      else if (/\b(bao ph|bao phu huynh|goi dien)\b/.test(t))       punishType = 'thong_bao';
+      else if (/\b(truc nhat|ve sinh)\b/.test(t))                   punishType = 've_sinh';
+      else if (/\bha hanh kiem\b/.test(t))                          punishType = 'ha_hanh_kiem';
+      else                                                          punishType = 'nhac_nho';
+
+      if (/\b(khong lam bai|chua lam bai|khong soan bai)\b/.test(t)) reason = 'Không làm bài tập';
+      else if (/\b(noi chuyen|mat trat tu)\b/.test(t))               reason = 'Nói chuyện riêng';
+      else if (/\b(di muon|di tre)\b/.test(t))                       reason = 'Đi muộn';
+      else if (/\b(nghi hoc|vang hoc|vang khong phep)\b/.test(t))    reason = 'Nghỉ học không phép';
+      else if (/\b(an quan vat|an trong gio)\b/.test(t))             reason = 'Ăn quà vặt trong lớp';
+      else if (/\b(dien thoai|su dung dt)\b/.test(t))                reason = 'Sử dụng điện thoại';
+      else                                                           reason = 'Vi phạm';
+    }
+    else if (detected) {
       if (['v_khongphep','v_cophep','di_muon','chua_btvn','so_daubai'].includes(detected)) {
         action = 'addCC'; type = detected;
         if (detected === 'chua_btvn' && subject) note = 'Chưa làm bài tập ' + subject;
-      } else if (detected === 'trucnhat') { action = 'addDuty'; task = 'Trực nhật'; }
-      else if (detected === 'thu' || detected === 'chi') {
+      } else if (detected === 'trucnhat') {
+        action = 'addDuty'; task = 'Trực nhật';
+      } else if (detected === 'thu' || detected === 'chi') {
         const t2 = t.replace(/\./g, '').replace(/,/g, '.');
         let m = t2.match(/(\d+(?:\.\d+)?)\s*(trieu|tr|nghin|ngan|k)\b/);
-        if (m) { const num = parseFloat(m[1]); amount = (m[2]==='trieu'||m[2]==='tr') ? Math.round(num*1000000) : Math.round(num*1000); }
-        else { m = t2.match(/(\d{4,})/); if (m) amount = parseInt(m[1]); }
+        if (m) {
+          const num = parseFloat(m[1]);
+          amount = (m[2]==='trieu'||m[2]==='tr') ? Math.round(num*1e6) : Math.round(num*1e3);
+        } else {
+          m = t2.match(/(\d{4,})/);
+          if (m) amount = parseInt(m[1]);
+        }
         if (amount) {
           method = /\b(ck|chuyen khoan)\b/.test(t) ? 'transfer' : 'cash';
-          if (detected === 'chi') { action = 'addExpense'; title = text.replace(/.*?(chi|mua|thanh toan|tra tien)\s*/i, '').replace(/\d+\s*(trieu|nghin|ngan|k|dong|d)\b/gi, '').replace(/\b\d{4,}\b/g, '').trim() || 'Chi khác'; }
-          else { action = 'addPayment'; collectName = 'Quỹ lớp'; }
+          if (detected === 'chi') {
+            action = 'addExpense';
+            title = text.replace(/.*?(chi|mua|thanh toan|tra tien)\s*/i, '')
+              .replace(/\d+\s*(trieu|nghin|ngan|k|dong|d)\b/gi, '')
+              .replace(/\b\d{4,}\b/g, '').trim() || 'Chi khác';
+          } else {
+            action = 'addPayment'; collectName = 'Quỹ lớp';
+          }
         }
       }
     }
+
     if (!action) {
       let m = t.match(/(\d+(?:[.,]\d+)?)\s*(diem|d\b|phay)/);
       if (!m && subject) m = t.match(/(\d+(?:[.,]\d+)?)/);
-      if (m) { const val = parseFloat(m[1].replace(',', '.')); if (val >= 0 && val <= 10) { action = 'addScore'; score = val; if (!subject) subject = 'Toán'; } }
-    }
-  }
-  const found = []; const foundIds = new Set();
-  const cleaned = _voiceClean(text);
-  if (cleaned && cleaned.length >= 2) {
-    const words = cleaned.split(/\s+/).filter(w => w.length >= 2);
-    const used = new Array(words.length).fill(false);
-    let i = 0;
-    while (i < words.length) {
-      if (used[i]) { i++; continue; }
-      let matched = false;
-      for (let len = Math.min(4, words.length - i); len >= 1; len--) {
-        const chunk = words.slice(i, i + len).filter((_, idx) => !used[i + idx]).join(' ').trim();
-        if (!chunk || chunk.length < 2) continue;
-        const m = fuzzyFindStudents(chunk, 3);
-        if (m.length && m[0].score >= 80) {
-          if (!foundIds.has(String(m[0].student.id))) { foundIds.add(String(m[0].student.id)); found.push(m[0].student); }
-          for (let k = 0; k < len; k++) used[i + k] = true;
-          i += len; matched = true; break;
+      if (m) {
+        const val = parseFloat(m[1].replace(',', '.'));
+        if (val >= 0 && val <= 10) {
+          action = 'addScore'; score = val;
+          if (!subject) subject = 'Toán';
         }
       }
-      if (!matched) i++;
     }
   }
-  return { action: action || 'unknown', date, students: found, type, score, subject, amount, method, task, punishType, reason, title, note, collectName, tab, tabName, rawText: text };
+
+  const found = extractStudentMatches(text);
+
+  return { action: action || 'unknown', date, students: found,
+           type, score, subject, amount, method, task, punishType, reason,
+           title, note, collectName, tab, tabName, rawText: text };
 }
 
+/* ═══════════ UI POPUP (giữ nguyên) ═══════════ */
 function showVoicePopup(transcript, parsed) {
   voiceParsedResult = parsed;
   document.getElementById('voiceTranscript').textContent = transcript;
@@ -2834,6 +2946,7 @@ function confirmVoiceAction() {
   toast('⚠️ Hành động chưa hỗ trợ', '#f59e0b'); closeVoicePopup();
 }
 
+/* ═══════════ MIC (giữ nguyên) ═══════════ */
 function toggleBigMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { toast('⚠️ Dùng Chrome/Edge!', '#ef4444'); return; }
@@ -2868,7 +2981,6 @@ function toggleBigMic() {
   try { bigMicRecognition.start(); } catch(e) { toast('❌ Không khởi động mic', '#ef4444'); }
 }
 
-/* Micro inline cho input */
 let inlineRec = null;
 function startVoice(targetId, btn) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
