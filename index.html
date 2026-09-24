@@ -2620,8 +2620,9 @@ const ACTION_KEYWORDS = {
   v_khongphep: ['vang khong phep','vang ko phep','vang kp','vang khong co phep','nghi khong phep','nghi ko phep','nghi kp','nghi khong co phep','khong phep','ko phep','vang hoc','vang mat','vang','nghi','bum hoc','cup hoc','tron hoc','tron tiet','bo hoc','bo tiet','cat hoc','cat tiet'],
   v_cophep: ['vang co phep','vang cp','vang phep','nghi co phep','nghi cp','nghi phep','xin phep','xin nghi','co giay','co don','co phep','co cp'],
   di_muon: ['di muon','di tre','di cham','di hoc muon','di hoc tre','di hoc cham','tre hoc','tre gio','muon hoc','muon gio','den muon','den tre','vao tre','vao lop tre','vao muon','toi muon','toi tre','tre','muon','cham'],
-  chua_btvn: ['khong lam bai','chua lam bai','ko lam bai','khong lam btvn','chua lam btvn','khong soan bai','chua soan bai','khong lam bai tap','chua lam bai tap','quen lam bai','quen soan bai','quen lam btvn','quen mang sach','quen mang vo','quen mang','khong hoc bai','chua hoc bai','khong chuan bi bai','khong mang sach','khong mang vo','khong mang bai','khong co bai','thieu bai','thieu sach','thieu vo','khong lam','chua lam','ko lam','khong soan','chua soan'],
+  di_muon_cp: ['di muon co phep','di muon cp','di tre co phep','den muon co phep','vao muon co phep','vao tre co phep'],chua_btvn: ['khong lam bai','chua lam bai','ko lam bai','khong lam btvn','chua lam btvn','khong soan bai','chua soan bai','khong lam bai tap','chua lam bai tap','quen lam bai','quen soan bai','quen lam btvn','quen mang sach','quen mang vo','quen mang','khong hoc bai','chua hoc bai','khong chuan bi bai','khong mang sach','khong mang vo','khong mang bai','khong co bai','thieu bai','thieu sach','thieu vo','khong lam','chua lam','ko lam','khong soan','chua soan'],
   so_daubai: ['sdb','so dau bai','vi pham sdb','vi pham so dau bai','bi ghi sdb','bi ghi so dau bai','ghi sdb','ghi so dau bai','noi chuyen rieng','noi chuyen trong gio','noi leo','noi xau ban','mat trat tu','gay mat trat tu','lam viec rieng','lam viec rieng trong gio','khong chu y','khong tap trung','ngu gat','ngu trong lop','ngu trong gio','ngu','dung dien thoai','choi dien thoai','su dung dien thoai','dung dt','an quan vat','an quy vat','an banh','an keo','an trong gio','dao bai','dao de','quay cop','quay bai','xem bai ban','chep bai ban','khong ghi bai','khong chep bai','khong chep','khong ghi','danh nhau','danh ban','xich mich','cai nhau'],
+    dac_biet: ['xuong phong y te','phong y te','y te','dau bung','dau dau','met','om','om dau','bi om','dot xuat','dau bung dot xuat','dau dau dot xuat','co ly do','ly do dac biet','truong hop dac biet','viec gia dinh','gia dinh','dot xuat','cap cuu','ngat','chong mat','buon non','sot','cam','sot cao'],
   phat: ['phat','trung phat','ky luat','xu ly','xu phat','phat nang','phat nhe','phat vua','chep phat','chep bai','chep 10 lan','chep 5 lan','chep 100 lan','kiem diem','viet kiem diem','lam kiem diem','bao ph','bao phu huynh','goi dien phu huynh','goi dien gia dinh','lien lac ph','ha hanh kiem','mua do','mua qua'],
   trucnhat: ['truc nhat','truc lop','truc truong','truc tuan','truc ngay','ve sinh','ve sinh lop','ve sinh san','ve sinh khu','ve sinh khu vuc','don lop','don truong','don san','don dep','don dep lop','quet lop','quet nha','quet san','quet hanh lang','quet cau thang','lau lop','lau nha','lau bang','lau san','lau cua','nhat rac','nhat giay','don rac','lao dong','tuoi cay','cham soc cay','trong cay'],
   diem: ['diem','diem mieng','diem 15 phut','diem 1 tiet','diem 45 phut','diem thi','diem giua ki','diem cuoi ki','diem giua ky','diem cuoi ky','diem hk','diem hoc ki','duoc diem','bi diem','cho diem','dat diem','thi duoc','lam duoc','dat duoc','diem phay','phay'],
@@ -2697,7 +2698,13 @@ function extractStudentMatches(text) {
       });
       if (!best) continue;
 
-      const threshold = len === 1 ? 130 : len === 2 ? 180 : 200;
+            // Từ đơn phải khớp chính xác VÀ là từ cuối tên (last name) mới cho qua
+      let threshold = len === 1 ? 180 : len === 2 ? 180 : 200;
+      if (len === 1) {
+        // Chỉ chấp nhận nếu từ đơn là last name
+        const stWords = best ? removeDiacritics(best.name).split(/\s+/).filter(Boolean) : [];
+        if (stWords.length > 1 && stWords[stWords.length - 1] !== chunk) threshold = 9999;
+      }
       if (len === 1 && ACTION_WORDS.has(chunk) && bestScore < 150) continue;
       if (bestScore >= threshold)
         candidates.push({ start: i, end: i + len, student: best, score: bestScore, len });
@@ -2772,6 +2779,18 @@ function _detectAction(t) {
     scores.v_cophep = 0;
   }
 
+    // Xử lý đi muộn có phép / không phép
+  const hasLate = /\b(di muon|di tre|den muon|vao tre|tre gio|muon gio|cham gio)\b/.test(t);
+  if (hasLate) {
+    if (hasPermit) {
+      scores.di_muon_cp = Math.max(scores.di_muon_cp, 30);
+      scores.di_muon = 0;
+    } else {
+      scores.di_muon = Math.max(scores.di_muon, 30);
+      scores.di_muon_cp = 0;
+    }
+  }
+  
   let best = null, bestScore = 0;
   Object.keys(scores).forEach(k => { if (scores[k] > bestScore) { bestScore = scores[k]; best = k; } });
   return bestScore >= 2 ? best : null;
@@ -2807,7 +2826,7 @@ function parseVoiceCommand(text) {
       task = null, punishType = null, reason = null, title = null,
       note = null, collectName = null, tab = null, tabName = null;
 
-  if (/\b(mo tab|chuyen tab|vao tab|mo trang)\b/.test(t)) {
+  if (/\b(mo tab|chuyen tab|vao tab|mo trang|mo so diem|mo so|mo bang diem|mo quy|mo thu quy|mo chi quy|mo danh sach|mo phat|mo truc nhat|mo ngau nhien)\b/.test(t)) {
     action = 'openTab';
     if (/diem/.test(t))                        { tab = 'bangdiem'; tabName = 'Sổ Điểm'; }
     else if (/quy|thu/.test(t))                { tab = 'thuquy';   tabName = 'Thu Quỹ'; }
@@ -2839,11 +2858,26 @@ function parseVoiceCommand(text) {
       else                                                           reason = 'Vi phạm';
     }
     else if (detected) {
-      if (['v_khongphep','v_cophep','di_muon','chua_btvn','so_daubai'].includes(detected)) {
+            if (['v_khongphep','v_cophep','di_muon','di_muon_cp','chua_btvn','so_daubai','dac_biet'].includes(detected)) {
         action = 'addCC'; type = detected;
         if (detected === 'chua_btvn' && subject) note = 'Chưa làm bài tập ' + subject;
+        // Đặc biệt: trích lý do từ câu nói
+        if (detected === 'dac_biet') {
+          const reasonMap = [
+            { kw: ['phong y te','y te'], text: 'Xuống phòng y tế' },
+            { kw: ['dau bung'], text: 'Đau bụng đột xuất' },
+            { kw: ['dau dau'], text: 'Đau đầu' },
+            { kw: ['met','om'], text: 'Mệt/Ốm' },
+            { kw: ['viec gia dinh','gia dinh'], text: 'Việc gia đình' },
+            { kw: ['chong mat'], text: 'Chóng mặt' },
+            { kw: ['sot','cam'], text: 'Sốt/Cảm' }
+          ];
+          for (const r of reasonMap) {
+            if (r.kw.some(k => t.includes(k))) { note = r.text; break; }
+          }
+          if (!note) note = 'Lý do đặc biệt (chưa rõ)';
+        }
       } else if (detected === 'trucnhat') {
-        action = 'addDuty'; task = 'Trực nhật';
       } else if (detected === 'thu' || detected === 'chi') {
         const t2 = t.replace(/\./g, '').replace(/,/g, '.');
         let m = t2.match(/(\d+(?:\.\d+)?)\s*(trieu|tr|nghin|ngan|k)\b/);
@@ -3291,17 +3325,36 @@ function rpWrapHtml(body) {
 </html>`;
 }
 
+  /* ---------- Sắp xếp HS theo mức ưu tiên điểm cao ---------- */
+function sortByScorePriority(rows) {
+  return rows.sort((a, b) => {
+    // 1. Số điểm ≥ 9 (giảm dần) — nhiều điểm xuất sắc nhất
+    if ((b.cnt9 || 0) !== (a.cnt9 || 0)) return (b.cnt9 || 0) - (a.cnt9 || 0);
+    // 2. Số điểm ≥ 8 (giảm dần) — tiếp đến điểm giỏi
+    if ((b.cnt8 || 0) !== (a.cnt8 || 0)) return (b.cnt8 || 0) - (a.cnt8 || 0);
+    // 3. Tổng số đầu điểm (giảm dần) — ai thi nhiều hơn
+    if ((b.total || 0) !== (a.total || 0)) return (b.total || 0) - (a.total || 0);
+    // 4. ĐTB (giảm dần)
+    return b.avg - a.avg;
+  });
+}
+
 /* ---------- Bảng điểm dạng tag (dùng trong Tổng hợp) ---------- */
 function buildScoreTableHTML() {
   const students = getStudents(), scores = getScores();
   const stAvg = students.map((st, i) => {
     const ss = scores.filter(s => String(s.stId) === String(st.id));
-    const avg = ss.length ? ss.reduce((a,b)=>a+b.val,0)/ss.length : null;
+    if (!ss.length) return null;
+    const avg = ss.reduce((a,b)=>a+b.val,0)/ss.length;
     const counts = {};
     ss.forEach(s => { counts[s.val] = (counts[s.val] || 0) + 1; });
     const sortedVals = Object.keys(counts).map(Number).sort((a,b) => b - a);
-    return { idx: i+1, name: st.name, avg, counts, sortedVals };
-  }).filter(x => x.avg !== null).sort((a,b) => b.avg - a.avg);
+    const cnt9 = ss.filter(s => s.val >= 9).length;
+    const cnt8 = ss.filter(s => s.val >= 8).length;
+    const total = ss.length;
+    return { idx: i+1, name: st.name, avg, counts, sortedVals, cnt9, cnt8, total };
+  }).filter(Boolean);
+  sortByScorePriority(stAvg);
 
   if (!stAvg.length) return '<p class="rp-indent2" style="font-style:italic">Chưa có dữ liệu điểm.</p>';
   const tagCls = v => v >= 8 ? 'tag-g' : v >= 6.5 ? 'tag-k' : v >= 5 ? 'tag-tb' : 'tag-y';
@@ -3343,10 +3396,25 @@ function buildScoreTableHTML() {
 function buildScoreMatrixHTML() {
   const students = getStudents(), scores = getScores();
   if (!scores.length) return '<p class="rp-indent2" style="font-style:italic">Chưa có dữ liệu điểm.</p>';
+
   const subjects = [...new Set(scores.map(s => s.sub))].sort();
-  const studentsWithScores = students.filter(st =>
-    scores.some(s => String(s.stId) === String(st.id))
-  );
+
+  // Thu thập dữ liệu + tính chỉ số để sắp xếp
+  const studentsWithScores = students
+    .map(st => {
+      const stScores = scores.filter(s => String(s.stId) === String(st.id));
+      if (!stScores.length) return null;
+      const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
+      const cnt9 = stScores.filter(s => s.val >= 9).length;
+      const cnt8 = stScores.filter(s => s.val >= 8).length;
+      const total = stScores.length;
+      return { st, stScores, avg, cnt9, cnt8, total };
+    })
+    .filter(Boolean);
+
+  // Sắp xếp theo ưu tiên điểm cao
+  sortByScorePriority(studentsWithScores);
+
   const fontSize = subjects.length > 8 ? '8pt' : subjects.length > 5 ? '9pt' : '10pt';
   return `
   <table class="rp-summary-tbl" style="font-size:${fontSize}">
@@ -3360,9 +3428,8 @@ function buildScoreMatrixHTML() {
       </tr>
     </thead>
     <tbody>
-      ${studentsWithScores.map((st, i) => {
-        const stScores = scores.filter(s => String(s.stId) === String(st.id));
-        const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
+            ${studentsWithScores.map((row, i) => {
+        const st = row.st, stScores = row.stScores, avg = row.avg;
         return `<tr>
           <td class="center">${i+1}</td>
           <td>${esc(st.name)}</td>
@@ -3940,23 +4007,31 @@ function buildExcelSheet(kind) {
     return { name: 'DS Lớp', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
   if (kind === 'scores') {
-    const subjects = [...new Set(scores.map(s => s.sub))].sort();
-    const aoa = [['STT','Họ và tên', ...subjects, 'ĐTB', 'Xếp loại']];
-    const studentsWithScores = students.filter(st => scores.some(s => String(s.stId) === String(st.id)));
-    studentsWithScores.forEach((st, i) => {
+  const subjects = [...new Set(scores.map(s => s.sub))].sort();
+  const aoa = [['STT','Họ và tên', ...subjects, 'ĐTB', 'Xếp loại']];
+  const rows = students
+    .map(st => {
       const stScores = scores.filter(s => String(s.stId) === String(st.id));
+      if (!stScores.length) return null;
       const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
-      const row = [i+1, st.name];
-      subjects.forEach(sub => {
-        const vals = stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
-        row.push(vals.join(', '));
-      });
-      row.push(+avg.toFixed(2));
-      row.push(classifyScore(avg).label);
-      aoa.push(row);
+      const cnt9 = stScores.filter(s => s.val >= 9).length;
+      const cnt8 = stScores.filter(s => s.val >= 8).length;
+      return { st, stScores, avg, cnt9, cnt8, total: stScores.length };
+    })
+    .filter(Boolean);
+  sortByScorePriority(rows);
+  rows.forEach((row, i) => {
+    const aoaRow = [i+1, row.st.name];
+    subjects.forEach(sub => {
+      const vals = row.stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
+      aoaRow.push(vals.join(', '));
     });
-    return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
-  }
+    aoaRow.push(+row.avg.toFixed(2));
+    aoaRow.push(classifyScore(row.avg).label);
+    aoa.push(aoaRow);
+  });
+  return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
+}
   if (kind === 'violations') {
     const aoa = [['STT','Họ và tên','Nghỉ KP','Nghỉ CP','Muộn KP','Muộn CP','BTVN','SĐB','Khác','Tổng']];
     const FIXED = ['v_khongphep','v_cophep','di_muon','di_muon_cp','chua_btvn','so_daubai'];
