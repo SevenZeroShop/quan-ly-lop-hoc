@@ -3227,6 +3227,11 @@ function rpHeader(title, reportNo) {
 }
 function rpSignature() {
   const m = rpMeta();
+  // Người lập báo cáo = Lớp trưởng (fallback GVCN nếu chưa có)
+  const classLeader = getStudents().find(s => (s.role || '').trim().toLowerCase() === 'lớp trưởng');
+  const reporterName = classLeader ? classLeader.name : m.teacher;
+  const reporterTitle = classLeader ? 'Lớp trưởng' : 'Giáo viên chủ nhiệm';
+
   return `
   <table style="width:100%;border:none;border-collapse:collapse;margin-top:26pt;page-break-inside:avoid">
     <tr>
@@ -3240,7 +3245,8 @@ function rpSignature() {
         <div style="font-weight:bold;text-transform:uppercase">Người lập báo cáo</div>
         <div style="font-style:italic;font-size:10pt">(Ký, ghi rõ họ tên)</div>
         <div style="height:60pt"></div>
-        <div style="font-weight:bold">${esc(m.teacher)}</div>
+        <div style="font-weight:bold">${esc(reporterName)}</div>
+        <div style="font-style:italic;font-size:10pt;margin-top:2pt">${esc(reporterTitle)}</div>
       </td>
     </tr>
   </table>`;
