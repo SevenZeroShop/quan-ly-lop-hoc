@@ -1069,6 +1069,7 @@ const DEFAULT_CC_TYPES = {
   v_cophep:    { label: '🔵 Nghỉ Có Phép', cls: 'badge-perm', color: '#3b82f6' },
   di_muon:     { label: '🟡 Đi Muộn Không Phép', cls: 'badge-late', color: '#f59e0b' },
   di_muon_cp:  { label: '🟠 Đi Muộn Có Phép', cls: 'badge-perm', color: '#f97316' },
+  dac_biet:    { label: '⭐ Trường Hợp Đặc Biệt', cls: 'badge-custom', color: '#8b5cf6' },
   chua_btvn:   { label: '📝 Chưa Làm BTVN', cls: 'badge-btvn', color: '#8b5cf6' },
   so_daubai:   { label: '📕 Vi Phạm SĐB', cls: 'badge-sdb', color: '#ef4444' },
   an_quavat:   { label: '🍬 Ăn Quà Vặt', cls: 'badge-late', color: '#f97316' },
@@ -1265,7 +1266,20 @@ function updateCCTypeOptions() {
   sel.innerHTML = Object.entries(all).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
   if (cur) sel.value = cur;
 }
-function onCCTypeChange() { /* hook */ }
+function onCCTypeChange() {
+  const type = document.getElementById('ddType')?.value;
+  const noteInput = document.getElementById('ddNote');
+  if (!noteInput) return;
+  if (type === 'dac_biet') {
+    noteInput.placeholder = '⚠️ BẮT BUỘC: Nhập lý do (VD: xuống phòng y tế, đau bụng đột xuất...)';
+    noteInput.style.borderColor = '#f97316';
+    noteInput.style.boxShadow = '0 0 0 2px rgba(249,115,22,.15)';
+  } else {
+    noteInput.placeholder = 'Chọn nhanh bên dưới hoặc gõ...';
+    noteInput.style.borderColor = '';
+    noteInput.style.boxShadow = '';
+  }
+}
 
 function addCustomCCType() {
   if (!canEdit()) { toast('⚠️ Không có quyền!', '#ef4444'); return; }
@@ -1309,12 +1323,18 @@ function saveDiemDanhBatch() {
   const date = document.getElementById('ddDate').value;
   const note = document.getElementById('ddNote').value.trim();
   if (!date) { toast('⚠️ Chọn ngày!', '#ef4444'); return; }
+  if (type === 'dac_biet' && !note) {
+    toast('⚠️ Trường hợp ĐẶC BIỆT phải nhập lý do!', '#f97316');
+    document.getElementById('ddNote').focus();
+    return;
+  }
   const checked = [...document.querySelectorAll('input[name="stCheck"]:checked')];
   if (!checked.length) { toast('⚠️ Chưa chọn HS!', '#ef4444'); return; }
   const logs = getLogs();
   checked.forEach(cb => logs.push({ id: uid(), stId: cb.value, type, date, note: note || '', createdAt: new Date().toISOString() }));
   setLogs(logs);
   document.getElementById('ddNote').value = '';
+  onCCTypeChange();
   saveData();
   toast(`✅ Đã ghi cho ${checked.length} HS!`);
 }
@@ -2557,12 +2577,11 @@ function emptyTrash() { if (!isOwner()) { toast('⚠️ Chỉ chủ lớp!', '#e
 
 /* ═══════════ BÁO CÁO (giữ cơ bản) ═══════════ */
 const REPORT_DEFS = [
-  { key: 'summary',     label: '📊 Báo cáo tổng hợp',    desc: 'Kết quả hoạt động – 2 mục I, II' },
-  { key: 'scores',      label: '💯 Bảng tổng hợp điểm',   desc: 'Các đầu điểm + ĐTB + xếp loại' },
-  { key: 'violations',  label: '📋 Báo cáo vi phạm',      desc: 'Chi tiết theo từng HS (KP/CP)' },
+  { key: 'summary',     label: '📊 Báo cáo tổng hợp',    desc: 'Khái quát kết quả hoạt động' },
+  { key: 'scores',      label: '💯 Bảng điểm chi tiết',   desc: 'Từng HS – từng đầu điểm theo môn' },
+  { key: 'violations',  label: '📋 Báo cáo vi phạm',      desc: 'Chi tiết KP/CP + Trường hợp đặc biệt' },
   { key: 'list',        label: '👥 Danh sách học sinh',   desc: 'Có cột ký nhận' },
-  { key: 'collections', label: '💰 Báo cáo thu quỹ',      desc: 'Các đợt thu + trạng thái' },
-  { key: 'fund',        label: '💸 Báo cáo chi quỹ',      desc: 'Các khoản chi + trạng thái' },
+  { key: 'funds',       label: '💰 Báo cáo thu chi quỹ',  desc: 'Gộp thu + chi + tổng kết' },
   { key: 'individual',  label: '👤 Phiếu thông tin HS',   desc: 'Điểm, vi phạm, phạt, đóng quỹ' }
 ];
 function renderReportChecklist() {
@@ -3266,7 +3285,7 @@ function rpWrapHtml(body) {
 </html>`;
 }
 
-/* ---------- Bảng điểm dạng tag ---------- */
+/* ---------- Bảng điểm dạng tag (dùng trong Tổng hợp) ---------- */
 function buildScoreTableHTML() {
   const students = getStudents(), scores = getScores();
   const stAvg = students.map((st, i) => {
@@ -3314,9 +3333,54 @@ function buildScoreTableHTML() {
   </p>`;
 }
 
-/* ---------- Bảng vi phạm: tách KP / CP ---------- */
+/* ---------- Bảng điểm chi tiết (ma trận HS × Môn) — dùng cho Báo cáo điểm riêng ---------- */
+function buildScoreMatrixHTML() {
+  const students = getStudents(), scores = getScores();
+  if (!scores.length) return '<p class="rp-indent2" style="font-style:italic">Chưa có dữ liệu điểm.</p>';
+  const subjects = [...new Set(scores.map(s => s.sub))].sort();
+  const studentsWithScores = students.filter(st =>
+    scores.some(s => String(s.stId) === String(st.id))
+  );
+  const fontSize = subjects.length > 8 ? '8pt' : subjects.length > 5 ? '9pt' : '10pt';
+  return `
+  <table class="rp-summary-tbl" style="font-size:${fontSize}">
+    <thead>
+      <tr>
+        <th style="width:4%">STT</th>
+        <th style="text-align:left">Họ và tên</th>
+        ${subjects.map(s => `<th>${esc(s)}</th>`).join('')}
+        <th style="width:7%">ĐTB</th>
+        <th style="width:9%">Xếp loại</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${studentsWithScores.map((st, i) => {
+        const stScores = scores.filter(s => String(s.stId) === String(st.id));
+        const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
+        return `<tr>
+          <td class="center">${i+1}</td>
+          <td>${esc(st.name)}</td>
+          ${subjects.map(sub => {
+            const vals = stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
+            return `<td class="center">${vals.length ? vals.join(', ') : '·'}</td>`;
+          }).join('')}
+          <td class="center"><b>${avg.toFixed(2)}</b></td>
+          <td class="center">${classifyScore(avg).label}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>
+  <p class="rp-legend">
+    <b>Ghi chú:</b> Mỗi ô hiển thị danh sách các đầu điểm theo từng môn (cách nhau dấu phẩy, sắp xếp giảm dần). Dấu · = chưa có điểm.
+    <br>Quy ước xếp loại: Giỏi ≥ 8.0; Khá 6.5–7.9; TB 5.0–6.4; Yếu &lt; 5.0.
+  </p>`;
+}
+
+/* ---------- Bảng vi phạm: tách KP / CP (loại trừ Đặc biệt) ---------- */
 function buildViolationTableHTML() {
-  const students = getStudents(), logs = getLogs();
+  const students = getStudents();
+  // Loại Đặc biệt KHÔNG tính là vi phạm
+  const logs = getLogs().filter(l => l.type !== 'dac_biet');
 
   const FIXED_TYPES = [
     { key: 'v_khongphep', label: 'Nghỉ<br>KP', kind: 'kp' },
@@ -3399,6 +3463,61 @@ function buildViolationTableHTML() {
     <span style="background:#fef3c7;color:#92400e;padding:1pt 6pt;border-radius:3px;font-weight:bold">2–3 lỗi: Nhắc nhở</span>
     <span style="background:#f0fdf4;color:#166534;padding:1pt 6pt;border-radius:3px;font-weight:bold">1 lỗi: Lưu ý</span>
   </p>`;
+}
+
+/* ---------- Bảng trường hợp đặc biệt ---------- */
+function buildSpecialCasesHTML() {
+  const students = getStudents();
+  const specialLogs = getLogs()
+    .filter(l => l.type === 'dac_biet')
+    .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  if (!specialLogs.length) {
+    return '<p class="rp-indent2" style="font-style:italic;color:#64748b">Không có trường hợp đặc biệt nào.</p>';
+  }
+  const rows = specialLogs.map((l, i) => {
+    const st = students.find(s => String(s.id) === String(l.stId));
+    const idx = st ? students.indexOf(st) + 1 : '';
+    return `<tr>
+      <td class="center">${i+1}</td>
+      <td class="center">${esc(l.date || '')}</td>
+      <td>${st ? `${idx}. ${esc(st.name)}` : '<i>(Đã xóa)</i>'}</td>
+      <td>${esc(l.note || 'Chưa ghi lý do')}</td>
+    </tr>`;
+  }).join('');
+
+  const byStudent = {};
+  specialLogs.forEach(l => {
+    if (!byStudent[l.stId]) byStudent[l.stId] = { count: 0 };
+    byStudent[l.stId].count++;
+  });
+  const summaryByStudent = Object.entries(byStudent).map(([stId, d]) => {
+    const st = students.find(s => String(s.id) === String(stId));
+    return st ? { name: st.name, count: d.count } : null;
+  }).filter(Boolean).sort((a,b) => b.count - a.count);
+
+  const summaryHTML = summaryByStudent.length ? `
+    <p class="rp-indent2" style="margin-top:8pt;font-weight:bold"><i>Tổng hợp theo học sinh:</i></p>
+    <p class="rp-indent2">
+      ${summaryByStudent.map(x => `${esc(x.name)} (${x.count} lần)`).join('; ')}.
+    </p>
+    <p class="rp-indent2" style="margin-top:4pt;font-style:italic;color:#555;font-size:10pt">
+      Ghi chú: Đây là các trường hợp vắng mặt có lý do chính đáng (xuống phòng y tế, đau bụng đột xuất, việc gia đình...).
+      Không tính vào chỉ tiêu vi phạm chuyên cần, nhưng vẫn được ghi nhận để khớp với sổ đầu bài.
+    </p>` : '';
+
+  return `
+  <table class="rp-summary-tbl">
+    <thead>
+      <tr>
+        <th style="width:6%">STT</th>
+        <th style="width:12%">Ngày</th>
+        <th style="text-align:left;width:25%">Học sinh</th>
+        <th style="text-align:left">Lý do đặc biệt</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  ${summaryHTML}`;
 }
 
 /* ---------- Bảng thu quỹ ---------- */
@@ -3500,7 +3619,9 @@ function rpSummary() {
   const collects = getCollects(), exps = getExps();
   const totalStudents = students.length;
 
-  // Học tập
+  const nonSpecialLogs = logs.filter(l => l.type !== 'dac_biet');
+  const specialLogs = logs.filter(l => l.type === 'dac_biet');
+
   const stAvgAll = students.map(st => {
     const ss = scores.filter(s => String(s.stId) === String(st.id));
     return ss.length ? { avg: ss.reduce((a,b)=>a+b.val,0)/ss.length } : null;
@@ -3511,7 +3632,6 @@ function rpSummary() {
   const yeu  = stAvgAll.filter(x => x.avg < 5).length;
   const avgAll = stAvgAll.length ? stAvgAll.reduce((a,b)=>a+b.avg,0)/stAvgAll.length : null;
 
-  // Tài chính
   let totalCollected = 0, totalHandover = 0;
   collects.forEach(c => {
     totalCollected += (c.payments||[]).reduce((a,p)=>a+(p.amount||c.amount),0);
@@ -3542,10 +3662,13 @@ function rpSummary() {
 
   <p class="rp-subhead2">2. Về chuyên cần</p>
   <p class="rp-indent2">
-    Tổng số lượt ghi nhận: <b>${logs.length}</b> lượt.
-    Chi tiết vi phạm của từng học sinh như sau:
+    Tổng số lượt vi phạm: <b>${nonSpecialLogs.length}</b> lượt${specialLogs.length ? ` — Trường hợp đặc biệt (có lý do chính đáng, không tính vi phạm): <b>${specialLogs.length}</b> lượt` : ''}.
+    Chi tiết như sau:
   </p>
   ${buildViolationTableHTML()}
+  ${specialLogs.length ? `
+  <p class="rp-indent2" style="font-weight:bold;margin-top:10pt;margin-bottom:4pt"><i>Trường hợp đặc biệt (có lý do chính đáng):</i></p>
+  ${buildSpecialCasesHTML()}` : ''}
 
   <p class="rp-subhead2">3. Về thu chi quỹ</p>
   <p class="rp-indent2">
@@ -3571,29 +3694,38 @@ function rpSummary() {
   ` + rpSignature();
 }
 
-/* ---------- BÁO CÁO RIÊNG: BẢNG ĐIỂM ---------- */
+/* ---------- BÁO CÁO RIÊNG: BẢNG ĐIỂM CHI TIẾT ---------- */
 function rpScoreMatrix() {
   const students = getStudents(), scores = getScores();
   if (!scores.length) {
-    return rpHeader('Bảng tổng hợp kết quả học tập') +
+    return rpHeader('Bảng điểm chi tiết học sinh') +
       '<p style="text-align:center;font-style:italic;padding:20pt">Chưa có dữ liệu điểm.</p>' + rpSignature();
   }
-  return rpHeader('Bảng tổng hợp kết quả học tập') + `
+  const countStudents = students.filter(st => scores.some(s => String(s.stId) === String(st.id))).length;
+  const subjects = [...new Set(scores.map(s => s.sub))];
+  return rpHeader('Bảng điểm chi tiết học sinh') + `
   <p style="font-size:11pt;margin:4pt 0 8pt">
-    Bảng điểm tổng hợp của lớp <b>${esc(rpMeta().className)}</b> — Năm học ${esc(rpMeta().year)}.
-    Số học sinh có điểm: <b>${students.filter(st => scores.some(s=>String(s.stId)===String(st.id))).length}</b>.
+    Bảng điểm chi tiết của lớp <b>${esc(rpMeta().className)}</b> — Năm học ${esc(rpMeta().year)}.
+    Số học sinh có điểm: <b>${countStudents}</b> — Số môn: <b>${subjects.length}</b> — Tổng đầu điểm: <b>${scores.length}</b>.
   </p>
-  ${buildScoreTableHTML()}
+  ${buildScoreMatrixHTML()}
   ` + rpSignature();
 }
 
 /* ---------- BÁO CÁO RIÊNG: VI PHẠM ---------- */
 function rpViolations() {
+  const logs = getLogs();
+  const violCount = logs.filter(l => l.type !== 'dac_biet').length;
+  const specialCount = logs.filter(l => l.type === 'dac_biet').length;
   return rpHeader('Báo cáo vi phạm chuyên cần') + `
   <p style="font-size:12pt;margin:6pt 0 10pt">
     Chi tiết vi phạm chuyên cần của học sinh lớp ${esc(rpMeta().className)}.
+    Tổng số vi phạm: <b>${violCount}</b> lượt${specialCount ? ` — Trường hợp đặc biệt: <b>${specialCount}</b> lượt` : ''}.
   </p>
+  <p class="rp-subhead">I. CHI TIẾT VI PHẠM</p>
   ${buildViolationTableHTML()}
+  <p class="rp-subhead" style="margin-top:12pt">II. TRƯỜNG HỢP ĐẶC BIỆT (CÓ LÝ DO CHÍNH ĐÁNG)</p>
+  ${buildSpecialCasesHTML()}
   ` + rpSignature();
 }
 
@@ -3625,23 +3757,50 @@ function rpClassList() {
   ` + rpSignature();
 }
 
-/* ---------- BÁO CÁO RIÊNG: THU QUỸ ---------- */
-function rpCollections() {
-  return rpHeader('Báo cáo thu quỹ lớp') + `
-  <p style="font-size:12pt;margin:6pt 0 10pt">
-    Tổng hợp tình hình thu quỹ lớp ${esc(rpMeta().className)} — Năm học ${esc(rpMeta().year)}.
-  </p>
-  ${buildCollectTableHTML()}
-  ` + rpSignature();
-}
+/* ---------- BÁO CÁO THU CHI QUỸ (gộp) ---------- */
+function rpFunds() {
+  const collects = getCollects(), students = getStudents(), exps = getExps();
 
-/* ---------- BÁO CÁO RIÊNG: CHI QUỸ ---------- */
-function rpFund() {
-  return rpHeader('Báo cáo chi quỹ lớp') + `
-  <p style="font-size:12pt;margin:6pt 0 10pt">
-    Chi tiết các khoản chi của lớp ${esc(rpMeta().className)} — Năm học ${esc(rpMeta().year)}.
+  let totalCollected = 0, totalHandover = 0;
+  collects.forEach(c => {
+    totalCollected += (c.payments||[]).reduce((a,p)=>a+(p.amount||c.amount),0);
+    totalHandover  += (c.handovers||[]).reduce((a,h)=>a+h.amount,0);
+  });
+  const totalExpense   = exps.reduce((a,e)=>a+e.amt, 0);
+  const pendingExpense = exps.filter(e=>!e.paid).reduce((a,e)=>a+e.amt, 0);
+  const balance        = totalCollected - totalHandover - totalExpense;
+
+  return rpHeader('Báo cáo thu chi quỹ lớp') + `
+  <p style="font-size:12pt;margin:6pt 0 10pt;text-align:justify">
+    Tình hình thu chi quỹ lớp <b>${esc(rpMeta().className)}</b> — Năm học ${esc(rpMeta().year)}.
+    Tổng thu: <b>${totalCollected.toLocaleString('vi-VN')} đ</b> —
+    Đã bàn giao: <b>${totalHandover.toLocaleString('vi-VN')} đ</b> —
+    Tổng chi: <b>${totalExpense.toLocaleString('vi-VN')} đ</b> —
+    Tồn quỹ hiện tại: <b>${balance.toLocaleString('vi-VN')} đ</b>${pendingExpense ? ` (trong đó còn ${pendingExpense.toLocaleString('vi-VN')} đ chưa thanh toán)` : ''}.
   </p>
+
+  <p class="rp-subhead">I. CÁC ĐỢT THU</p>
+  ${buildCollectTableHTML()}
+
+  <p class="rp-subhead" style="margin-top:12pt">II. CÁC KHOẢN CHI</p>
   ${buildExpenseTableHTML()}
+
+  <p class="rp-subhead" style="margin-top:12pt">III. TỔNG KẾT QUỸ</p>
+  <table class="rp-summary-tbl" style="width:60%;margin-left:28pt">
+    <thead>
+      <tr>
+        <th style="text-align:left">Khoản mục</th>
+        <th style="width:35%">Số tiền</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Tổng thu quỹ</td><td class="right"><b>${totalCollected.toLocaleString('vi-VN')} đ</b></td></tr>
+      <tr><td>Đã bàn giao</td><td class="right">${totalHandover.toLocaleString('vi-VN')} đ</td></tr>
+      <tr><td>Tổng chi</td><td class="right">${totalExpense.toLocaleString('vi-VN')} đ</td></tr>
+      ${pendingExpense ? `<tr><td style="padding-left:22pt"><i>Trong đó chưa thanh toán</i></td><td class="right"><i>${pendingExpense.toLocaleString('vi-VN')} đ</i></td></tr>` : ''}
+      <tr class="totals-row"><td>TỒN QUỸ HIỆN TẠI</td><td class="right">${balance.toLocaleString('vi-VN')} đ</td></tr>
+    </tbody>
+  </table>
   ` + rpSignature();
 }
 
@@ -3683,11 +3842,11 @@ function rpIndividual(stId) {
 
   <p class="rp-subhead">II. Ý THỨC KỶ LUẬT</p>
   ${stLogs.length ? `
-    <p class="rp-indent">Tổng số lượt vi phạm: <b>${stLogs.length}</b></p>
+    <p class="rp-indent">Tổng số lượt ghi nhận: <b>${stLogs.length}</b></p>
     <table class="rp-summary-tbl" style="margin-left:14pt;width:calc(100% - 14pt)">
       <thead><tr>
         <th style="width:8%">STT</th><th style="width:15%">Ngày</th>
-        <th style="width:35%">Loại vi phạm</th><th>Ghi chú</th>
+        <th style="width:35%">Loại</th><th>Ghi chú</th>
       </tr></thead>
       <tbody>
         ${stLogs.map((l,i) => `<tr>
@@ -3737,8 +3896,7 @@ function buildReportByKind(kind, opts) {
     case 'scores':      return rpScoreMatrix();
     case 'violations':  return rpViolations();
     case 'list':        return rpClassList();
-    case 'collections': return rpCollections();
-    case 'fund':        return rpFund();
+    case 'funds':       return rpFunds();
     case 'individual':  return opts && opts.stId ? rpIndividual(opts.stId) : '';
     default: return '';
   }
@@ -3776,25 +3934,28 @@ function buildExcelSheet(kind) {
     return { name: 'DS Lớp', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
   if (kind === 'scores') {
-    const aoa = [['STT','Họ và tên','Các đầu điểm','ĐTB','Xếp loại']];
-    const stAvg = students.map((st,i) => {
-      const ss = scores.filter(s => String(s.stId) === String(st.id));
-      if (!ss.length) return null;
-      const avg = ss.reduce((a,b)=>a+b.val,0)/ss.length;
-      const counts = {};
-      ss.forEach(s => { counts[s.val] = (counts[s.val]||0)+1; });
-      const sortedVals = Object.keys(counts).map(Number).sort((a,b)=>b-a);
-      const detail = sortedVals.map(v => `${v}×${counts[v]}`).join(', ');
-      return { idx: i+1, name: st.name, detail, avg };
-    }).filter(Boolean).sort((a,b)=>b.avg - a.avg);
-    stAvg.forEach(x => aoa.push([x.idx, x.name, x.detail, +x.avg.toFixed(2), classifyScore(x.avg).label]));
+    const subjects = [...new Set(scores.map(s => s.sub))].sort();
+    const aoa = [['STT','Họ và tên', ...subjects, 'ĐTB', 'Xếp loại']];
+    const studentsWithScores = students.filter(st => scores.some(s => String(s.stId) === String(st.id)));
+    studentsWithScores.forEach((st, i) => {
+      const stScores = scores.filter(s => String(s.stId) === String(st.id));
+      const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
+      const row = [i+1, st.name];
+      subjects.forEach(sub => {
+        const vals = stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
+        row.push(vals.join(', '));
+      });
+      row.push(+avg.toFixed(2));
+      row.push(classifyScore(avg).label);
+      aoa.push(row);
+    });
     return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
   if (kind === 'violations') {
     const aoa = [['STT','Họ và tên','Nghỉ KP','Nghỉ CP','Muộn KP','Muộn CP','BTVN','SĐB','Khác','Tổng']];
     const FIXED = ['v_khongphep','v_cophep','di_muon','di_muon_cp','chua_btvn','so_daubai'];
     const byStudent = {};
-    logs.forEach(l => {
+    logs.filter(l => l.type !== 'dac_biet').forEach(l => {
       if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0 };
       byStudent[l.stId]._total++;
       if (FIXED.includes(l.type)) byStudent[l.stId][l.type] = (byStudent[l.stId][l.type]||0)+1;
@@ -3806,34 +3967,51 @@ function buildExcelSheet(kind) {
     }).filter(Boolean).sort((a,b)=>b.d._total - a.d._total);
     arr.forEach((x,i) => aoa.push([
       i+1, x.st.name,
-      x.d.v_khongphep || 0,
-      x.d.v_cophep    || 0,
-      x.d.di_muon     || 0,
-      x.d.di_muon_cp  || 0,
-      x.d.chua_btvn   || 0,
-      x.d.so_daubai   || 0,
-      x.d._other,
-      x.d._total
+      x.d.v_khongphep || 0, x.d.v_cophep || 0,
+      x.d.di_muon || 0, x.d.di_muon_cp || 0,
+      x.d.chua_btvn || 0, x.d.so_daubai || 0,
+      x.d._other, x.d._total
     ]));
     return { name: 'Vi Phạm', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
-  if (kind === 'collections') {
-    const aoa = [['STT','Đợt thu','Số tiền/HS','Đã đóng','Chưa đóng','Đã thu','Bàn giao','Tồn']];
+  if (kind === 'special') {
+    const aoa = [['STT','Ngày','Học sinh','Lý do đặc biệt']];
+    logs.filter(l => l.type === 'dac_biet')
+      .sort((a,b) => (b.date||'').localeCompare(a.date||''))
+      .forEach((l, i) => {
+        const st = students.find(s => String(s.id) === String(l.stId));
+        aoa.push([i+1, l.date, st ? st.name : '(Đã xóa)', l.note || '']);
+      });
+    return { name: 'Đặc Biệt', ws: XLSX.utils.aoa_to_sheet(aoa) };
+  }
+  if (kind === 'funds') {
+    const aoa = [];
+    aoa.push(['BÁO CÁO THU CHI QUỸ LỚP ' + rpMeta().className.toUpperCase()]);
+    aoa.push([]);
+    aoa.push(['PHẦN I: CÁC ĐỢT THU']);
+    aoa.push(['STT','Đợt thu','Số tiền/HS','Đã đóng','Chưa đóng','Đã thu']);
+    let totalCollected = 0;
     collects.forEach((c,i) => {
       const paid = (c.payments||[]).length;
       const unpaid = students.length - paid;
       const collected = (c.payments||[]).reduce((a,p)=>a+(p.amount||c.amount),0);
-      const handover = (c.handovers||[]).reduce((a,h)=>a+h.amount,0);
-      aoa.push([i+1, c.name, c.amount, paid, unpaid, collected, handover, collected-handover]);
+      totalCollected += collected;
+      aoa.push([i+1, c.name, c.amount, paid, unpaid, collected]);
     });
-    return { name: 'Thu Quỹ', ws: XLSX.utils.aoa_to_sheet(aoa) };
-  }
-  if (kind === 'fund') {
-    const aoa = [['STT','Ngày','Nội dung','ĐV','SL','Đơn giá','Thành tiền','TT']];
+    aoa.push([]);
+    aoa.push(['PHẦN II: CÁC KHOẢN CHI']);
+    aoa.push(['STT','Ngày','Nội dung','SL','Đơn giá','Thành tiền','TT']);
+    let totalExpense = 0;
     exps.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach((e,i) => {
-      aoa.push([i+1, e.date, e.title, e.unit||'', e.qty||1, e.price||e.amt, e.amt, e.paid?'Đã trả':'Chưa']);
+      totalExpense += e.amt;
+      aoa.push([i+1, e.date, e.title, e.qty||1, e.price||e.amt, e.amt, e.paid?'Đã trả':'Chưa']);
     });
-    return { name: 'Chi Quỹ', ws: XLSX.utils.aoa_to_sheet(aoa) };
+    aoa.push([]);
+    aoa.push(['PHẦN III: TỔNG KẾT QUỸ']);
+    aoa.push(['Tổng thu quỹ', totalCollected]);
+    aoa.push(['Tổng chi', totalExpense]);
+    aoa.push(['Tồn quỹ (chưa trừ bàn giao)', totalCollected - totalExpense]);
+    return { name: 'Thu Chi', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
   if (kind === 'summary') {
     const totalCollected = collects.reduce((s,c)=>s+(c.payments||[]).reduce((a,p)=>a+(p.amount||c.amount),0),0);
@@ -3846,7 +4024,8 @@ function buildExcelSheet(kind) {
       [],
       ['CHỈ TIÊU', 'GIÁ TRỊ'],
       ['Tổng số học sinh', students.length],
-      ['Tổng số lượt ghi nhận', logs.length],
+      ['Tổng số lượt vi phạm', logs.filter(l=>l.type!=='dac_biet').length],
+      ['Trường hợp đặc biệt', logs.filter(l=>l.type==='dac_biet').length],
       ['Tổng số đầu điểm', scores.length],
       ['Điểm trung bình toàn lớp', avgAll !== null ? +avgAll.toFixed(2) : '—'],
       ['Số đợt thu quỹ', collects.length],
@@ -3934,12 +4113,19 @@ function exportToExcel() {
       XLSX.utils.book_append_sheet(wb, sheet.ws, name);
       added++;
     }
+    // Tự động thêm sheet "Đặc Biệt" nếu chọn Vi phạm hoặc Tổng hợp
+    if (kind === 'violations' || kind === 'summary') {
+      const specialSheet = buildExcelSheet('special');
+      if (specialSheet && specialSheet.ws && !wb.SheetNames.includes('Đặc Biệt')) {
+        XLSX.utils.book_append_sheet(wb, specialSheet.ws, 'Đặc Biệt');
+      }
+    }
   });
   if (!wb.SheetNames.length) { toast('⚠️ Không có dữ liệu!', '#ef4444'); return; }
   XLSX.writeFile(wb, `BaoCao_Lop${m.className.replace(/\s+/g,'')}_${rpDateShort().replace(/\//g,'-')}.xlsx`);
   toast('📊 Đã xuất file Excel!', '#217346');
 }
-
+  
   /* ═══════════ PHẠT NHIỀU BUỔI (VỆ SINH) ═══════════ */
 const P_DOW = ['CN','T2','T3','T4','T5','T6','T7'];
 
