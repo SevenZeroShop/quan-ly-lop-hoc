@@ -242,6 +242,31 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
 .rp-subhead2 { font-weight:bold; margin-top:8pt; margin-left:14pt; }
 .rp-indent { margin-left:14pt; }
 .rp-indent2 { margin-left:28pt; }
+/* === CSS BÁO CÁO === */
+.rp-summary-tbl { margin:8pt 0 4pt 28pt; width:calc(100% - 28pt); border-collapse:collapse; font-size:10.5pt; }
+.rp-summary-tbl th, .rp-summary-tbl td { border:1pt solid #000; padding:3pt 5pt; vertical-align:middle; }
+.rp-summary-tbl th { background:#d9e2f3; font-weight:bold; text-align:center; font-size:10pt; }
+.rp-summary-tbl .center { text-align:center; }
+.rp-summary-tbl .right { text-align:right; }
+.rp-summary-tbl .cell-viol { background:#fff5f5; font-weight:bold; color:#991b1b; text-align:center; }
+.rp-summary-tbl .cell-kp { background:#fee2e2; font-weight:bold; color:#991b1b; text-align:center; }
+.rp-summary-tbl .cell-cp { background:#fef3c7; font-weight:bold; color:#92400e; text-align:center; }
+.rp-summary-tbl .cell-ok { color:#d0d0d0; text-align:center; }
+.rp-summary-tbl .totals-row { background:#f0f0f0; font-weight:bold; }
+.tag { display:inline-block; padding:1pt 5pt; border-radius:4px; font-size:9.5pt; font-weight:bold; margin:0 1pt 1pt 0; }
+.tag-g  { background:#dcfce7; color:#166534; border:0.5pt solid #86efac; }
+.tag-k  { background:#fef3c7; color:#92400e; border:0.5pt solid #fbbf24; }
+.tag-tb { background:#dbeafe; color:#1e40af; border:0.5pt solid #93c5fd; }
+.tag-y  { background:#fee2e2; color:#991b1b; border:0.5pt solid #fca5a5; }
+.badge-ok     { background:#dcfce7; color:#166534; border:0.5pt solid #86efac; }
+.badge-warn   { background:#fef3c7; color:#92400e; border:0.5pt solid #fbbf24; }
+.badge-danger { background:#fee2e2; color:#991b1b; border:0.5pt solid #fca5a5; }
+.badge-info   { background:#dbeafe; color:#1e40af; border:0.5pt solid #93c5fd; }
+.rp-legend { font-size:10pt; color:#555; font-style:italic; margin:4pt 0 0 28pt; }
+.rp-subhead { font-weight:bold; margin-top:10pt; }
+.rp-subhead2 { font-weight:bold; margin-top:8pt; margin-left:14pt; }
+.rp-indent { margin-left:14pt; }
+.rp-indent2 { margin-left:28pt; }
 </style>
 </head>
 <body>
@@ -1041,14 +1066,15 @@ const defaultSubjects = ['Toán','Ngữ Văn','Lịch Sử','Địa Lý','GDKT &
 /* Loại vi phạm — có thể mở rộng */
 const DEFAULT_CC_TYPES = {
   v_khongphep: { label: '🔴 Nghỉ Không Phép', cls: 'badge-pending', color: '#dc2626' },
-  di_muon:    { label: '🟡 Đi Muộn', cls: 'badge-late', color: '#f59e0b' },
-  chua_btvn:  { label: '📝 Chưa Làm BTVN', cls: 'badge-btvn', color: '#8b5cf6' },
-  so_daubai:  { label: '📕 Vi Phạm SĐB', cls: 'badge-sdb', color: '#ef4444' },
-  v_cophep:   { label: '🔵 Nghỉ Có Phép', cls: 'badge-perm', color: '#3b82f6' },
-  an_quavat:  { label: '🍬 Ăn Quà Vặt', cls: 'badge-late', color: '#f97316' },
-  dien_thoai: { label: '📱 Dùng Điện Thoại', cls: 'badge-sdb', color: '#a855f7' },
-  danh_nhau:  { label: '👊 Đánh Nhau', cls: 'badge-pending', color: '#dc2626' },
-  vo_le:      { label: '😠 Vô Lễ', cls: 'badge-pending', color: '#991b1b' },
+  v_cophep:    { label: '🔵 Nghỉ Có Phép', cls: 'badge-perm', color: '#3b82f6' },
+  di_muon:     { label: '🟡 Đi Muộn Không Phép', cls: 'badge-late', color: '#f59e0b' },
+  di_muon_cp:  { label: '🟠 Đi Muộn Có Phép', cls: 'badge-perm', color: '#f97316' },
+  chua_btvn:   { label: '📝 Chưa Làm BTVN', cls: 'badge-btvn', color: '#8b5cf6' },
+  so_daubai:   { label: '📕 Vi Phạm SĐB', cls: 'badge-sdb', color: '#ef4444' },
+  an_quavat:   { label: '🍬 Ăn Quà Vặt', cls: 'badge-late', color: '#f97316' },
+  dien_thoai:  { label: '📱 Dùng Điện Thoại', cls: 'badge-sdb', color: '#a855f7' },
+  danh_nhau:   { label: '👊 Đánh Nhau', cls: 'badge-pending', color: '#dc2626' },
+  vo_le:       { label: '😠 Vô Lễ', cls: 'badge-pending', color: '#991b1b' },
   khong_dong_phuc: { label: '👔 Không Đồng Phục', cls: 'badge-late', color: '#eab308' }
 };
 
@@ -2531,13 +2557,13 @@ function emptyTrash() { if (!isOwner()) { toast('⚠️ Chỉ chủ lớp!', '#e
 
 /* ═══════════ BÁO CÁO (giữ cơ bản) ═══════════ */
 const REPORT_DEFS = [
-  { key: 'summary', label: '📊 Tổng Hợp', desc: 'Chuyên cần + điểm' },
-  { key: 'scores', label: '💯 Bảng Điểm', desc: 'Ma trận HS × Môn' },
-  { key: 'violations', label: '📋 Vi Phạm', desc: 'Chi tiết' },
-  { key: 'list', label: '👥 DS Lớp', desc: 'Có ký nhận' },
-  { key: 'collections', label: '💰 Thu Quỹ', desc: 'Tổng thu' },
-  { key: 'fund', label: '💸 Chi Quỹ', desc: 'Chi tiết' },
-  { key: 'individual', label: '👤 Cá Nhân', desc: 'Phiếu liên lạc' }
+  { key: 'summary',     label: '📊 Báo cáo tổng hợp',    desc: 'Kết quả hoạt động – 2 mục I, II' },
+  { key: 'scores',      label: '💯 Bảng tổng hợp điểm',   desc: 'Các đầu điểm + ĐTB + xếp loại' },
+  { key: 'violations',  label: '📋 Báo cáo vi phạm',      desc: 'Chi tiết theo từng HS (KP/CP)' },
+  { key: 'list',        label: '👥 Danh sách học sinh',   desc: 'Có cột ký nhận' },
+  { key: 'collections', label: '💰 Báo cáo thu quỹ',      desc: 'Các đợt thu + trạng thái' },
+  { key: 'fund',        label: '💸 Báo cáo chi quỹ',      desc: 'Các khoản chi + trạng thái' },
+  { key: 'individual',  label: '👤 Phiếu thông tin HS',   desc: 'Điểm, vi phạm, phạt, đóng quỹ' }
 ];
 function renderReportChecklist() {
   const box = document.getElementById('reportChecklist'); if (!box) return;
@@ -3219,7 +3245,9 @@ function rpWrapHtml(body) {
   .rp-summary-tbl .center { text-align:center; }
   .rp-summary-tbl .right { text-align:right; }
   .rp-summary-tbl .cell-viol { background:#fff5f5; font-weight:bold; color:#991b1b; text-align:center; }
-  .rp-summary-tbl .cell-ok { color:#c0c0c0; text-align:center; }
+  .rp-summary-tbl .cell-kp { background:#fee2e2; font-weight:bold; color:#991b1b; text-align:center; }
+  .rp-summary-tbl .cell-cp { background:#fef3c7; font-weight:bold; color:#92400e; text-align:center; }
+  .rp-summary-tbl .cell-ok { color:#d0d0d0; text-align:center; }
   .rp-summary-tbl .totals-row { background:#f0f0f0; font-weight:bold; }
   .tag { display:inline-block; padding:1pt 5pt; border-radius:4px; font-size:9.5pt; font-weight:bold; margin:0 1pt 1pt 0; }
   .tag-g  { background:#dcfce7; color:#166534; border:0.5pt solid #86efac; }
@@ -3286,22 +3314,22 @@ function buildScoreTableHTML() {
   </p>`;
 }
 
-/* ---------- Bảng vi phạm cột cố định ---------- */
+/* ---------- Bảng vi phạm: tách KP / CP ---------- */
 function buildViolationTableHTML() {
   const students = getStudents(), logs = getLogs();
-  const EXCUSED = ['v_cophep'];
-  const violationLogs = logs.filter(l => !EXCUSED.includes(l.type));
 
   const FIXED_TYPES = [
-    { key: 'v_khongphep', label: 'Nghỉ KP' },
-    { key: 'di_muon',     label: 'Đi muộn' },
-    { key: 'chua_btvn',   label: 'BTVN' },
-    { key: 'so_daubai',   label: 'SĐB' }
+    { key: 'v_khongphep', label: 'Nghỉ<br>KP', kind: 'kp' },
+    { key: 'v_cophep',    label: 'Nghỉ<br>CP', kind: 'cp' },
+    { key: 'di_muon',     label: 'Muộn<br>KP', kind: 'kp' },
+    { key: 'di_muon_cp',  label: 'Muộn<br>CP', kind: 'cp' },
+    { key: 'chua_btvn',   label: 'BTVN',       kind: 'kp' },
+    { key: 'so_daubai',   label: 'SĐB',        kind: 'kp' }
   ];
   const FIXED_KEYS = FIXED_TYPES.map(t => t.key);
 
   const byStudent = {};
-  violationLogs.forEach(l => {
+  logs.forEach(l => {
     if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0 };
     byStudent[l.stId]._total++;
     if (FIXED_KEYS.includes(l.type)) {
@@ -3310,6 +3338,7 @@ function buildViolationTableHTML() {
       byStudent[l.stId]._other++;
     }
   });
+
   const ranking = Object.entries(byStudent).map(([stId, data]) => {
     const st = students.find(s => String(s.id) === String(stId));
     if (!st) return null;
@@ -3330,26 +3359,28 @@ function buildViolationTableHTML() {
   const totalBg = n => n >= 4 ? 'background:#fee2e2;color:#991b1b'
                     : n >= 2 ? 'background:#fef3c7;color:#92400e'
                     : 'background:#f0fdf4;color:#166534';
+  const cellCls = kind => kind === 'cp' ? 'cell-cp' : 'cell-kp';
 
   return `
   <table class="rp-summary-tbl">
     <thead>
       <tr>
-        <th style="width:5%">STT</th>
-        <th style="text-align:left">Họ và tên</th>
-        ${FIXED_TYPES.map(t => `<th style="width:10%">${t.label}</th>`).join('')}
-        <th style="width:10%">Khác</th>
-        <th style="width:9%">Tổng</th>
+        <th style="width:4%">STT</th>
+        <th style="text-align:left;width:16%">Họ và tên</th>
+        ${FIXED_TYPES.map(t => `<th style="width:8%">${t.label}</th>`).join('')}
+        <th style="width:8%">Khác</th>
+        <th style="width:8%">Tổng</th>
       </tr>
     </thead>
     <tbody>
       ${ranking.map((r,i) => `<tr>
         <td class="center">${i+1}</td>
         <td>${r._total >= 4 ? '<b>' : ''}${r.idx}. ${esc(r.st.name)}${r._total >= 4 ? '</b>' : ''}</td>
-        ${FIXED_TYPES.map(t => r[t.key]
-          ? `<td class="cell-viol">${r[t.key]}</td>`
-          : '<td class="cell-ok">·</td>').join('')}
-        <td class="${r._other ? 'cell-viol' : 'cell-ok'}">${r._other || '·'}</td>
+        ${FIXED_TYPES.map(t => {
+          const v = r[t.key];
+          return v ? `<td class="${cellCls(t.kind)}">${v}</td>` : '<td class="cell-ok">·</td>';
+        }).join('')}
+        <td class="${r._other ? 'cell-cp' : 'cell-ok'}">${r._other || '·'}</td>
         <td class="cell-viol" style="${totalBg(r._total)};font-weight:bold">${r._total}</td>
       </tr>`).join('')}
       <tr class="totals-row">
@@ -3362,9 +3393,11 @@ function buildViolationTableHTML() {
   </table>
   <p class="rp-legend">
     <b>Quy ước:</b>
-    <span class="badge-danger" style="padding:1pt 6pt;border-radius:3px;font-weight:bold">≥ 4 lỗi: Xử lý nghiêm</span>
-    <span class="badge-warn" style="padding:1pt 6pt;border-radius:3px;font-weight:bold">2–3 lỗi: Nhắc nhở</span>
-    <span class="badge-ok" style="padding:1pt 6pt;border-radius:3px;font-weight:bold">1 lỗi: Lưu ý</span>
+    <span style="background:#fee2e2;color:#991b1b;padding:1pt 6pt;border-radius:3px;font-weight:bold">KP (không phép) — xử lý nghiêm</span>
+    <span style="background:#fef3c7;color:#92400e;padding:1pt 6pt;border-radius:3px;font-weight:bold">CP (có phép) — nhắc nhở</span>
+    <span style="background:#fee2e2;color:#991b1b;padding:1pt 6pt;border-radius:3px;font-weight:bold">≥ 4 lỗi: Xử lý nghiêm</span>
+    <span style="background:#fef3c7;color:#92400e;padding:1pt 6pt;border-radius:3px;font-weight:bold">2–3 lỗi: Nhắc nhở</span>
+    <span style="background:#f0fdf4;color:#166534;padding:1pt 6pt;border-radius:3px;font-weight:bold">1 lỗi: Lưu ý</span>
   </p>`;
 }
 
@@ -3467,11 +3500,7 @@ function rpSummary() {
   const collects = getCollects(), exps = getExps();
   const totalStudents = students.length;
 
-  const EXCUSED_TYPES = ['v_cophep', 'om_co_phep', 've_som'];
-  const violationLogs = logs.filter(l => !EXCUSED_TYPES.includes(l.type));
-  const excusedLogs   = logs.filter(l =>  EXCUSED_TYPES.includes(l.type));
-
-  // Học tập tổng
+  // Học tập
   const stAvgAll = students.map(st => {
     const ss = scores.filter(s => String(s.stId) === String(st.id));
     return ss.length ? { avg: ss.reduce((a,b)=>a+b.val,0)/ss.length } : null;
@@ -3481,15 +3510,6 @@ function rpSummary() {
   const tb   = stAvgAll.filter(x => x.avg >= 5 && x.avg < 6.5).length;
   const yeu  = stAvgAll.filter(x => x.avg < 5).length;
   const avgAll = stAvgAll.length ? stAvgAll.reduce((a,b)=>a+b.avg,0)/stAvgAll.length : null;
-
-  // Vắng có phép
-  const excusedByStudent = {};
-  excusedLogs.forEach(l => { excusedByStudent[l.stId] = (excusedByStudent[l.stId]||0)+1; });
-  const excusedList = Object.entries(excusedByStudent).map(([stId,count]) => {
-    const st = students.find(s => String(s.id) === String(stId));
-    return st ? { name: st.name, count } : null;
-  }).filter(Boolean).sort((a,b)=>b.count - a.count);
-  const excusedTxt = excusedList.map(x => `${esc(x.name)} (${x.count} lượt)`).join(', ');
 
   // Tài chính
   let totalCollected = 0, totalHandover = 0;
@@ -3522,13 +3542,10 @@ function rpSummary() {
 
   <p class="rp-subhead2">2. Về chuyên cần</p>
   <p class="rp-indent2">
-    Tổng số lượt ghi nhận: <b>${logs.length}</b> lượt,
-    trong đó vi phạm <b>${violationLogs.length}</b> lượt
-    và vắng có phép <b>${excusedLogs.length}</b> lượt.
-    ${violationLogs.length ? 'Chi tiết vi phạm của từng học sinh như sau:' : 'Không có vi phạm nào.'}
+    Tổng số lượt ghi nhận: <b>${logs.length}</b> lượt.
+    Chi tiết vi phạm của từng học sinh như sau:
   </p>
   ${buildViolationTableHTML()}
-  ${excusedLogs.length ? `<p class="rp-indent2" style="margin-top:6pt"><i>Vắng có phép:</i> ${excusedTxt}.</p>` : ''}
 
   <p class="rp-subhead2">3. Về thu chi quỹ</p>
   <p class="rp-indent2">
@@ -3738,7 +3755,7 @@ function downloadWordFile(fullHtml, filename) {
   toast('📥 Đã tải file Word!', '#2b579a');
 }
 
-/* ---------- Xuất PDF (mở hộp thoại in) ---------- */
+/* ---------- Xuất PDF ---------- */
 function openPrintWindow(fullHtml, filename) {
   const w = window.open('', '_blank');
   if (!w) { toast('⚠️ Trình duyệt chặn popup! Hãy cho phép popup.', '#ef4444'); return; }
@@ -3774,10 +3791,10 @@ function buildExcelSheet(kind) {
     return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
   if (kind === 'violations') {
-    const aoa = [['STT','Họ và tên','Nghỉ KP','Đi muộn','BTVN','SĐB','Khác','Tổng']];
-    const FIXED = ['v_khongphep','di_muon','chua_btvn','so_daubai'];
+    const aoa = [['STT','Họ và tên','Nghỉ KP','Nghỉ CP','Muộn KP','Muộn CP','BTVN','SĐB','Khác','Tổng']];
+    const FIXED = ['v_khongphep','v_cophep','di_muon','di_muon_cp','chua_btvn','so_daubai'];
     const byStudent = {};
-    logs.filter(l => l.type !== 'v_cophep').forEach(l => {
+    logs.forEach(l => {
       if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0 };
       byStudent[l.stId]._total++;
       if (FIXED.includes(l.type)) byStudent[l.stId][l.type] = (byStudent[l.stId][l.type]||0)+1;
@@ -3787,7 +3804,17 @@ function buildExcelSheet(kind) {
       const st = students.find(s => String(s.id)===String(id));
       return st ? { st, d } : null;
     }).filter(Boolean).sort((a,b)=>b.d._total - a.d._total);
-    arr.forEach((x,i) => aoa.push([i+1, x.st.name, x.d.v_khongphep||0, x.d.di_muon||0, x.d.chua_btvn||0, x.d.so_daubai||0, x.d._other, x.d._total]));
+    arr.forEach((x,i) => aoa.push([
+      i+1, x.st.name,
+      x.d.v_khongphep || 0,
+      x.d.v_cophep    || 0,
+      x.d.di_muon     || 0,
+      x.d.di_muon_cp  || 0,
+      x.d.chua_btvn   || 0,
+      x.d.so_daubai   || 0,
+      x.d._other,
+      x.d._total
+    ]));
     return { name: 'Vi Phạm', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
   if (kind === 'collections') {
@@ -3819,7 +3846,7 @@ function buildExcelSheet(kind) {
       [],
       ['CHỈ TIÊU', 'GIÁ TRỊ'],
       ['Tổng số học sinh', students.length],
-      ['Tổng số lượt vi phạm', logs.filter(l=>l.type!=='v_cophep').length],
+      ['Tổng số lượt ghi nhận', logs.length],
       ['Tổng số đầu điểm', scores.length],
       ['Điểm trung bình toàn lớp', avgAll !== null ? +avgAll.toFixed(2) : '—'],
       ['Số đợt thu quỹ', collects.length],
