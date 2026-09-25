@@ -460,7 +460,14 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
     </div>
     <input type="text" class="search-input" id="searchDDList" oninput="renderDDView()" placeholder="🔍 Tìm theo tên / ngày / lý do...">
   </div>
-  <div id="ddViewContainer"></div>
+    <div id="ddViewContainer"></div>
+
+  <div class="card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+    <h3 style="color:#6d28d9;">📈 Thống Kê Vi Phạm Theo Học Sinh</h3>
+    <p style="font-size:12px;color:#6d28d9;margin-bottom:10px;font-style:italic;">💡 Dựa trên <b>dữ liệu chuyên cần</b> (không phải phiếu phạt). Thanh càng dài = vi phạm càng nhiều.</p>
+    <input type="text" class="search-input" id="searchCcViolChart" oninput="renderCcViolationChart()" placeholder="🔍 Tìm tên HS..." style="margin-bottom:10px;">
+    <div id="ccViolationChart"></div>
+  </div>
 </div>
 
 <!-- SỔ ĐIỂM -->
@@ -794,6 +801,23 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
 
 <!-- BÁO CÁO -->
 <div id="sec-baocao" class="section-pane">
+  <div class="card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+    <h3 style="color:#6d28d9;">📅 Khoảng Thời Gian Báo Cáo</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn-act btn-mini" onclick="setQuickRange('all')">📚 Cả năm</button>
+      <button class="btn-act btn-mini" onclick="setQuickRange('hk1')">🍂 Học kỳ 1</button>
+      <button class="btn-act btn-mini" onclick="setQuickRange('hk2')">🌸 Học kỳ 2</button>
+      <button class="btn-act btn-mini" onclick="setQuickRange('month')">📆 Tháng này</button>
+      <button class="btn-act btn-mini" onclick="setQuickRange('d30')">📅 30 ngày qua</button>
+      <button class="btn-act btn-mini" onclick="setQuickRange('d7')">📅 7 ngày qua</button>
+      <button class="btn-act btn-mini btn-warning" onclick="setQuickRange('clear')">✖ Bỏ lọc</button>
+    </div>
+    <div class="grid-2">
+      <div class="form-group" style="margin-bottom:0;"><label>Từ ngày:</label><input type="date" id="rptFrom" onchange="onReportRangeChange()"></div>
+      <div class="form-group" style="margin-bottom:0;"><label>Đến ngày:</label><input type="date" id="rptTo" onchange="onReportRangeChange()"></div>
+    </div>
+    <div id="rptRangeLabel" style="margin-top:10px;padding:8px 12px;background:#fff;border:1px dashed #8b5cf6;border-radius:8px;font-size:12px;color:#6d28d9;font-weight:700;text-align:center;">📊 Tổng hợp tất cả dữ liệu</div>
+  </div>
   <div class="card">
     <h3>📄 Chọn Báo Cáo</h3>
     <div class="checkbox-toolbar" style="margin-bottom:10px;">
@@ -814,12 +838,14 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
       <div class="checkbox-group" id="indivChecklist" style="max-height:180px;"></div>
     </div>
   </div>
-  <div class="card" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;">
+    <div class="card" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-act btn-word" style="flex:1;padding:14px;background:#2b579a;" onclick="exportSelectedReports('word')">📥 Word</button>
-      <button class="btn-act btn-pdf" style="flex:1;padding:14px;background:#dc2626;" onclick="exportSelectedReports('pdf')">📥 PDF</button>
-      <button class="btn-act btn-excel" style="flex:1;padding:14px;" onclick="exportSelectedReports('excel')">📊 Excel</button>
+      <button class="btn-act btn-word" style="flex:1;min-width:120px;padding:14px;background:#2b579a;" onclick="exportSelectedReports('word')">📥 Word</button>
+      <button class="btn-act btn-pdf" style="flex:1;min-width:120px;padding:14px;background:#dc2626;" onclick="exportSelectedReports('pdf')">📥 PDF</button>
+      <button id="btnExcelReport" class="btn-act btn-excel" style="flex:1;min-width:100px;padding:14px;" onclick="exportSelectedReports('excel')">📊 Excel</button>
+      <button class="btn-act" style="flex:1;min-width:120px;padding:14px;background:linear-gradient(135deg,#10b981,#059669);font-weight:800;" onclick="shareSelectedReports()">📤 Chia sẻ</button>
     </div>
+    <p style="font-size:11px;opacity:.85;margin-top:10px;text-align:center;font-style:italic;">💡 Chia sẻ: tạo PDF và gửi qua Zalo / Gmail / Messenger…</p>
   </div>
 </div>
 
@@ -1222,6 +1248,7 @@ function renderAllUI() {
   renderTopStats();
   renderDDView();
   renderCCWarning();
+  renderCcViolationChart();
   renderScoreSummary();
   renderExpenseTable();
   renderStudentList();
@@ -1458,6 +1485,70 @@ function renderCCWarning() {
       <button class="btn-act btn-warning btn-mini" onclick="sendToPunish('${st.id}')">→ Phạt</button>
     </div>`;
   }).join('')}</div>`;
+}
+
+  function renderCcViolationChart() {
+  const box = document.getElementById('ccViolationChart');
+  if (!box) return;
+  const students = getStudents();
+  const search = (document.getElementById('searchCcViolChart')?.value || '').toLowerCase().trim();
+  const logs = getLogs().filter(l => l.type !== 'dac_biet');
+  if (!logs.length) { box.innerHTML = '<div style="text-align:center;color:#10b981;padding:24px;font-weight:bold;background:#f0fdf4;border-radius:10px;">🎉 Không có vi phạm!</div>'; return; }
+  const byStudent = {};
+  logs.forEach(l => {
+    if (!byStudent[l.stId]) byStudent[l.stId] = { total: 0, types: {} };
+    byStudent[l.stId].total++;
+    byStudent[l.stId].types[l.type] = (byStudent[l.stId].types[l.type] || 0) + 1;
+  });
+  let ranking = Object.entries(byStudent).map(([stId, d]) => {
+    const st = students.find(s => String(s.id) === String(stId));
+    if (!st) return null;
+    return { st, idx: students.indexOf(st) + 1, total: d.total, types: d.types };
+  }).filter(Boolean).sort((a, b) => b.total - a.total);
+  if (search) ranking = ranking.filter(r => r.st.name.toLowerCase().includes(search));
+  if (!ranking.length) { box.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</p>'; return; }
+  const maxTotal = Math.max(...ranking.map(r => r.total));
+  function getLevel(t) {
+    if (t >= 5) return { key: 'critical', icon: '🚨', label: 'NGHIÊM TRỌNG' };
+    if (t >= 4) return { key: 'danger',   icon: '⛔', label: 'RẤT NẶNG' };
+    if (t >= 3) return { key: 'warning',  icon: '⚠️', label: 'CẢNH BÁO' };
+    if (t >= 2) return { key: 'caution',  icon: '❗', label: 'CHÚ Ý' };
+    return { key: 'normal', icon: '•', label: 'Nhẹ' };
+  }
+  const allTypes = {};
+  ranking.forEach(r => Object.keys(r.types).forEach(k => { allTypes[k] = (allTypes[k] || 0) + r.types[k]; }));
+  const sortedTypes = Object.keys(allTypes).sort((a, b) => allTypes[b] - allTypes[a]);
+  const counts = { critical: 0, danger: 0, warning: 0, caution: 0, normal: 0 };
+  ranking.forEach(r => { counts[getLevel(r.total).key]++; });
+  const rowsHTML = ranking.map((r, i) => {
+    const lv = getLevel(r.total);
+    const barW = Math.max((r.total / maxTotal) * 100, 4);
+    const iconCls = (lv.key === 'critical' || lv.key === 'danger') ? 'vc-icon' : 'vc-icon no-pulse';
+    const segs = sortedTypes.map(t => {
+      const cnt = r.types[t] || 0;
+      if (!cnt) return '';
+      const w = (cnt / r.total) * 100;
+      return `<div class="vc-seg" style="width:${w}%;background:${getCCColor(t)}" title="${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))}: ${cnt} lần"></div>`;
+    }).join('');
+    return `<div class="vc-row lv-${lv.key}" title="${r.idx}. ${esc(r.st.name)} — ${r.total} vi phạm">
+      <div class="${iconCls}">${lv.icon}</div>
+      <div class="vc-name">${i+1}. ${esc(r.st.name)}</div>
+      <div class="vc-bar-wrap"><div class="vc-bar" style="width:${barW}%">${segs}</div></div>
+      <div class="vc-total lv-${lv.key}">${r.total}</div>
+      <div class="vc-label lv-${lv.key}">${lv.label}</div>
+    </div>`;
+  }).join('');
+  const legendHTML = sortedTypes.map(t => `<span class="vc-legend-item"><span class="vc-legend-dot" style="background:${getCCColor(t)}"></span>${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))} (${allTypes[t]})</span>`).join('');
+  const scaleHTML = `<div class="vc-scale"><div class="vc-scale-title">📏 Thang mức độ</div><div class="vc-scale-items">
+    <span class="vc-scale-item"><b style="color:#dc2626">🚨 5+</b> Nghiêm trọng (${counts.critical})</span>
+    <span class="vc-scale-item"><b style="color:#ea580c">⛔ 4</b> Rất nặng (${counts.danger})</span>
+    <span class="vc-scale-item"><b style="color:#f59e0b">⚠️ 3</b> Cảnh báo (${counts.warning})</span>
+    <span class="vc-scale-item"><b style="color:#3b82f6">❗ 2</b> Chú ý (${counts.caution})</span>
+    <span class="vc-scale-item"><b style="color:#10b981">• 1</b> Nhẹ (${counts.normal})</span>
+  </div></div>`;
+  box.innerHTML = `<div style="font-size:13px;color:#991b1b;margin-bottom:10px;font-weight:700;">🚨 Tổng <b>${logs.length}</b> vi phạm của <b>${ranking.length}</b> HS</div>
+    <div class="vc-wrap">${rowsHTML}</div>${scaleHTML}
+    <div class="vc-legend">${legendHTML}</div>`;
 }
 
 /* ═══ LIÊN KẾT TAB: Chuyển từ Chuyên Cần → Phạt ═══ */
@@ -2575,6 +2666,71 @@ function restoreFromTrash(itemId) {
 function deleteFromTrash(itemId) { if (!canEdit()) return; if (!confirm('XÓA VĨNH VIỄN?')) return; setTrash(getTrash().filter(t => String(t.id) !== String(itemId))); saveData(); toast('🗑️ Đã xóa!'); }
 function emptyTrash() { if (!isOwner()) { toast('⚠️ Chỉ chủ lớp!', '#ef4444'); return; } if (!confirm(`Xóa vĩnh viễn ${getTrash().length} mục?`)) return; setTrash([]); saveData(); toast('🗑️ Đã dọn!'); }
 
+ /* ═══════════ KHOẢNG THỜI GIAN BÁO CÁO ═══════════ */
+let reportDateFrom = '';
+let reportDateTo = '';
+function onReportRangeChange() {
+  reportDateFrom = document.getElementById('rptFrom')?.value || '';
+  reportDateTo   = document.getElementById('rptTo')?.value || '';
+  updateReportRangeLabel();
+}
+function updateReportRangeLabel() {
+  const el = document.getElementById('rptRangeLabel');
+  if (!el) return;
+  if (!reportDateFrom && !reportDateTo) { el.textContent = '📊 Tổng hợp tất cả dữ liệu'; return; }
+  const f = d => d ? d.split('-').reverse().join('/') : '...';
+  if (reportDateFrom && reportDateTo) el.textContent = `📊 Tổng hợp từ ${f(reportDateFrom)} đến ${f(reportDateTo)}`;
+  else if (reportDateFrom) el.textContent = `📊 Tổng hợp từ ${f(reportDateFrom)} đến nay`;
+  else el.textContent = `📊 Tổng hợp đến hết ${f(reportDateTo)}`;
+}
+function setQuickRange(type) {
+  const today = new Date(), y = today.getFullYear(), m = today.getMonth();
+  const y1 = (m < 8) ? y - 1 : y, y2 = y1 + 1;
+  let from = '', to = '';
+  if (type === 'all')        { from = `${y1}-09-05`; to = `${y2}-05-31`; }
+  else if (type === 'hk1')   { from = `${y1}-09-05`; to = `${y2}-01-15`; }
+  else if (type === 'hk2')   { from = `${y2}-01-16`; to = `${y2}-05-31`; }
+  else if (type === 'month') { const a = new Date(y,m,1), b = new Date(y,m+1,0); from = a.toISOString().split('T')[0]; to = b.toISOString().split('T')[0]; }
+  else if (type === 'd30')   { const d = new Date(today); d.setDate(d.getDate()-29); from = d.toISOString().split('T')[0]; to = today.toISOString().split('T')[0]; }
+  else if (type === 'd7')    { const d = new Date(today); d.setDate(d.getDate()-6);  from = d.toISOString().split('T')[0]; to = today.toISOString().split('T')[0]; }
+  document.getElementById('rptFrom').value = from;
+  document.getElementById('rptTo').value = to;
+  onReportRangeChange();
+  toast('📅 ' + (from || '...') + ' → ' + (to || '...'), '#8b5cf6');
+}
+function inReportRange(dateStr) {
+  if (!dateStr) return true;
+  if (reportDateFrom && dateStr < reportDateFrom) return false;
+  if (reportDateTo   && dateStr > reportDateTo)   return false;
+  return true;
+}
+function withReportRange(callback) {
+  if (!reportDateFrom && !reportDateTo) return callback();
+  if (!currentClass) return callback();
+  const orig = { logs: currentClass.logs, scores: currentClass.scores, collects: currentClass.collects, exps: currentClass.exps, punishments: currentClass.punishments, duties: currentClass.duties, randomHistory: currentClass.randomHistory };
+  currentClass.logs          = (orig.logs || []).filter(l => inReportRange(l.date));
+  currentClass.scores        = (orig.scores || []).filter(s => inReportRange(s.date));
+  currentClass.collects      = (orig.collects || []).filter(c => inReportRange(c.date));
+  currentClass.exps          = (orig.exps || []).filter(e => inReportRange(e.date));
+  currentClass.punishments   = (orig.punishments || []).filter(p => inReportRange(p.start || p.deadline));
+  currentClass.duties        = (orig.duties || []).filter(d => inReportRange(d.date));
+  currentClass.randomHistory = (orig.randomHistory || []).filter(h => inReportRange(h.at ? h.at.split('T')[0] : ''));
+  try { return callback(); }
+  finally {
+    currentClass.logs = orig.logs; currentClass.scores = orig.scores;
+    currentClass.collects = orig.collects; currentClass.exps = orig.exps;
+    currentClass.punishments = orig.punishments; currentClass.duties = orig.duties;
+    currentClass.randomHistory = orig.randomHistory;
+  }
+}
+function getReportRangeText() {
+  if (!reportDateFrom && !reportDateTo) return 'Toàn bộ năm học ' + (rpMeta().year || '');
+  const f = d => d ? d.split('-').reverse().join('/') : '';
+  if (reportDateFrom && reportDateTo) return `Từ ngày ${f(reportDateFrom)} đến ngày ${f(reportDateTo)}`;
+  if (reportDateFrom) return `Từ ngày ${f(reportDateFrom)} đến nay`;
+  return `Tính đến ngày ${f(reportDateTo)}`;
+}
+  
 /* ═══════════ BÁO CÁO (giữ cơ bản) ═══════════ */
 const REPORT_DEFS = [
   { key: 'summary',     label: '📊 Báo cáo tổng hợp',    desc: 'Khái quát kết quả hoạt động' },
@@ -3110,12 +3266,20 @@ function showTab(id, btn) {
   const el = document.getElementById('sec-' + id);
   if (el) el.classList.add('active');
   if (btn) btn.classList.add('active');
+  if (id === 'diemdanh') renderCcViolationChart();
   if (id === 'phat') renderAllPunish();
   if (id === 'laodong') renderAllLabor();
   if (id === 'random') initRandom();
   if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
   if (id === 'thungrac') renderTrashList();
-  if (id === 'baocao') { renderReportChecklist(); renderIndivChecklist(); updateReportCount(); }
+    if (id === 'baocao') {
+    renderReportChecklist();
+    renderIndivChecklist();
+    updateReportCount();
+    updateReportRangeLabel();
+    const exBtn = document.getElementById('btnExcelReport');
+    if (exBtn) exBtn.style.display = isMobileDevice() ? 'none' : 'inline-flex';
+  }
 }
 function filterChecklist(inputId, containerId) { const f = document.getElementById(inputId).value.toLowerCase().trim(); for (const lb of document.getElementById(containerId).getElementsByTagName('label')) lb.style.display = (lb.textContent||'').toLowerCase().includes(f) ? 'flex' : 'none'; }
 function toggleAll(name, checked) { document.querySelectorAll(`input[name="${name}"]`).forEach(cb => { const lb = cb.closest('label'); if (lb && lb.style.display !== 'none') cb.checked = checked; }); }
@@ -3256,6 +3420,7 @@ function rpHeader(title, reportNo) {
   <div style="text-align:center;margin:22pt 0 6pt;line-height:1.35">
     <div style="font-size:15pt;font-weight:bold;text-transform:uppercase">${esc(title)}</div>
     <div style="font-size:11pt;font-style:italic;margin-top:3pt">Năm học ${esc(m.year)}</div>
+    <div style="font-size:11pt;font-style:italic;margin-top:2pt">(${getReportRangeText()})</div>
     <div style="width:100pt;border-top:1pt solid #000;margin:4pt auto 0"></div>
   </div>`;
 }
@@ -3319,6 +3484,42 @@ function rpWrapHtml(body) {
   .badge-info   { background:#dbeafe; color:#1e40af; border:0.5pt solid #93c5fd; }
   .rp-legend { font-size:10pt; color:#555; font-style:italic; margin:4pt 0 0 28pt; }
   @media print { body { margin: 0; } .no-print { display: none; } }
+/* === CHART VI PHẠM CẢNH BÁO === */
+.vc-wrap { padding:4px 0; }
+.vc-row { display:grid; grid-template-columns:42px 1fr 3fr 60px 90px; align-items:center; gap:8px; padding:7px 10px; border-radius:8px; margin-bottom:3px; border-left:4px solid transparent; transition:.15s; }
+.vc-row:hover { transform:translateX(2px); box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.vc-row.lv-critical { background:linear-gradient(90deg,#fee2e2,#fff5f5); border-left-color:#dc2626; }
+.vc-row.lv-danger   { background:linear-gradient(90deg,#fed7aa,#fff7ed); border-left-color:#ea580c; }
+.vc-row.lv-warning  { background:linear-gradient(90deg,#fef3c7,#fffbeb); border-left-color:#f59e0b; }
+.vc-row.lv-caution  { background:linear-gradient(90deg,#dbeafe,#eff6ff); border-left-color:#3b82f6; }
+.vc-row.lv-normal   { background:linear-gradient(90deg,#f0fdf4,#f7fef9); border-left-color:#10b981; }
+.vc-icon { text-align:center; font-size:20px; animation:vcPulse 1.8s ease-in-out infinite; }
+.vc-icon.no-pulse { animation:none; font-size:14px; }
+@keyframes vcPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.vc-name { font-size:13px; font-weight:700; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.vc-bar-wrap { background:#e2e8f0; border-radius:6px; height:24px; overflow:hidden; box-shadow:inset 0 1px 3px rgba(0,0,0,.08); }
+.vc-bar { height:100%; display:flex; border-radius:6px; overflow:hidden; min-width:6px; }
+.vc-seg { height:100%; border-right:1px solid rgba(255,255,255,.4); }
+.vc-seg:last-child { border-right:none; }
+.vc-total { text-align:center; font-weight:900; font-size:14px; padding:4px 8px; border-radius:6px; border:2px solid transparent; }
+.vc-total.lv-critical { background:#dc2626; color:#fff; border-color:#991b1b; }
+.vc-total.lv-danger   { background:#ea580c; color:#fff; border-color:#c2410c; }
+.vc-total.lv-warning  { background:#f59e0b; color:#fff; border-color:#d97706; }
+.vc-total.lv-caution  { background:#3b82f6; color:#fff; border-color:#2563eb; }
+.vc-total.lv-normal   { background:#10b981; color:#fff; border-color:#059669; }
+.vc-label { text-align:center; font-size:10px; font-weight:800; text-transform:uppercase; padding:3px 6px; border-radius:5px; white-space:nowrap; }
+.vc-label.lv-critical { background:#fee2e2; color:#991b1b; }
+.vc-label.lv-danger   { background:#ffedd5; color:#9a3412; }
+.vc-label.lv-warning  { background:#fef3c7; color:#92400e; }
+.vc-label.lv-caution  { background:#dbeafe; color:#1e40af; }
+.vc-label.lv-normal   { background:#dcfce7; color:#166534; }
+.vc-legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; padding:10px 12px; background:#fff; border:1px dashed #c4b5fd; border-radius:8px; font-size:11px; }
+.vc-legend-item { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:#475569; }
+.vc-legend-dot { width:12px; height:12px; border-radius:3px; }
+.vc-scale { margin-top:10px; padding:10px 12px; background:#fff; border:1px dashed #fca5a5; border-radius:8px; font-size:11px; }
+.vc-scale-title { font-weight:800; color:#991b1b; margin-bottom:6px; text-transform:uppercase; font-size:10px; }
+.vc-scale-items { display:flex; gap:14px; flex-wrap:wrap; }
+.vc-scale-item { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:#475569; }
 </style>
 </head>
 <body>${body}</body>
@@ -3435,7 +3636,11 @@ function buildScoreMatrixHTML() {
           <td>${esc(st.name)}</td>
           ${subjects.map(sub => {
             const vals = stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
-            return `<td class="center">${vals.length ? vals.join(', ') : '·'}</td>`;
+            if (!vals.length) return '<td class="center">·</td>';
+            const cnt = {}; vals.forEach(v => cnt[v] = (cnt[v]||0)+1);
+            const grp = Object.keys(cnt).map(Number).sort((a,b)=>b-a)
+              .map(v => cnt[v] > 1 ? `${v}×${cnt[v]}` : `${v}`).join(', ');
+            return `<td class="center">${grp}</td>`;
           }).join('')}
           <td class="center"><b>${avg.toFixed(2)}</b></td>
           <td class="center">${classifyScore(avg).label}</td>
@@ -3975,17 +4180,41 @@ function buildReportByKind(kind, opts) {
   }
 }
 
-/* ---------- Xuất Word ---------- */
-function downloadWordFile(fullHtml, filename) {
-  const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword;charset=utf-8' });
+  /* ═══════════ MOBILE & SHARE ═══════════ */
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|Opera Mini/i.test(navigator.userAgent)
+      || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.userAgent));
+}
+function isInAppBrowser() {
+  return /FBAN|FBAV|FB_IAB|Zalo|Instagram|Line|Twitter|TikTok|MicroMessenger/i.test(navigator.userAgent || '');
+}
+function canShareFiles(files) { return navigator.canShare && navigator.canShare({ files }); }
+function fallbackDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = filename + '.doc';
+  a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 800);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+  
+/* ---------- Xuất Word ---------- */
+async function downloadWordFile(fullHtml, filename) {
+  const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword;charset=utf-8' });
+  const fileName = filename + '.doc';
+  if (isMobileDevice()) {
+    if (isInAppBrowser()) toast('⚠️ Nếu không thấy bảng chia sẻ, bấm ⋯ → Mở bằng trình duyệt.', '#f59e0b');
+    try {
+      const file = new File([blob], fileName, { type: 'application/msword' });
+      if (canShareFiles([file])) {
+        await navigator.share({ files: [file], title: filename, text: 'Báo cáo lớp học' });
+        toast('📤 Đã chia sẻ file Word!', '#2b579a'); return;
+      }
+    } catch(err) { if (err.name === 'AbortError') return; console.warn(err); }
+  }
+  fallbackDownload(blob, fileName);
   toast('📥 Đã tải file Word!', '#2b579a');
 }
-
+  
 /* ---------- Xuất PDF ---------- */
 function openPrintWindow(fullHtml, filename) {
   const w = window.open('', '_blank');
@@ -3996,6 +4225,103 @@ function openPrintWindow(fullHtml, filename) {
   toast('🖨️ Chọn "Lưu dưới dạng PDF" trong hộp thoại in', '#dc2626');
 }
 
+/* ---------- Tạo PDF blob từ HTML ---------- */
+async function generatePDFBlob(fullHtml) {
+  if (!window.jspdf || !window.html2canvas) { toast('⚠️ Thư viện PDF chưa tải xong!', '#f59e0b'); return null; }
+  let iframe = null;
+  try {
+    const { jsPDF } = window.jspdf;
+    iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:200px;border:0;background:#fff;';
+    document.body.appendChild(iframe);
+    const iDoc = iframe.contentWindow.document;
+    iDoc.open(); iDoc.write(fullHtml); iDoc.close();
+    await new Promise(r => setTimeout(r, 1200));
+    const bodyEl = iDoc.body;
+    iframe.style.height = Math.max(bodyEl.scrollHeight, 500) + 'px';
+    await new Promise(r => setTimeout(r, 400));
+    const PAGE_H_PX = 1123, PAGE_W_PX = 794;
+    const totalH = bodyEl.scrollHeight;
+    const numPages = Math.max(1, Math.ceil(totalH / PAGE_H_PX));
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    for (let p = 0; p < numPages; p++) {
+      if (p > 0) pdf.addPage();
+      const yOffset = p * PAGE_H_PX;
+      const sliceH = Math.min(PAGE_H_PX, totalH - yOffset);
+      const canvas = await html2canvas(bodyEl, {
+        y: yOffset, height: sliceH, windowWidth: PAGE_W_PX, windowHeight: PAGE_H_PX,
+        width: PAGE_W_PX, scale: 1.6, useCORS: true, backgroundColor: '#ffffff',
+        logging: false, scrollX: 0, scrollY: -yOffset
+      });
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+    }
+    iframe.remove(); iframe = null;
+    return pdf.output('blob');
+  } catch(err) { console.error(err); if (iframe) iframe.remove(); return null; }
+}
+
+/* ---------- Xuất PDF ---------- */
+async function exportPDFFile(fullHtml, filename) {
+  toast('⏳ Đang tạo file PDF...', '#dc2626');
+  const pdfBlob = await generatePDFBlob(fullHtml);
+  if (!pdfBlob) { toast('⚠️ Không tạo được PDF', '#ef4444'); return; }
+  const fileName = filename + '.pdf';
+  if (isMobileDevice() && navigator.canShare) {
+    try {
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: filename, text: 'Báo cáo lớp học' });
+        toast('📤 Đã chia sẻ PDF!', '#dc2626'); return;
+      }
+    } catch (err) { if (err.name === 'AbortError') return; console.warn(err); }
+  }
+  fallbackDownload(pdfBlob, fileName);
+  toast('📥 Đã tải file PDF!', '#dc2626');
+}
+
+/* ---------- Nút Chia sẻ ---------- */
+async function shareSelectedReports() {
+  const kinds = [...document.querySelectorAll('input[name="rptType"]:checked')].map(c => c.value);
+  if (!kinds.length) { toast('⚠️ Chưa chọn báo cáo!', '#ef4444'); return; }
+  if (reportDateFrom && reportDateTo && reportDateFrom > reportDateTo) { toast('⚠️ Ngày BĐ > KT!', '#ef4444'); return; }
+  if (!navigator.share || !navigator.canShare) { toast('⚠️ Thiết bị không hỗ trợ share. Dùng nút PDF.', '#f59e0b'); return; }
+  const indiIds = [...document.querySelectorAll('input[name="indivCheck"]:checked')].map(c => c.value);
+  if (kinds.includes('individual') && !indiIds.length) { toast('⚠️ Chọn HS báo cáo cá nhân!', '#ef4444'); return; }
+  await withReportRange(async () => {
+    toast('⏳ Đang tạo file chia sẻ...', '#10b981');
+    try {
+      const pages = [];
+      kinds.forEach(kind => {
+        if (kind === 'individual') indiIds.forEach(stId => { const h = rpIndividual(stId); if (h) pages.push(h); });
+        else { const h = buildReportByKind(kind); if (h) pages.push(h); }
+      });
+      if (!pages.length) { toast('⚠️ Không có dữ liệu!', '#ef4444'); return; }
+      const body = pages.map((p, i) => (i > 0 ? `<div class="page-break"></div>${p}` : p)).join('');
+      const m = rpMeta();
+      const rangeTag = reportDateFrom || reportDateTo ? '_' + (reportDateFrom || 'dau') + '_' + (reportDateTo || 'nay') : '';
+      const filename = `BaoCao_Lop${m.className.replace(/\s+/g,'')}${rangeTag}_${rpDateShort().replace(/\//g,'-')}`;
+      const pdfBlob = await generatePDFBlob(rpWrapHtml(body));
+      if (!pdfBlob) { toast('⚠️ Không tạo được PDF', '#ef4444'); return; }
+      const pdfFile = new File([pdfBlob], filename + '.pdf', { type: 'application/pdf' });
+      if (navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({ files: [pdfFile], title: 'Báo cáo lớp ' + m.className, text: `Báo cáo ${getReportRangeText()} — Lớp ${m.className}` });
+          toast('📤 Đã chia sẻ!', '#10b981'); return;
+        } catch (err) { if (err.name === 'AbortError') return; console.warn(err); }
+      }
+      try {
+        await navigator.share({ title: 'Báo cáo lớp ' + m.className, text: `📊 Báo cáo ${getReportRangeText()} — Lớp ${m.className}` });
+        fallbackDownload(pdfBlob, filename + '.pdf');
+        toast('📤 Đã share + tải PDF!', '#10b981');
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        fallbackDownload(pdfBlob, filename + '.pdf');
+        toast('📥 Đã tải PDF', '#f59e0b');
+      }
+    } catch (err) { console.error(err); toast('❌ Lỗi: ' + err.message, '#ef4444'); }
+  });
+}
+  
 /* ---------- Excel đa sheet ---------- */
 function buildExcelSheet(kind) {
   const students = getStudents(), scores = getScores(), logs = getLogs();
@@ -4020,11 +4346,15 @@ function buildExcelSheet(kind) {
     })
     .filter(Boolean);
   sortByScorePriority(rows);
-  rows.forEach((row, i) => {
+    rows.forEach((row, i) => {
     const aoaRow = [i+1, row.st.name];
     subjects.forEach(sub => {
       const vals = row.stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
-      aoaRow.push(vals.join(', '));
+      if (!vals.length) { aoaRow.push(''); return; }
+      const cnt = {}; vals.forEach(v => cnt[v] = (cnt[v]||0)+1);
+      const grp = Object.keys(cnt).map(Number).sort((a,b)=>b-a)
+        .map(v => cnt[v] > 1 ? `${v}×${cnt[v]}` : `${v}`).join(', ');
+      aoaRow.push(grp);
     });
     aoaRow.push(+row.avg.toFixed(2));
     aoaRow.push(classifyScore(row.avg).label);
@@ -4102,6 +4432,7 @@ function buildExcelSheet(kind) {
     const aoa = [
       ['BÁO CÁO KẾT QUẢ HOẠT ĐỘNG LỚP ' + rpMeta().className.toUpperCase()],
       ['Năm học', rpMeta().year],
+      ['Khoảng thời gian', getReportRangeText()],
       [],
       ['CHỈ TIÊU', 'GIÁ TRỊ'],
       ['Tổng số học sinh', students.length],
@@ -4148,34 +4479,26 @@ function buildExcelSheet(kind) {
 function exportSelectedReports(mode) {
   const kinds = [...document.querySelectorAll('input[name="rptType"]:checked')].map(c => c.value);
   if (!kinds.length) { toast('⚠️ Chưa chọn báo cáo!', '#ef4444'); return; }
-
-  if (mode === 'excel') { exportToExcel(); return; }
-
-  const indiIds = [...document.querySelectorAll('input[name="indivCheck"]:checked')].map(c => c.value);
-  if (kinds.includes('individual') && !indiIds.length) {
-    toast('⚠️ Vui lòng chọn học sinh cho báo cáo cá nhân!', '#ef4444');
-    return;
-  }
-
-  const pages = [];
-  kinds.forEach(kind => {
-    if (kind === 'individual') {
-      indiIds.forEach(stId => { const html = rpIndividual(stId); if (html) pages.push(html); });
-    } else {
-      const html = buildReportByKind(kind);
-      if (html) pages.push(html);
-    }
+  if (reportDateFrom && reportDateTo && reportDateFrom > reportDateTo) { toast('⚠️ Ngày BĐ > KT!', '#ef4444'); return; }
+  withReportRange(() => {
+    if (mode === 'excel') { exportToExcel(); return; }
+    const indiIds = [...document.querySelectorAll('input[name="indivCheck"]:checked')].map(c => c.value);
+    if (kinds.includes('individual') && !indiIds.length) { toast('⚠️ Chọn HS báo cáo cá nhân!', '#ef4444'); return; }
+    const pages = [];
+    kinds.forEach(kind => {
+      if (kind === 'individual') indiIds.forEach(stId => { const h = rpIndividual(stId); if (h) pages.push(h); });
+      else { const h = buildReportByKind(kind); if (h) pages.push(h); }
+    });
+    if (!pages.length) { toast('⚠️ Không có dữ liệu!', '#ef4444'); return; }
+    const body = pages.map((p, i) => (i > 0 ? `<div class="page-break"></div>${p}` : p)).join('');
+    const m = rpMeta();
+    const rangeTag = reportDateFrom || reportDateTo ? '_' + (reportDateFrom || 'dau') + '_' + (reportDateTo || 'nay') : '';
+    const filename = `BaoCao_Lop${m.className.replace(/\s+/g,'')}${rangeTag}_${rpDateShort().replace(/\//g,'-')}`;
+    const fullHtml = rpWrapHtml(body);
+    if (mode === 'word')     downloadWordFile(fullHtml, filename);
+    else if (mode === 'pdf') exportPDFFile(fullHtml, filename);
+    else                     toast('⚠️ Chế độ không hỗ trợ', '#ef4444');
   });
-  if (!pages.length) { toast('⚠️ Không có dữ liệu để xuất!', '#ef4444'); return; }
-
-  const body = pages.map((p, i) => (i > 0 ? `<div class="page-break"></div>${p}` : p)).join('');
-  const m = rpMeta();
-  const filename = `BaoCao_Lop${m.className.replace(/\s+/g,'')}_${rpDateShort().replace(/\//g,'-')}`;
-  const fullHtml = rpWrapHtml(body);
-
-  if (mode === 'word') downloadWordFile(fullHtml, filename);
-  else if (mode === 'pdf') openPrintWindow(fullHtml, filename);
-  else toast('⚠️ Chế độ không hỗ trợ', '#ef4444');
 }
 
 /* ---------- Xuất Excel ---------- */
