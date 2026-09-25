@@ -1917,23 +1917,47 @@ function renderScoreSummary(filterFn) {
   else _lastScoreFilter = filterFn;
   const students = getStudents(), scores = getScores();
   const keyword = (document.getElementById('searchScoreList')?.value || '').toLowerCase().trim();
-  let filtered = filterFn ? students.filter(filterFn) : students.slice();
-  if (keyword) filtered = filtered.filter(st => { const oi = students.indexOf(st) + 1; return st.name.toLowerCase().includes(keyword) || String(oi).includes(keyword); });
-  const _totalScore = filtered.length;
-  filtered = _limit('score', filtered);
-  const _scoreInfo = _limitInfo(_totalScore, filtered.length, 'học sinh');
-  document.getElementById('tbScore').innerHTML = filtered.map(st => {
-    const i = students.indexOf(st);
+
+  let base = filterFn ? students.filter(filterFn) : students.slice();
+  if (keyword) base = base.filter(st => {
+    const oi = students.indexOf(st) + 1;
+    return st.name.toLowerCase().includes(keyword) || String(oi).includes(keyword);
+  });
+
+  // Tính chỉ số cho từng HS
+  const rows = base.map(st => {
+    const origIdx = students.indexOf(st) + 1;
     const stScores = scores.filter(s => String(s.stId) === String(st.id));
+    const avg = stScores.length ? stScores.reduce((a,b) => a+b.val, 0) / stScores.length : 0;
+    const cnt9 = stScores.filter(s => s.val >= 9).length;
+    const cnt8 = stScores.filter(s => s.val >= 8).length;
+    const total = stScores.length;
+    return { st, origIdx, stScores, avg, cnt9, cnt8, total };
+  });
+
+  // ✅ Tách có điểm / chưa điểm
+  const withScores = rows.filter(r => r.total > 0);
+  const noScores   = rows.filter(r => r.total === 0);
+  // ✅ Sort nhóm có điểm theo ĐTB → đầu điểm
+  sortByScorePriority(withScores);
+  // Chưa điểm: giữ theo STT gốc
+  noScores.sort((a, b) => a.origIdx - b.origIdx);
+  const sorted = [...withScores, ...noScores];
+
+  const _totalScore = sorted.length;
+  const visible = _limit('score', sorted);
+  const _scoreInfo = _limitInfo(_totalScore, visible.length, 'học sinh');
+
+  document.getElementById('tbScore').innerHTML = visible.map((r, i) => {
     const counts = {};
-    stScores.forEach(s => counts[s.val] = (counts[s.val] || 0) + 1);
+    r.stScores.forEach(s => counts[s.val] = (counts[s.val] || 0) + 1);
     let badges = Object.keys(counts).sort((a,b) => b-a).map(v => `<span class="badge badge-score">${v}đ ×${counts[v]}</span>`).join('');
-    const avg = stScores.length ? (stScores.reduce((a,b) => a+b.val, 0) / stScores.length) : 0;
-    const cls = stScores.length ? classifyScore(avg) : { label: '—', cls: '' };
+    const cls = r.total > 0 ? classifyScore(r.avg) : { label: '—', cls: '' };
     if (!badges) badges = '<span style="color:#94a3b8;font-size:12px;">Chưa có điểm</span>';
-    badges += `<div style="margin-top:4px;font-size:11px;color:#1e40af;"><b>ĐTB: ${stScores.length ? avg.toFixed(2) : '—'}</b></div>`;
-    return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(st.name)}</b></td><td>${badges}</td><td style="text-align:center;">${cls.cls ? `<span class="badge ${cls.cls}">${cls.label}</span><br>` : ''}<button class="btn-act btn-success btn-mini" onclick="openStudentModal('${st.id}','sc')">🔍</button></td></tr>`;
-    }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+    if (r.total > 0) badges += `<div style="margin-top:4px;font-size:11px;color:#1e40af;"><b>ĐTB: ${r.avg.toFixed(2)}</b></div>`;
+    return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(r.st.name)}</b></td><td>${badges}</td><td style="text-align:center;">${cls.cls ? `<span class="badge ${cls.cls}">${cls.label}</span><br>` : ''}<button class="btn-act btn-success btn-mini" onclick="openStudentModal('${r.st.id}','sc')">🔍</button></td></tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+
   const _btn = _limitBtn('score', _totalScore, 'renderScoreSummary', 'học sinh');
   const _infoEl = document.getElementById('scoreLimitInfo');
   if (_infoEl) _infoEl.innerHTML = _scoreInfo;
@@ -3979,24 +4003,27 @@ function rpWrapHtml(body) {
 </html>`;
 }
 
-  /* ---------- Sắp xếp HS theo mức ưu tiên điểm cao ---------- */
+  /* ---------- Sort HS: ĐTB ↓ → đầu điểm ↓ → STT gốc ---------- */
 function sortByScorePriority(rows) {
   return rows.sort((a, b) => {
-    // 1. Số điểm ≥ 9 (giảm dần) — nhiều điểm xuất sắc nhất
-    if ((b.cnt9 || 0) !== (a.cnt9 || 0)) return (b.cnt9 || 0) - (a.cnt9 || 0);
-    // 2. Số điểm ≥ 8 (giảm dần) — tiếp đến điểm giỏi
-    if ((b.cnt8 || 0) !== (a.cnt8 || 0)) return (b.cnt8 || 0) - (a.cnt8 || 0);
-    // 3. Tổng số đầu điểm (giảm dần) — ai thi nhiều hơn
+    // 1. ĐTB giảm dần (tiêu chí chính)
+    const avgDiff = (b.avg || 0) - (a.avg || 0);
+    if (Math.abs(avgDiff) > 0.001) return avgDiff;
+    // 2. Hòa ĐTB → ai nhiều đầu điểm hơn
     if ((b.total || 0) !== (a.total || 0)) return (b.total || 0) - (a.total || 0);
-    // 4. ĐTB (giảm dần)
-    return b.avg - a.avg;
+    // 3. Hòa tiếp → ai nhiều điểm ≥9
+    if ((b.cnt9 || 0) !== (a.cnt9 || 0)) return (b.cnt9 || 0) - (a.cnt9 || 0);
+    // 4. Hòa tiếp → ai nhiều điểm ≥8
+    if ((b.cnt8 || 0) !== (a.cnt8 || 0)) return (b.cnt8 || 0) - (a.cnt8 || 0);
+    // 5. Cuối cùng → STT gốc
+    return (a.origIdx || 0) - (b.origIdx || 0);
   });
 }
-
+  
 /* ---------- Bảng điểm dạng tag (dùng trong Tổng hợp) ---------- */
 function buildScoreTableHTML() {
   const students = getStudents(), scores = getScores();
-  const stAvg = students.map((st, i) => {
+  const rows = students.map((st, i) => {
     const ss = scores.filter(s => String(s.stId) === String(st.id));
     if (!ss.length) return null;
     const avg = ss.reduce((a,b)=>a+b.val,0)/ss.length;
@@ -4005,11 +4032,13 @@ function buildScoreTableHTML() {
     const sortedVals = Object.keys(counts).map(Number).sort((a,b) => b - a);
     const cnt9 = ss.filter(s => s.val >= 9).length;
     const cnt8 = ss.filter(s => s.val >= 8).length;
-    const total = ss.length;
-    return { idx: i+1, name: st.name, avg, counts, sortedVals, cnt9, cnt8, total };
+    return { origIdx: i+1, name: st.name, avg, counts, sortedVals, cnt9, cnt8, total: ss.length };
   }).filter(Boolean);
 
-  if (!stAvg.length) return '<p class="rp-indent2" style="font-style:italic">Chưa có dữ liệu điểm.</p>';
+  // ✅ Sort theo ĐTB → đầu điểm
+  sortByScorePriority(rows);
+
+  if (!rows.length) return '<p class="rp-indent2" style="font-style:italic">Chưa có dữ liệu điểm.</p>';
   const tagCls = v => v >= 8 ? 'tag-g' : v >= 6.5 ? 'tag-k' : v >= 5 ? 'tag-tb' : 'tag-y';
 
   return `
@@ -4024,7 +4053,7 @@ function buildScoreTableHTML() {
       </tr>
     </thead>
     <tbody>
-      ${stAvg.map((x,i) => {
+      ${rows.map((x, i) => {
         const tags = x.sortedVals.map(v => `<span class="tag ${tagCls(v)}">${v} × ${x.counts[v]}</span>`).join(' ');
         return `<tr>
           <td class="center">${i+1}</td>
@@ -4052,20 +4081,17 @@ function buildScoreMatrixHTML() {
 
   const subjects = [...new Set(scores.map(s => s.sub))].sort();
 
-  // Thu thập dữ liệu + tính chỉ số để sắp xếp
-  const studentsWithScores = students
-    .map(st => {
-      const stScores = scores.filter(s => String(s.stId) === String(st.id));
-      if (!stScores.length) return null;
-      const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
-      const cnt9 = stScores.filter(s => s.val >= 9).length;
-      const cnt8 = stScores.filter(s => s.val >= 8).length;
-      const total = stScores.length;
-      return { st, stScores, avg, cnt9, cnt8, total };
-    })
-    .filter(Boolean);
+  const rows = students.map((st, i) => {
+    const stScores = scores.filter(s => String(s.stId) === String(st.id));
+    if (!stScores.length) return null;
+    const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
+    const cnt9 = stScores.filter(s => s.val >= 9).length;
+    const cnt8 = stScores.filter(s => s.val >= 8).length;
+    return { st, stScores, avg, cnt9, cnt8, total: stScores.length, origIdx: i+1 };
+  }).filter(Boolean);
 
-  // Sắp xếp theo ưu tiên điểm cao
+  // ✅ Sort theo ĐTB → đầu điểm
+  sortByScorePriority(rows);
 
   const fontSize = subjects.length > 8 ? '8pt' : subjects.length > 5 ? '9pt' : '10pt';
   return `
@@ -4080,11 +4106,11 @@ function buildScoreMatrixHTML() {
       </tr>
     </thead>
     <tbody>
-            ${studentsWithScores.map((row, i) => {
-        const st = row.st, stScores = row.stScores, avg = row.avg;
+      ${rows.map((row, i) => {
+        const stScores = row.stScores, avg = row.avg;
         return `<tr>
           <td class="center">${i+1}</td>
-          <td>${esc(st.name)}</td>
+          <td>${esc(row.st.name)}</td>
           ${subjects.map(sub => {
             const vals = stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
             if (!vals.length) return '<td class="center">·</td>';
@@ -5100,35 +5126,37 @@ function buildExcelSheet(kind) {
     students.forEach((s,i) => aoa.push([i+1, s.name, s.role||'', s.phone||'', s.address||'']));
     return { name: 'DS Lớp', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
-  if (kind === 'scores') {
-  const subjects = [...new Set(scores.map(s => s.sub))].sort();
-  const aoa = [['STT','Họ và tên', ...subjects, 'ĐTB', 'Xếp loại']];
-  const rows = students
-    .map(st => {
+    if (kind === 'scores') {
+    const subjects = [...new Set(scores.map(s => s.sub))].sort();
+    const aoa = [['STT','Họ và tên', ...subjects, 'ĐTB', 'Xếp loại']];
+    const rows = students.map((st, i) => {
       const stScores = scores.filter(s => String(s.stId) === String(st.id));
       if (!stScores.length) return null;
       const avg = stScores.reduce((a,b)=>a+b.val,0)/stScores.length;
       const cnt9 = stScores.filter(s => s.val >= 9).length;
       const cnt8 = stScores.filter(s => s.val >= 8).length;
-      return { st, stScores, avg, cnt9, cnt8, total: stScores.length };
-    })
-    .filter(Boolean);
+      return { st, stScores, avg, cnt9, cnt8, total: stScores.length, origIdx: i+1 };
+    }).filter(Boolean);
+
+    // ✅ Sort theo ĐTB → đầu điểm
+    sortByScorePriority(rows);
+
     rows.forEach((row, i) => {
-    const aoaRow = [i+1, row.st.name];
-    subjects.forEach(sub => {
-      const vals = row.stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
-      if (!vals.length) { aoaRow.push(''); return; }
-      const cnt = {}; vals.forEach(v => cnt[v] = (cnt[v]||0)+1);
-      const grp = Object.keys(cnt).map(Number).sort((a,b)=>b-a)
-        .map(v => cnt[v] > 1 ? `${v}×${cnt[v]}` : `${v}`).join(', ');
-      aoaRow.push(grp);
+      const aoaRow = [i+1, row.st.name];
+      subjects.forEach(sub => {
+        const vals = row.stScores.filter(s => s.sub === sub).map(s => s.val).sort((a,b)=>b-a);
+        if (!vals.length) { aoaRow.push(''); return; }
+        const cnt = {}; vals.forEach(v => cnt[v] = (cnt[v]||0)+1);
+        const grp = Object.keys(cnt).map(Number).sort((a,b)=>b-a)
+          .map(v => cnt[v] > 1 ? `${v}×${cnt[v]}` : `${v}`).join(', ');
+        aoaRow.push(grp);
+      });
+      aoaRow.push(+row.avg.toFixed(2));
+      aoaRow.push(classifyScore(row.avg).label);
+      aoa.push(aoaRow);
     });
-    aoaRow.push(+row.avg.toFixed(2));
-    aoaRow.push(classifyScore(row.avg).label);
-    aoa.push(aoaRow);
-  });
-  return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
-}
+    return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
+  }
     if (kind === 'violations') {
     const aoa = [['STT','Họ và tên','Nghỉ KP','Nghỉ CP','Muộn KP','Muộn CP','BTVN','SĐB','Khác','Lượt','Điểm VP']];
     const FIXED = ['v_khongphep','v_cophep','di_muon','di_muon_cp','chua_btvn','so_daubai'];
