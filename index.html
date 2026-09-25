@@ -32,7 +32,16 @@ body.dark{background-color:#0f172a;color:#e2e8f0}
 #toast{visibility:hidden;min-width:250px;background:#10b981;color:#fff;text-align:center;border-radius:8px;padding:12px;position:fixed;z-index:99999;top:20px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.2);opacity:0;transition:all .3s}
 #toast.show{visibility:visible;opacity:1;top:25px}
 .nav-container{margin-bottom:12px}
-.nav-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.nav-groups{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.nav-group-btn{background:linear-gradient(135deg,#f8fafc,#e2e8f0);border:2px solid #cbd5e1;border-radius:12px;padding:10px 8px;cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;align-items:center;gap:3px;color:#475569;font-weight:700;font-family:inherit;position:relative;overflow:hidden}
+.nav-group-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(139,92,246,.08));opacity:0;transition:opacity .2s}
+.nav-group-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,58,138,.12);border-color:#93c5fd}
+.nav-group-btn:hover::before{opacity:1}
+.nav-group-btn.active{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;border-color:#1e40af;box-shadow:0 6px 18px rgba(37,99,235,.4),0 0 0 3px rgba(37,99,235,.15)}
+.nav-group-btn.active::before{opacity:0}
+.nav-group-btn .ng-icon{font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.1));z-index:1}
+.nav-group-btn .ng-label{font-size:11.5px;text-align:center;line-height:1.25;z-index:1;letter-spacing:.2px}
+.nav-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;padding-top:2px}
 .nav-tabs::-webkit-scrollbar{display:none}
 .nav-btn{background:#fff;border:1px solid #cbd5e1;padding:9px 14px;font-size:12.5px;font-weight:bold;border-radius:9px;cursor:pointer;color:#475569;white-space:nowrap;flex-shrink:0;transition:all .15s}
 .nav-btn:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.1)}
@@ -270,7 +279,7 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
 
 /* === CHART VI PHẠM CẢNH BÁO (hiển thị trên tab) === */
 .vc-wrap { padding:4px 0; }
-.vc-row { display:grid; grid-template-columns:42px 1fr 3fr 60px 90px; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; margin-bottom:4px; border-left:4px solid transparent; transition:all .2s cubic-bezier(.34,1.56,.64,1); }
+.vc-row { display:grid; grid-template-columns:42px 1fr 2.5fr 80px 90px; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; margin-bottom:4px; border-left:4px solid transparent; transition:all .2s cubic-bezier(.34,1.56,.64,1); }
 .vc-row:hover { transform:translateX(4px) scale(1.01); box-shadow:0 4px 16px rgba(30,58,138,.15); z-index:1; }
 .vc-row.lv-critical:hover { box-shadow:0 4px 16px rgba(220,38,38,.25); }
 .vc-row.lv-danger:hover   { box-shadow:0 4px 16px rgba(234,88,12,.25); }
@@ -289,7 +298,9 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
 .vc-seg { height:100%; border-right:1px solid rgba(255,255,255,.35); transition:filter .15s; }
 .vc-seg:last-child { border-right:none; }
 .vc-seg:hover { filter:brightness(1.15); cursor:help; }
-.vc-total { text-align:center; font-weight:900; font-size:14px; padding:4px 8px; border-radius:6px; border:2px solid transparent; }
+.vc-total { text-align:center; font-weight:900; font-size:13px; padding:3px 6px; border-radius:6px; border:2px solid transparent; line-height:1.25; }
+.vc-total .vc-score-line { font-size:14px; font-weight:900; }
+.vc-total .vc-turn-line { font-size:10px; font-weight:600; opacity:.85; margin-top:1px; }
 .vc-total.lv-critical { background:#dc2626; color:#fff; border-color:#991b1b; }
 .vc-total.lv-danger   { background:#ea580c; color:#fff; border-color:#c2410c; }
 .vc-total.lv-warning  { background:#f59e0b; color:#fff; border-color:#d97706; }
@@ -329,6 +340,18 @@ body.dark .vc-legend-item, body.dark .vc-scale-item { color:#cbd5e1; }
 @media (min-width: 641px) and (max-width: 900px) {
   .vc-row { grid-template-columns:40px 1fr 2fr 55px 80px; gap:6px; }
   .vc-label { font-size:9px; padding:2px 5px; }
+}
+  body.dark .nav-group-btn{background:linear-gradient(135deg,#1e293b,#0f172a);border-color:#334155;color:#cbd5e1}
+body.dark .nav-group-btn:hover{border-color:#475569}
+body.dark .nav-group-btn.active{background:linear-gradient(135deg,#2563eb,#1e40af);border-color:#1e40af;color:#fff}
+@media (max-width: 640px){
+  .nav-groups{gap:6px;margin-bottom:8px}
+  .nav-group-btn{padding:8px 4px;border-radius:10px}
+  .nav-group-btn .ng-icon{font-size:18px}
+  .nav-group-btn .ng-label{font-size:10px;line-height:1.2}
+}
+@media (max-width: 380px){
+  .nav-group-btn .ng-label{font-size:9px}
 }
 </style>
 </head>
@@ -400,19 +423,25 @@ body.dark .vc-legend-item, body.dark .vc-scale-item { color:#cbd5e1; }
 <div class="stats-top" id="topStats"></div>
 
 <div class="nav-container">
-  <div class="nav-tabs">
-    <button class="nav-btn active" onclick="showTab('diemdanh',this)">📋 Chuyên Cần</button>
-    <button class="nav-btn" onclick="showTab('thongke',this)">📊 Thống Kê VP</button>
-    <button class="nav-btn" onclick="showTab('bangdiem',this)">💯 Sổ Điểm</button>
-    <button class="nav-btn" onclick="showTab('thuchi',this)">💰 Thu Chi Quỹ</button>
-    <button class="nav-btn" onclick="showTab('laodong',this)">🧹 Lao Động</button>
-    <button class="nav-btn" onclick="showTab('phat',this)">⚖️ Phạt</button>
-    <button class="nav-btn" onclick="showTab('random',this)">🎯 Người Được Chọn</button>
-    <button class="nav-btn" onclick="showTab('danhsach',this)">👥 Danh Sách</button>
-    <button class="nav-btn" onclick="showTab('baocao',this)">📄 Báo Cáo</button>
-    <button class="nav-btn" onclick="showTab('thungrac',this)">🗑️ Thùng Rác</button>
-    <button class="nav-btn" onclick="showTab('saoluu',this)">⚙️ Sao Lưu</button>
+  <div class="nav-groups" id="navGroups">
+    <button class="nav-group-btn active" data-group="hoc-tap" onclick="showGroup('hoc-tap',this)">
+      <span class="ng-icon">📚</span>
+      <span class="ng-label">Học Tập<br>& Kỷ Luật</span>
+    </button>
+    <button class="nav-group-btn" data-group="quan-ly" onclick="showGroup('quan-ly',this)">
+      <span class="ng-icon">🏫</span>
+      <span class="ng-label">Quản Lý<br>Lớp</span>
+    </button>
+    <button class="nav-group-btn" data-group="tai-chinh" onclick="showGroup('tai-chinh',this)">
+      <span class="ng-icon">💰</span>
+      <span class="ng-label">Tài Chính<br>Lớp</span>
+    </button>
+    <button class="nav-group-btn" data-group="he-thong" onclick="showGroup('he-thong',this)">
+      <span class="ng-icon">⚙️</span>
+      <span class="ng-label">Hệ Thống<br>& Báo Cáo</span>
+    </button>
   </div>
+  <div class="nav-tabs" id="navSubTabs"></div>
 </div>
 
 <!-- DANH SÁCH -->
@@ -577,7 +606,10 @@ body.dark .vc-legend-item, body.dark .vc-scale-item { color:#cbd5e1; }
         </select>
       </div>
     </div>
-    <button class="btn-act btn-full" onclick="applyAdvSearch()">🔍 Lọc</button>
+        <div style="display:flex;gap:8px;">
+      <button class="btn-act btn-full" onclick="applyAdvSearch()" style="flex:2;">🔍 Lọc</button>
+      <button class="btn-act btn-warning btn-full" onclick="clearScoreFilter()" style="flex:1;">🔄 Xóa lọc</button>
+    </div>
   </div>
   <div class="card">
     <h3>📋 Bảng Điểm</h3>
@@ -1185,7 +1217,41 @@ const SUPER_ADMIN_EMAIL = 'hoabui6225@gmail.com';
 
 /* ═══════════ HẰNG SỐ ═══════════ */
 const defaultSubjects = ['Toán','Ngữ Văn','Lịch Sử','Địa Lý','GDKT & PL','Hóa Học','Vật Lý','Tiếng Anh','Sinh Học','Tin Học'];
+/* ═══════════ HỆ SỐ ĐIỂM VI PHẠM — PHƯƠNG ÁN C ═══════════ */
+const VP_WEIGHTS = {
+  /* 🔴 NGHIÊM TRỌNG: 1 lần = 1 điểm */
+  v_khongphep:    1.0,
+  danh_nhau:      1.0,
+  vo_le:          1.0,
 
+  /* 🟡 TRUNG BÌNH: 2 lần = 1 điểm */
+  di_muon:        0.5,
+  chua_btvn:      0.5,
+  so_daubai:      0.5,
+  an_quavat:      0.5,
+  dien_thoai:     0.5,
+
+  /* 🟢 NHẸ: 3 lần = 1 điểm */
+  v_cophep:       0.33,
+  di_muon_cp:     0.33,
+  khong_dong_phuc: 0.33,
+
+  /* ⭐ ĐẶC BIỆT: 0 điểm */
+  dac_biet:       0
+};
+const VP_WEIGHT_FALLBACK = 0.5;
+
+function getVpWeight(type) {
+  return VP_WEIGHTS[type] !== undefined ? VP_WEIGHTS[type] : VP_WEIGHT_FALLBACK;
+}
+
+function getLevelByScore(score) {
+  if (score >= 5)   return { key: 'critical', icon: '🚨', label: 'NGHIÊM TRỌNG' };
+  if (score >= 3)   return { key: 'danger',   icon: '⛔', label: 'RẤT NẶNG' };
+  if (score >= 2)   return { key: 'warning',  icon: '⚠️', label: 'CẢNH BÁO' };
+  if (score >= 1)   return { key: 'caution',  icon: '❗', label: 'CHÚ Ý' };
+  return { key: 'normal', icon: '•', label: 'Nhẹ' };
+}
 /* Loại vi phạm — có thể mở rộng */
 const DEFAULT_CC_TYPES = {
   v_khongphep: { label: '🔴 Nghỉ Không Phép', cls: 'badge-pending', color: '#dc2626' },
@@ -1593,14 +1659,13 @@ function renderCCWarning() {
   }).join('')}</div>`;
 }
 
-  function renderCcViolationChart() {
+ function renderCcViolationChart() {
   const box = document.getElementById('ccViolationChart');
   if (!box) return;
   const students = getStudents();
   const search = (document.getElementById('searchCcViolChart')?.value || '').toLowerCase().trim();
   let logs = getLogs().filter(l => l.type !== 'dac_biet');
 
-  // Filter theo mốc thời gian
   if (tkFilter === 'month') {
     const d = new Date(); d.setDate(d.getDate() - 29);
     const from = d.toISOString().split('T')[0];
@@ -1615,64 +1680,72 @@ function renderCCWarning() {
 
   const byStudent = {};
   logs.forEach(l => {
-    if (!byStudent[l.stId]) byStudent[l.stId] = { total: 0, types: {} };
+    if (!byStudent[l.stId]) byStudent[l.stId] = { total: 0, score: 0, types: {} };
     byStudent[l.stId].total++;
+    byStudent[l.stId].score += getVpWeight(l.type);
     byStudent[l.stId].types[l.type] = (byStudent[l.stId].types[l.type] || 0) + 1;
   });
-    let ranking = Object.entries(byStudent).map(([stId, d]) => {
+
+  let ranking = Object.entries(byStudent).map(([stId, d]) => {
     const st = students.find(s => String(s.id) === String(stId));
     if (!st) return null;
-    return { st, idx: students.indexOf(st) + 1, total: d.total, types: d.types };
-  }).filter(Boolean).sort((a, b) => b.total - a.total);
+    return { st, idx: students.indexOf(st) + 1, total: d.total, score: Math.round(d.score * 100) / 100, types: d.types };
+  }).filter(Boolean).sort((a, b) => b.score - a.score || b.total - a.total);
+
   if (search) ranking = ranking.filter(r => r.st.name.toLowerCase().includes(search));
   if (tkFilter === 'top10') ranking = ranking.slice(0, 10);
   if (!ranking.length) { box.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</p>'; return; }
   const _totalRank = ranking.length;
   ranking = _limit('tk', ranking);
 
-  const maxTotal = Math.max(...ranking.map(r => r.total));
-  function getLevel(t) {
-    if (t >= 5) return { key: 'critical', icon: '🚨', label: 'NGHIÊM TRỌNG' };
-    if (t >= 4) return { key: 'danger',   icon: '⛔', label: 'RẤT NẶNG' };
-    if (t >= 3) return { key: 'warning',  icon: '⚠️', label: 'CẢNH BÁO' };
-    if (t >= 2) return { key: 'caution',  icon: '❗', label: 'CHÚ Ý' };
-    return { key: 'normal', icon: '•', label: 'Nhẹ' };
-  }
+  const maxScore = Math.max(...ranking.map(r => r.score));
   const allTypes = {};
   ranking.forEach(r => Object.keys(r.types).forEach(k => { allTypes[k] = (allTypes[k] || 0) + r.types[k]; }));
   const sortedTypes = Object.keys(allTypes).sort((a, b) => allTypes[b] - allTypes[a]);
   const counts = { critical: 0, danger: 0, warning: 0, caution: 0, normal: 0 };
-  ranking.forEach(r => { counts[getLevel(r.total).key]++; });
+  ranking.forEach(r => { counts[getLevelByScore(r.score).key]++; });
 
   const rowsHTML = ranking.map((r, i) => {
-    const lv = getLevel(r.total);
-    const barW = Math.max((r.total / maxTotal) * 100, 4);
+    const lv = getLevelByScore(r.score);
+    const barW = Math.max((r.score / maxScore) * 100, 4);
     const iconCls = (lv.key === 'critical' || lv.key === 'danger') ? 'vc-icon' : 'vc-icon no-pulse';
     const segs = sortedTypes.map(t => {
       const cnt = r.types[t] || 0;
       if (!cnt) return '';
-      const w = (cnt / r.total) * 100;
-      return `<div class="vc-seg" style="width:${w}%;background:${getCCColor(t)}" title="${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))}: ${cnt} lần"></div>`;
+      const w = (cnt * getVpWeight(t)) / r.score * 100;
+      return `<div class="vc-seg" style="width:${w}%;background:${getCCColor(t)}" title="${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))}: ${cnt} lần (${(cnt*getVpWeight(t)).toFixed(2)}đ)"></div>`;
     }).join('');
-    return `<div class="vc-row lv-${lv.key}" title="${r.idx}. ${esc(r.st.name)} — ${r.total} vi phạm">
+    return `<div class="vc-row lv-${lv.key}" title="${r.idx}. ${esc(r.st.name)} — ${r.total} lượt / ${r.score.toFixed(2)} điểm">
       <div class="${iconCls}">${lv.icon}</div>
       <div class="vc-name">${i+1}. ${esc(r.st.name)}</div>
       <div class="vc-bar-wrap"><div class="vc-bar" style="width:${barW}%">${segs}</div></div>
-      <div class="vc-total lv-${lv.key}">${r.total}</div>
+      <div class="vc-total lv-${lv.key}">
+        <div class="vc-score-line">${r.score.toFixed(2)}đ</div>
+        <div class="vc-turn-line">${r.total} lượt</div>
+      </div>
       <div class="vc-label lv-${lv.key}">${lv.label}</div>
     </div>`;
   }).join('');
 
-  const legendHTML = sortedTypes.map(t => `<span class="vc-legend-item"><span class="vc-legend-dot" style="background:${getCCColor(t)}"></span>${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))} (${allTypes[t]})</span>`).join('');
-  const scaleHTML = `<div class="vc-scale"><div class="vc-scale-title">📏 Thang mức độ</div><div class="vc-scale-items">
-    <span class="vc-scale-item"><b style="color:#dc2626">🚨 5+</b> Nghiêm trọng (${counts.critical})</span>
-    <span class="vc-scale-item"><b style="color:#ea580c">⛔ 4</b> Rất nặng (${counts.danger})</span>
-    <span class="vc-scale-item"><b style="color:#f59e0b">⚠️ 3</b> Cảnh báo (${counts.warning})</span>
-    <span class="vc-scale-item"><b style="color:#3b82f6">❗ 2</b> Chú ý (${counts.caution})</span>
-    <span class="vc-scale-item"><b style="color:#10b981">• 1</b> Nhẹ (${counts.normal})</span>
+  const legendHTML = sortedTypes.map(t =>
+    `<span class="vc-legend-item"><span class="vc-legend-dot" style="background:${getCCColor(t)}"></span>${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))} (${allTypes[t]})</span>`
+  ).join('');
+  const scaleHTML = `<div class="vc-scale"><div class="vc-scale-title">📏 Thang mức độ (theo ĐIỂM VP)</div><div class="vc-scale-items">
+    <span class="vc-scale-item"><b style="color:#dc2626">🚨 ≥ 5đ</b> Nghiêm trọng (${counts.critical})</span>
+    <span class="vc-scale-item"><b style="color:#ea580c">⛔ 3–4.99đ</b> Rất nặng (${counts.danger})</span>
+    <span class="vc-scale-item"><b style="color:#f59e0b">⚠️ 2–2.99đ</b> Cảnh báo (${counts.warning})</span>
+    <span class="vc-scale-item"><b style="color:#3b82f6">❗ 1–1.99đ</b> Chú ý (${counts.caution})</span>
+    <span class="vc-scale-item"><b style="color:#10b981">• &lt; 1đ</b> Nhẹ (${counts.normal})</span>
   </div></div>`;
-    box.innerHTML = _limitInfo(_totalRank, ranking.length, 'học sinh') + `<div style="font-size:13px;color:#991b1b;margin-bottom:10px;font-weight:700;">🚨 Tổng <b>${logs.length}</b> vi phạm của <b>${_totalRank}</b> HS</div>
-    <div class="vc-wrap">${rowsHTML}</div>
+
+  const totalScore = ranking.reduce((s, r) => s + r.score, 0);
+  const scoreInfo = `<div style="font-size:13px;color:#991b1b;margin-bottom:10px;font-weight:700;">
+    🚨 Tổng <b>${logs.length}</b> lượt vi phạm — <b>${totalScore.toFixed(2)}</b> điểm VP của <b>${_totalRank}</b> HS
+    <div style="font-size:11px;color:#64748b;font-weight:500;margin-top:2px;font-style:italic;">⚖️ Điểm VP = lượt × hệ số mức độ (nghiêm trọng ×1.0 · trung bình ×0.5 · nhẹ ×0.33)</div>
+  </div>`;
+
+  box.innerHTML = _limitInfo(_totalRank, ranking.length, 'học sinh') + scoreInfo +
+    `<div class="vc-wrap">${rowsHTML}</div>
     ${_limitBtn('tk', _totalRank, 'renderCcViolationChart', 'học sinh')}
     ${scaleHTML}
     <div class="vc-legend">${legendHTML}</div>`;
@@ -1831,7 +1904,10 @@ function saveScoreBatch() {
   document.getElementById('scNote').value = '';
   saveData(); toast(`✅ Đã nhập ${val}đ cho ${checked.length} HS!`);
 }
+let _lastScoreFilter = null;
 function renderScoreSummary(filterFn) {
+  if (filterFn === undefined) filterFn = _lastScoreFilter;
+  else _lastScoreFilter = filterFn;
   const students = getStudents(), scores = getScores();
   const keyword = (document.getElementById('searchScoreList')?.value || '').toLowerCase().trim();
   let filtered = filterFn ? students.filter(filterFn) : students.slice();
@@ -1858,6 +1934,15 @@ function renderScoreSummary(filterFn) {
     const _tb = document.getElementById('tbScore');
     if (_tb) _tb.innerHTML += `<tr><td colspan="4" style="padding:0;border:none;">${_btn}</td></tr>`;
   }
+}
+
+  function clearScoreFilter() {
+  _lastScoreFilter = null;
+  document.getElementById('advMin').value = '';
+  document.getElementById('advMax').value = '';
+  document.getElementById('advClass').value = '';
+  renderScoreSummary(null);
+  toast('🔄 Đã xóa lọc', '#3b82f6');
 }
 function applyAdvSearch() {
   const min = parseFloat(document.getElementById('advMin').value);
@@ -3535,6 +3620,78 @@ function renderThuchiSummary() {
   }
 }
   
+/* ═══════════ NAV 2 TẦNG — NHÓM + TAB CON ═══════════ */
+const NAV_GROUPS = {
+  'hoc-tap': {
+    tabs: [
+      { id: 'diemdanh', label: '📋 Chuyên Cần' },
+      { id: 'thongke',  label: '📊 Thống Kê VP' },
+      { id: 'bangdiem', label: '💯 Sổ Điểm' },
+      { id: 'phat',     label: '⚖️ Phạt' }
+    ]
+  },
+  'quan-ly': {
+    tabs: [
+      { id: 'danhsach', label: '👥 Danh Sách' },
+      { id: 'laodong',  label: '🧹 Lao Động' },
+      { id: 'random',   label: '🎯 Người Được Chọn' }
+    ]
+  },
+  'tai-chinh': {
+    tabs: [
+      { id: 'thuchi', label: '💰 Thu Chi Quỹ' }
+    ]
+  },
+  'he-thong': {
+    tabs: [
+      { id: 'baocao',   label: '📄 Báo Cáo' },
+      { id: 'thungrac', label: '🗑️ Thùng Rác' },
+      { id: 'saoluu',   label: '⚙️ Sao Lưu' }
+    ]
+  }
+};
+
+let _currentGroup = 'hoc-tap';
+let _currentTab   = 'diemdanh';
+
+function findGroupOfTab(tabId) {
+  for (const key of Object.keys(NAV_GROUPS)) {
+    if (NAV_GROUPS[key].tabs.some(t => t.id === tabId)) return key;
+  }
+  return null;
+}
+
+function renderSubTabs(groupKey, activeTabId) {
+  const grp = NAV_GROUPS[groupKey];
+  if (!grp) return;
+  const box = document.getElementById('navSubTabs');
+  if (!box) return;
+  box.innerHTML = grp.tabs.map(t =>
+    `<button class="nav-btn ${t.id === activeTabId ? 'active' : ''}" data-tab="${t.id}" onclick="clickSubTab('${t.id}', this)">${t.label}</button>`
+  ).join('');
+}
+
+function showGroup(groupKey, btn) {
+  const grp = NAV_GROUPS[groupKey];
+  if (!grp) return;
+  _currentGroup = groupKey;
+  document.querySelectorAll('.nav-group-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.group === groupKey);
+  });
+  const firstTab = grp.tabs[0].id;
+  _currentTab = firstTab;
+  renderSubTabs(groupKey, firstTab);
+  showTab(firstTab, document.querySelector(`#navSubTabs .nav-btn[data-tab="${firstTab}"]`));
+}
+
+function clickSubTab(tabId, btn) {
+  _currentTab = tabId;
+  document.querySelectorAll('#navSubTabs .nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tabId);
+  });
+  showTab(tabId, btn);
+}
+
 /* ═══════════ HELPERS TAB ═══════════ */
 function showTab(id, btn) {
   document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
@@ -3542,6 +3699,18 @@ function showTab(id, btn) {
   const el = document.getElementById('sec-' + id);
   if (el) el.classList.add('active');
   if (btn) btn.classList.add('active');
+
+  const grp = findGroupOfTab(id);
+  if (grp && grp !== _currentGroup) {
+    _currentGroup = grp;
+    document.querySelectorAll('.nav-group-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.group === grp);
+    });
+    renderSubTabs(grp, id);
+    const subBtn = document.querySelector(`#navSubTabs .nav-btn[data-tab="${id}"]`);
+    if (subBtn) subBtn.classList.add('active');
+  }
+  _currentTab = id;
     if (id === 'thongke') renderCcViolationChart();
   if (id === 'phat') renderAllPunish();
   if (id === 'laodong') renderAllLabor();
@@ -3945,6 +4114,8 @@ function buildViolationTableHTML() {
     { key: 'chua_btvn',   label: 'BTVN',       kind: 'kp' },
     { key: 'so_daubai',   label: 'SĐB',        kind: 'kp' }
   ];
+    const WEIGHTS_INLINE = { v_khongphep:1, v_cophep:0.33, di_muon:0.5, di_muon_cp:0.33, chua_btvn:0.5, so_daubai:0.5 };
+  const getW = (k) => WEIGHTS_INLINE[k] !== undefined ? WEIGHTS_INLINE[k] : 0.5;
   const FIXED_KEYS = FIXED_TYPES.map(t => t.key);
 
   const byStudent = {};
@@ -3983,30 +4154,39 @@ function buildViolationTableHTML() {
   return `
   <table class="rp-summary-tbl">
     <thead>
-      <tr>
+           <tr>
         <th style="width:4%">STT</th>
-        <th style="text-align:left;width:16%">Họ và tên</th>
-        ${FIXED_TYPES.map(t => `<th style="width:8%">${t.label}</th>`).join('')}
-        <th style="width:8%">Khác</th>
-        <th style="width:8%">Tổng</th>
+        <th style="text-align:left;width:14%">Họ và tên</th>
+        ${FIXED_TYPES.map(t => `<th style="width:7%">${t.label}</th>`).join('')}
+        <th style="width:6%">Khác</th>
+        <th style="width:7%">Lượt</th>
+        <th style="width:8%">Điểm VP</th>
       </tr>
     </thead>
     <tbody>
-      ${ranking.map((r,i) => `<tr>
-        <td class="center">${i+1}</td>
-        <td>${r._total >= 4 ? '<b>' : ''}${r.idx}. ${esc(r.st.name)}${r._total >= 4 ? '</b>' : ''}</td>
-        ${FIXED_TYPES.map(t => {
-          const v = r[t.key];
-          return v ? `<td class="${cellCls(t.kind)}">${v}</td>` : '<td class="cell-ok">·</td>';
-        }).join('')}
-        <td class="${r._other ? 'cell-cp' : 'cell-ok'}">${r._other || '·'}</td>
-        <td class="cell-viol" style="${totalBg(r._total)};font-weight:bold">${r._total}</td>
-      </tr>`).join('')}
+      ${ranking.map((r,i) => {
+        let vpScore = 0;
+        FIXED_TYPES.forEach(t => { vpScore += (r[t.key] || 0) * getW(t.key); });
+        vpScore += (r._other || 0) * 0.5;
+        vpScore = Math.round(vpScore * 100) / 100;
+        return `<tr>
+          <td class="center">${i+1}</td>
+          <td>${r._total >= 4 ? '<b>' : ''}${r.idx}. ${esc(r.st.name)}${r._total >= 4 ? '</b>' : ''}</td>
+          ${FIXED_TYPES.map(t => {
+            const v = r[t.key];
+            return v ? `<td class="${cellCls(t.kind)}">${v}</td>` : '<td class="cell-ok">·</td>';
+          }).join('')}
+          <td class="${r._other ? 'cell-cp' : 'cell-ok'}">${r._other || '·'}</td>
+          <td class="cell-viol" style="${totalBg(r._total)};font-weight:bold">${r._total}</td>
+          <td class="cell-viol" style="font-weight:bold">${vpScore.toFixed(2)}</td>
+        </tr>`;
+      }).join('')}
       <tr class="totals-row">
         <td colspan="2" class="right">TỔNG CỘNG</td>
         ${FIXED_TYPES.map(t => `<td class="center">${colTotals[t.key]}</td>`).join('')}
         <td class="center">${otherTotal}</td>
         <td class="center">${grandTotal}</td>
+        <td class="center">${ranking.reduce((s,r) => { let vp = 0; FIXED_TYPES.forEach(t => vp += (r[t.key]||0)*getW(t.key)); vp += (r._other||0)*0.5; return s + vp; }, 0).toFixed(2)}</td>
       </tr>
     </tbody>
   </table>
@@ -4539,23 +4719,64 @@ async function generatePDFBlob(fullHtml) {
 
 /* ---------- Xuất PDF ---------- */
 async function exportPDFFile(fullHtml, filename) {
-  toast('⏳ Đang tạo file PDF...', '#dc2626');
-  const pdfBlob = await generatePDFBlob(fullHtml);
-  if (!pdfBlob) { toast('⚠️ Không tạo được PDF', '#ef4444'); return; }
-  const fileName = filename + '.pdf';
+  // === MOBILE: Web Share API ===
   if (isMobileDevice() && navigator.canShare) {
+    if (isInAppBrowser()) toast('⚠️ Nếu không thấy bảng chia sẻ, bấm ⋯ → Mở bằng trình duyệt.', '#f59e0b');
+    toast('⏳ Đang tạo PDF để chia sẻ...', '#dc2626');
+    const pdfBlob = await generatePDFBlob(fullHtml);
+    if (!pdfBlob) { toast('⚠️ Không tạo được PDF', '#ef4444'); return; }
+    const fileName = filename + '.pdf';
     try {
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: filename, text: 'Báo cáo lớp học' });
-        toast('📤 Đã chia sẻ PDF!', '#dc2626'); return;
+        toast('📤 Đã chia sẻ PDF!', '#dc2626');
+        return;
       }
-    } catch (err) { if (err.name === 'AbortError') return; console.warn(err); }
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.warn('Share PDF failed:', err);
+    }
+    fallbackDownload(pdfBlob, fileName);
+    toast('📥 Đã tải file PDF!', '#dc2626');
+    return;
   }
-  fallbackDownload(pdfBlob, fileName);
-  toast('📥 Đã tải file PDF!', '#dc2626');
-}
 
+  // === DESKTOP: mở PDF trực tiếp ===
+  const win = window.open('', '_blank');
+  if (!win) {
+    toast('⚠️ Trình duyệt chặn popup! Đang mở chế độ in...', '#f59e0b');
+    openPrintWindow(fullHtml, filename);
+    return;
+  }
+
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${filename}</title></head>
+  <body style="font-family:-apple-system,Roboto,Arial,sans-serif;padding:40px;text-align:center;color:#1e3a8a;background:#f8fafc;margin:0;">
+    <div style="font-size:64px;margin-bottom:20px;animation:pulse 1.4s ease-in-out infinite;">⏳</div>
+    <h2 style="margin-bottom:10px;font-weight:800;">Đang tạo PDF...</h2>
+    <p style="color:#64748b;font-size:14px;">Vui lòng đợi 3-5 giây</p>
+    <style>@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}</style>
+  </body></html>`);
+  win.document.close();
+
+  toast('⏳ Đang tạo PDF...', '#dc2626');
+  const pdfBlob = await generatePDFBlob(fullHtml);
+  if (!pdfBlob) {
+    if (win && !win.closed) { try { win.close(); } catch(e){} }
+    toast('⚠️ Không tạo được PDF', '#ef4444');
+    return;
+  }
+
+  const blobUrl = URL.createObjectURL(pdfBlob);
+  if (win && !win.closed) {
+    win.location.href = blobUrl;
+  } else {
+    window.open(blobUrl, '_blank');
+  }
+  setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e){} }, 60000);
+  toast('📄 Đã mở PDF — xem trực tiếp!', '#dc2626');
+}
+  
 /* ---------- Nút Chia sẻ ---------- */
 async function shareSelectedReports() {
   const kinds = [...document.querySelectorAll('input[name="rptType"]:checked')].map(c => c.value);
@@ -4862,8 +5083,14 @@ function completeAllDays(punishId) {
   saveData();
   toast('🎉 Đã hoàn thành tất cả buổi!', '#10b981');
 }
-  
-/* ═══════════ INIT ═══════════ */
+  /* ═══════════ INIT ═══════════ */
+(function initNav2Tier() {
+  renderSubTabs(_currentGroup, _currentTab);
+  document.querySelectorAll('.nav-group-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.group === _currentGroup);
+  });
+})();
+
 document.getElementById('exQty')?.addEventListener('input', calcExpAmt);
 document.getElementById('exPrice')?.addEventListener('input', calcExpAmt);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active, #voicePopup.active').forEach(m => m.classList.remove('active')); });
