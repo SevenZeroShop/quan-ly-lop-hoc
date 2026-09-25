@@ -267,6 +267,69 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
 .rp-subhead2 { font-weight:bold; margin-top:8pt; margin-left:14pt; }
 .rp-indent { margin-left:14pt; }
 .rp-indent2 { margin-left:28pt; }
+
+/* === CHART VI PHẠM CẢNH BÁO (hiển thị trên tab) === */
+.vc-wrap { padding:4px 0; }
+.vc-row { display:grid; grid-template-columns:42px 1fr 3fr 60px 90px; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; margin-bottom:4px; border-left:4px solid transparent; transition:all .2s cubic-bezier(.34,1.56,.64,1); }
+.vc-row:hover { transform:translateX(4px) scale(1.01); box-shadow:0 4px 16px rgba(30,58,138,.15); z-index:1; }
+.vc-row.lv-critical:hover { box-shadow:0 4px 16px rgba(220,38,38,.25); }
+.vc-row.lv-danger:hover   { box-shadow:0 4px 16px rgba(234,88,12,.25); }
+.vc-row.lv-warning:hover  { box-shadow:0 4px 16px rgba(245,158,11,.25); }
+.vc-row.lv-critical { background:linear-gradient(90deg,#fee2e2,#fff5f5); border-left-color:#dc2626; }
+.vc-row.lv-danger   { background:linear-gradient(90deg,#fed7aa,#fff7ed); border-left-color:#ea580c; }
+.vc-row.lv-warning  { background:linear-gradient(90deg,#fef3c7,#fffbeb); border-left-color:#f59e0b; }
+.vc-row.lv-caution  { background:linear-gradient(90deg,#dbeafe,#eff6ff); border-left-color:#3b82f6; }
+.vc-row.lv-normal   { background:linear-gradient(90deg,#f0fdf4,#f7fef9); border-left-color:#10b981; }
+.vc-icon { text-align:center; font-size:20px; animation:vcPulse 1.8s ease-in-out infinite; }
+.vc-icon.no-pulse { animation:none; font-size:14px; }
+@keyframes vcPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.vc-name { font-size:13px; font-weight:700; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.vc-bar-wrap { background:#e2e8f0; border-radius:8px; height:26px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(0,0,0,.1); position:relative; }
+.vc-bar { height:100%; display:flex; border-radius:8px; overflow:hidden; min-width:8px; transition:width .6s cubic-bezier(.34,1.56,.64,1); }
+.vc-seg { height:100%; border-right:1px solid rgba(255,255,255,.35); transition:filter .15s; }
+.vc-seg:last-child { border-right:none; }
+.vc-seg:hover { filter:brightness(1.15); cursor:help; }
+.vc-total { text-align:center; font-weight:900; font-size:14px; padding:4px 8px; border-radius:6px; border:2px solid transparent; }
+.vc-total.lv-critical { background:#dc2626; color:#fff; border-color:#991b1b; }
+.vc-total.lv-danger   { background:#ea580c; color:#fff; border-color:#c2410c; }
+.vc-total.lv-warning  { background:#f59e0b; color:#fff; border-color:#d97706; }
+.vc-total.lv-caution  { background:#3b82f6; color:#fff; border-color:#2563eb; }
+.vc-total.lv-normal   { background:#10b981; color:#fff; border-color:#059669; }
+.vc-label { text-align:center; font-size:10px; font-weight:800; text-transform:uppercase; padding:3px 6px; border-radius:5px; white-space:nowrap; }
+.vc-label.lv-critical { background:#fee2e2; color:#991b1b; }
+.vc-label.lv-danger   { background:#ffedd5; color:#9a3412; }
+.vc-label.lv-warning  { background:#fef3c7; color:#92400e; }
+.vc-label.lv-caution  { background:#dbeafe; color:#1e40af; }
+.vc-label.lv-normal   { background:#dcfce7; color:#166534; }
+.vc-legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; padding:12px 14px; background:linear-gradient(135deg,#faf5ff,#f5f3ff); border:1px dashed #c4b5fd; border-radius:10px; font-size:11px; }
+.vc-legend-item { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:#475569; }
+.vc-legend-dot { width:12px; height:12px; border-radius:3px; }
+.vc-scale { margin-top:10px; padding:12px 14px; background:linear-gradient(135deg,#fff5f5,#fef2f2); border:1px dashed #fca5a5; border-radius:10px; font-size:11px; }
+.vc-scale-title { font-weight:800; color:#991b1b; margin-bottom:6px; text-transform:uppercase; font-size:10px; }
+.vc-scale-items { display:flex; gap:14px; flex-wrap:wrap; }
+.vc-scale-item { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:#475569; }
+body.dark .vc-name { color:#e2e8f0; }
+body.dark .vc-bar-wrap { background:#334155; }
+body.dark .vc-row.lv-critical { background:linear-gradient(90deg,rgba(220,38,38,.25),transparent); }
+body.dark .vc-row.lv-danger   { background:linear-gradient(90deg,rgba(234,88,12,.2),transparent); }
+body.dark .vc-row.lv-warning  { background:linear-gradient(90deg,rgba(245,158,11,.2),transparent); }
+body.dark .vc-row.lv-caution  { background:linear-gradient(90deg,rgba(59,130,246,.2),transparent); }
+body.dark .vc-row.lv-normal   { background:linear-gradient(90deg,rgba(16,185,129,.15),transparent); }
+body.dark .vc-legend, body.dark .vc-scale { background:#1e293b; }
+body.dark .vc-legend-item, body.dark .vc-scale-item { color:#cbd5e1; }
+/* Mobile responsive cho chart */
+@media (max-width: 640px) {
+  .vc-row { grid-template-columns:34px 1fr 40px; gap:6px; padding:6px 8px; }
+  .vc-bar-wrap { display:none; }
+  .vc-label { display:none; }
+  .vc-icon { font-size:18px; }
+  .vc-name { font-size:12px; }
+  .vc-total { font-size:13px; padding:3px 6px; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .vc-row { grid-template-columns:40px 1fr 2fr 55px 80px; gap:6px; }
+  .vc-label { font-size:9px; padding:2px 5px; }
+}
 </style>
 </head>
 <body>
@@ -339,9 +402,9 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
 <div class="nav-container">
   <div class="nav-tabs">
     <button class="nav-btn active" onclick="showTab('diemdanh',this)">📋 Chuyên Cần</button>
+    <button class="nav-btn" onclick="showTab('thongke',this)">📊 Thống Kê VP</button>
     <button class="nav-btn" onclick="showTab('bangdiem',this)">💯 Sổ Điểm</button>
-    <button class="nav-btn" onclick="showTab('thuquy',this)">💰 Thu Quỹ</button>
-    <button class="nav-btn" onclick="showTab('ungquy',this)">💸 Chi Quỹ</button>
+    <button class="nav-btn" onclick="showTab('thuchi',this)">💰 Thu Chi Quỹ</button>
     <button class="nav-btn" onclick="showTab('laodong',this)">🧹 Lao Động</button>
     <button class="nav-btn" onclick="showTab('phat',this)">⚖️ Phạt</button>
     <button class="nav-btn" onclick="showTab('random',this)">🎯 Người Được Chọn</button>
@@ -460,11 +523,20 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
     </div>
     <input type="text" class="search-input" id="searchDDList" oninput="renderDDView()" placeholder="🔍 Tìm theo tên / ngày / lý do...">
   </div>
-    <div id="ddViewContainer"></div>
+        <div id="ddViewContainer"></div>
+</div>
 
+<!-- 📊 THỐNG KÊ VI PHẠM (tab riêng) -->
+<div id="sec-thongke" class="section-pane">
   <div class="card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
-    <h3 style="color:#6d28d9;">📈 Thống Kê Vi Phạm Theo Học Sinh</h3>
-    <p style="font-size:12px;color:#6d28d9;margin-bottom:10px;font-style:italic;">💡 Dựa trên <b>dữ liệu chuyên cần</b> (không phải phiếu phạt). Thanh càng dài = vi phạm càng nhiều.</p>
+    <h3 style="color:#6d28d9;">📊 Thống Kê Vi Phạm Theo Học Sinh</h3>
+    <p style="font-size:12px;color:#6d28d9;margin-bottom:10px;font-style:italic;">💡 Dựa trên <b>dữ liệu chuyên cần</b> (không tính Trường Hợp Đặc Biệt). Thanh càng dài = vi phạm càng nhiều.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+  <button class="btn-act btn-mini tk-filter-btn" id="tkBtnAll" onclick="setTkFilter('all')">📋 Tất cả</button>
+  <button class="btn-act btn-mini btn-danger tk-filter-btn" id="tkBtnMonth" onclick="setTkFilter('month')">📅 30 ngày qua</button>
+  <button class="btn-act btn-mini btn-warning tk-filter-btn" id="tkBtnWeek" onclick="setTkFilter('week')">📅 7 ngày qua</button>
+  <button class="btn-act btn-mini btn-teal tk-filter-btn" id="tkBtnTop10" onclick="setTkFilter('top10')">🔟 Top 10</button>
+</div>
     <input type="text" class="search-input" id="searchCcViolChart" oninput="renderCcViolationChart()" placeholder="🔍 Tìm tên HS..." style="margin-bottom:10px;">
     <div id="ccViolationChart"></div>
   </div>
@@ -517,64 +589,88 @@ body.dark .view-toggle button.active{background:#0f172a;color:#93c5fd}
   </tr></thead><tbody id="tbScore"></tbody></table></div>
 </div>
 
-<!-- THU QUỸ -->
-<div id="sec-thuquy" class="section-pane">
+<!-- 💰 THU CHI QUỸ (gộp) -->
+<div id="sec-thuchi" class="section-pane">
+  <!-- Dashboard tổng -->
   <div class="stats-top" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
     <div class="stat-box" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#86efac;"><span style="color:#166534;">Tổng Đã Thu</span><b style="color:#166534;" id="colTotalIn">0đ</b></div>
     <div class="stat-box" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#fbbf24;"><span style="color:#92400e;">Đã Bàn Giao</span><b style="color:#92400e;" id="colTotalOut">0đ</b></div>
     <div class="stat-box" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-color:#93c5fd;"><span style="color:#1e40af;">Còn Giữ</span><b style="color:#1e40af;" id="colTotalBal">0đ</b></div>
     <div class="stat-box" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#fca5a5;"><span style="color:#991b1b;">Chưa Đóng</span><b style="color:#991b1b;" id="colUnpaidCount">0</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#fff1f2,#fecdd3);border-color:#fda4af;"><span style="color:#be123c;">Đang Treo</span><b style="color:#be123c;" id="lblPendingAmt">0đ</b></div>
+    <div class="stat-box" style="background:linear-gradient(135deg,#f0fdf4,#bbf7d0);border-color:#86efac;"><span style="color:#15803d;">Đã Trả</span><b style="color:#15803d;" id="lblPaidAmt">0đ</b></div>
   </div>
-  <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-    <h3 style="color:#166534;">➕ Tạo Đợt Thu</h3>
-    <div class="grid-2">
-      <div class="form-group"><label>Tên:</label>
-        <div class="mic-row"><input type="text" id="colName" list="colNameSuggest" placeholder="VD: Quỹ lớp tháng 9"><button class="btn-act btn-mic-inline" onclick="startVoice('colName',this)">🎤</button></div>
-        <datalist id="colNameSuggest"><option value="Quỹ lớp"><option value="Quà cáp"><option value="Ủng hộ"><option value="Kỷ yếu"><option value="Quỹ tháng 9"><option value="Quỹ tháng 10"></datalist>
-      </div>
-      <div class="form-group"><label>Số Tiền/HS:</label><input type="number" id="colAmount" min="0" step="1000"></div>
-    </div>
-    <div class="grid-2">
-      <div class="form-group"><label>Ngày:</label><input type="date" id="colDate"></div>
-      <div class="form-group"><label>Ghi Chú:</label><input type="text" id="colNote"></div>
-    </div>
-    <button class="btn-act btn-success btn-full" onclick="createCollect()">🚀 Tạo</button>
-  </div>
-  <div class="card"><h3>📋 Các Đợt Thu</h3><input type="text" class="search-input" id="searchCollect" oninput="renderCollectList()" placeholder="🔍 Tìm đợt thu..."></div>
-  <div id="collectList"></div>
-</div>
 
-<!-- CHI QUỸ -->
-<div id="sec-ungquy" class="section-pane">
-  <div class="grid-2" style="margin-bottom:12px;">
-    <div class="card" style="background:#fff1f2;border-color:#fecdd3;text-align:center;margin-bottom:0;"><h4 style="font-size:11px;color:#be123c;">Đang Treo</h4><div style="font-size:20px;font-weight:bold;color:#e11d48;" id="lblPendingAmt">0đ</div></div>
-    <div class="card" style="background:#f0fdf4;border-color:#bbf7d0;text-align:center;margin-bottom:0;"><h4 style="font-size:11px;color:#15803d;">Đã Trả</h4><div style="font-size:20px;font-weight:bold;color:#16a34a;" id="lblPaidAmt">0đ</div></div>
+  <!-- Thanh chuyển 2 sub-tab -->
+  <div class="view-toggle" style="margin-bottom:12px;">
+    <button class="active" onclick="setTCView('thu',this)">💰 THU QUỸ</button>
+    <button onclick="setTCView('chi',this)">💸 CHI QUỸ</button>
+    <button onclick="setTCView('all',this)">📊 TẤT CẢ</button>
   </div>
-  <div class="card">
-    <h3>💸 Ghi Khoản Chi</h3>
-    <div class="grid-2">
-      <div class="form-group"><label>Ngày:</label><input type="date" id="exDate"></div>
-      <div class="form-group"><label>Nội Dung:</label>
-        <div class="mic-row"><input type="text" id="exTitle" placeholder="VD: Mua bút..."><button class="btn-act btn-mic-inline" onclick="startVoice('exTitle',this)">🎤</button></div>
-      </div>
-    </div>
-    <div class="grid-3">
-      <div class="form-group"><label>ĐV:</label><input type="text" id="exUnit"></div>
-      <div class="form-group"><label>SL:</label><input type="number" id="exQty" min="1" value="1"></div>
-      <div class="form-group"><label>Đơn Giá:</label><input type="number" id="exPrice" min="0" step="500"></div>
-    </div>
-    <div class="form-group"><label>💰 Thành Tiền:</label><input type="text" id="exAmtDisplay" readonly value="0đ" style="background:#eff6ff;font-weight:bold;color:#1e40af;font-size:18px;text-align:right;padding:12px;border:2px solid #93c5fd;"></div>
-    <button class="btn-act btn-danger btn-full" onclick="saveExpense()">💾 Lưu</button>
-  </div>
-  <div class="card"><h3>📊 Tổng Hợp</h3><div id="fundSummary"></div></div>
-  <div class="card"><h3>📋 Danh Sách Khoản Chi</h3><input type="text" class="search-input" id="searchExpList" oninput="renderExpenseTable()" placeholder="🔍 Tìm..."></div>
-  <div class="table-wrapper"><table><thead><tr>
-    <th>Ngày</th><th>Nội Dung</th><th style="text-align:center;">ĐV</th><th style="text-align:center;">SL</th>
-    <th style="text-align:right;">Đơn Giá</th><th style="text-align:right;">Thành Tiền</th>
-    <th style="text-align:center;">TT</th><th style="text-align:center;">Thao tác</th>
-  </tr></thead><tbody id="tbExpense"></tbody></table></div>
-</div>
 
+  <!-- TAB THU -->
+  <div id="tcThu">
+    <div class="card" style="border:2px solid #10b981;background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+      <h3 style="color:#166534;">➕ Tạo Đợt Thu</h3>
+      <div class="grid-2">
+        <div class="form-group"><label>Tên:</label>
+          <div class="mic-row"><input type="text" id="colName" list="colNameSuggest" placeholder="VD: Quỹ lớp tháng 9"><button class="btn-act btn-mic-inline" onclick="startVoice('colName',this)">🎤</button></div>
+          <datalist id="colNameSuggest"><option value="Quỹ lớp"><option value="Quà cáp"><option value="Ủng hộ"><option value="Kỷ yếu"><option value="Quỹ tháng 9"><option value="Quỹ tháng 10"></datalist>
+        </div>
+        <div class="form-group"><label>Số Tiền/HS:</label><input type="number" id="colAmount" min="0" step="1000"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Ngày:</label><input type="date" id="colDate"></div>
+        <div class="form-group"><label>Ghi Chú:</label><input type="text" id="colNote"></div>
+      </div>
+      <button class="btn-act btn-success btn-full" onclick="createCollect()">🚀 Tạo</button>
+    </div>
+    <div class="card"><h3>📋 Các Đợt Thu</h3><input type="text" class="search-input" id="searchCollect" oninput="renderCollectList()" placeholder="🔍 Tìm đợt thu..."></div>
+    <div id="collectList"></div>
+  </div>
+
+  <!-- TAB CHI -->
+  <div id="tcChi" style="display:none;">
+    <div class="card">
+      <h3>💸 Ghi Khoản Chi</h3>
+      <div class="grid-2">
+        <div class="form-group"><label>Ngày:</label><input type="date" id="exDate"></div>
+        <div class="form-group"><label>Nội Dung:</label>
+          <div class="mic-row"><input type="text" id="exTitle" placeholder="VD: Mua bút..."><button class="btn-act btn-mic-inline" onclick="startVoice('exTitle',this)">🎤</button></div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>ĐV:</label><input type="text" id="exUnit"></div>
+        <div class="form-group"><label>SL:</label><input type="number" id="exQty" min="1" value="1"></div>
+        <div class="form-group"><label>Đơn Giá:</label><input type="number" id="exPrice" min="0" step="500"></div>
+      </div>
+      <div class="form-group"><label>💰 Thành Tiền:</label><input type="text" id="exAmtDisplay" readonly value="0đ" style="background:#eff6ff;font-weight:bold;color:#1e40af;font-size:18px;text-align:right;padding:12px;border:2px solid #93c5fd;"></div>
+      <button class="btn-act btn-danger btn-full" onclick="saveExpense()">💾 Lưu</button>
+    </div>
+    <div class="card"><h3>📊 Tổng Hợp</h3><div id="fundSummary"></div></div>
+    <div class="card"><h3>📋 Danh Sách Khoản Chi</h3><input type="text" class="search-input" id="searchExpList" oninput="renderExpenseTable()" placeholder="🔍 Tìm..."></div>
+    <div class="table-wrapper"><table><thead><tr>
+      <th>Ngày</th><th>Nội Dung</th><th style="text-align:center;">ĐV</th><th style="text-align:center;">SL</th>
+      <th style="text-align:right;">Đơn Giá</th><th style="text-align:right;">Thành Tiền</th>
+      <th style="text-align:center;">TT</th><th style="text-align:center;">Thao tác</th>
+    </tr></thead><tbody id="tbExpense"></tbody></table></div>
+  </div>
+
+  <!-- TAB ALL -->
+  <div id="tcAll" style="display:none;">
+    <div class="card" style="border:2px solid #1e3a8a;background:linear-gradient(135deg,#eff6ff,#dbeafe);">
+      <h3 style="color:#1e40af;">📊 Tổng Hợp Thu Chi</h3>
+      <div id="thuchiSummary"></div>
+    </div>
+    <div class="card"><h3>📋 Các Đợt Thu</h3><div id="collectListAll"></div></div>
+    <div class="card"><h3>💸 Danh Sách Chi</h3>
+      <div class="table-wrapper"><table><thead><tr>
+        <th>Ngày</th><th>Nội Dung</th><th style="text-align:right;">Thành Tiền</th><th style="text-align:center;">TT</th>
+      </tr></thead><tbody id="tbExpenseAll"></tbody></table></div>
+    </div>
+  </div>
+</div>
+  
 <!-- LAO ĐỘNG (giữ nguyên cấu trúc cũ) -->
 <div id="sec-laodong" class="section-pane">
   <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #10b981;">
@@ -1248,7 +1344,6 @@ function renderAllUI() {
   renderTopStats();
   renderDDView();
   renderCCWarning();
-  renderCcViolationChart();
   renderScoreSummary();
   renderExpenseTable();
   renderStudentList();
@@ -1261,6 +1356,8 @@ function renderAllUI() {
   renderReportChecklist();
   updateReportCount();
   if (document.getElementById('sec-random')?.classList.contains('active')) initRandom();
+  if (document.getElementById('sec-thongke')?.classList.contains('active')) renderCcViolationChart();
+  if (document.getElementById('sec-thuchi')?.classList.contains('active')) renderThuchiSummary();
 }
 
 function renderSmartBars() {
@@ -1492,8 +1589,21 @@ function renderCCWarning() {
   if (!box) return;
   const students = getStudents();
   const search = (document.getElementById('searchCcViolChart')?.value || '').toLowerCase().trim();
-  const logs = getLogs().filter(l => l.type !== 'dac_biet');
+  let logs = getLogs().filter(l => l.type !== 'dac_biet');
+
+  // Filter theo mốc thời gian
+  if (tkFilter === 'month') {
+    const d = new Date(); d.setDate(d.getDate() - 29);
+    const from = d.toISOString().split('T')[0];
+    logs = logs.filter(l => l.date >= from);
+  } else if (tkFilter === 'week') {
+    const d = new Date(); d.setDate(d.getDate() - 6);
+    const from = d.toISOString().split('T')[0];
+    logs = logs.filter(l => l.date >= from);
+  }
+
   if (!logs.length) { box.innerHTML = '<div style="text-align:center;color:#10b981;padding:24px;font-weight:bold;background:#f0fdf4;border-radius:10px;">🎉 Không có vi phạm!</div>'; return; }
+
   const byStudent = {};
   logs.forEach(l => {
     if (!byStudent[l.stId]) byStudent[l.stId] = { total: 0, types: {} };
@@ -1506,7 +1616,9 @@ function renderCCWarning() {
     return { st, idx: students.indexOf(st) + 1, total: d.total, types: d.types };
   }).filter(Boolean).sort((a, b) => b.total - a.total);
   if (search) ranking = ranking.filter(r => r.st.name.toLowerCase().includes(search));
+  if (tkFilter === 'top10') ranking = ranking.slice(0, 10);
   if (!ranking.length) { box.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</p>'; return; }
+
   const maxTotal = Math.max(...ranking.map(r => r.total));
   function getLevel(t) {
     if (t >= 5) return { key: 'critical', icon: '🚨', label: 'NGHIÊM TRỌNG' };
@@ -1520,6 +1632,7 @@ function renderCCWarning() {
   const sortedTypes = Object.keys(allTypes).sort((a, b) => allTypes[b] - allTypes[a]);
   const counts = { critical: 0, danger: 0, warning: 0, caution: 0, normal: 0 };
   ranking.forEach(r => { counts[getLevel(r.total).key]++; });
+
   const rowsHTML = ranking.map((r, i) => {
     const lv = getLevel(r.total);
     const barW = Math.max((r.total / maxTotal) * 100, 4);
@@ -1538,6 +1651,7 @@ function renderCCWarning() {
       <div class="vc-label lv-${lv.key}">${lv.label}</div>
     </div>`;
   }).join('');
+
   const legendHTML = sortedTypes.map(t => `<span class="vc-legend-item"><span class="vc-legend-dot" style="background:${getCCColor(t)}"></span>${esc(getCCLabel(t).replace(/^[^\s]+\s/, ''))} (${allTypes[t]})</span>`).join('');
   const scaleHTML = `<div class="vc-scale"><div class="vc-scale-title">📏 Thang mức độ</div><div class="vc-scale-items">
     <span class="vc-scale-item"><b style="color:#dc2626">🚨 5+</b> Nghiêm trọng (${counts.critical})</span>
@@ -1550,7 +1664,7 @@ function renderCCWarning() {
     <div class="vc-wrap">${rowsHTML}</div>${scaleHTML}
     <div class="vc-legend">${legendHTML}</div>`;
 }
-
+  
 /* ═══ LIÊN KẾT TAB: Chuyển từ Chuyên Cần → Phạt ═══ */
 function sendToPunish(stId) {
   if (!canEdit()) return;
@@ -1916,7 +2030,9 @@ function renderExpenseTable() {
   const keyword = (document.getElementById('searchExpList')?.value || '').toLowerCase().trim();
   let sorted = getExps().slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
   if (keyword) sorted = sorted.filter(e => (e.title||'').toLowerCase().includes(keyword) || (e.date||'').includes(keyword) || String(e.amt).includes(keyword));
-  document.getElementById('tbExpense').innerHTML = sorted.map(e => {
+  const tb = document.getElementById('tbExpense');
+  if (!tb) return;
+  tb.innerHTML = sorted.map(e => {
     e.paid ? (paid += e.amt) : (pending += e.amt);
     const qty = e.qty!=null ? e.qty : 1;
     const price = e.price!=null ? e.price : (e.amt||0);
@@ -3259,6 +3375,72 @@ function startVoice(targetId, btn) {
   inlineRec.start();
 }
 
+  /* ═══════════ STATE TAB MỚI ═══════════ */
+let tkFilter = 'all';
+function setTkFilter(f) {
+  tkFilter = f;
+  // Xoá highlight tất cả nút
+  document.querySelectorAll('#sec-thongke .tk-filter-btn').forEach(b => {
+    b.style.outline = '';
+    b.style.outlineOffset = '';
+    b.style.transform = '';
+    b.style.boxShadow = '';
+  });
+  // Highlight nút active
+  const btnMap = { all: 'tkBtnAll', month: 'tkBtnMonth', week: 'tkBtnWeek', top10: 'tkBtnTop10' };
+  const activeBtn = document.getElementById(btnMap[f]);
+  if (activeBtn) {
+    activeBtn.style.outline = '3px solid #1e3a8a';
+    activeBtn.style.outlineOffset = '2px';
+    activeBtn.style.transform = 'translateY(-2px)';
+    activeBtn.style.boxShadow = '0 6px 16px rgba(30,58,138,.35)';
+  }
+  renderCcViolationChart();
+}
+function setTCView(view, btn) {
+  document.querySelectorAll('#sec-thuchi .view-toggle button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('tcThu').style.display = (view === 'thu' || view === 'all') ? 'block' : 'none';
+  document.getElementById('tcChi').style.display = (view === 'chi' || view === 'all') ? 'block' : 'none';
+  document.getElementById('tcAll').style.display = (view === 'all') ? 'block' : 'none';
+  if (view === 'all') renderThuchiSummary();
+}
+function renderThuchiSummary() {
+  const box = document.getElementById('thuchiSummary');
+  const box2 = document.getElementById('collectListAll');
+  const tbExpAll = document.getElementById('tbExpenseAll');
+  if (!box) return;
+  const collects = getCollects(), exps = getExps(), students = getStudents();
+  let totalIn = 0, totalOut = 0;
+  collects.forEach(c => { totalIn += (c.payments||[]).reduce((a,p)=>a+(p.amount||c.amount),0); totalOut += (c.handovers||[]).reduce((a,h)=>a+h.amount,0); });
+  const totalExp = exps.reduce((a,e)=>a+e.amt,0);
+  const paidExp = exps.filter(e=>e.paid).reduce((a,e)=>a+e.amt,0);
+  const balance = totalIn - totalOut - totalExp;
+  box.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
+    <div style="background:#dcfce7;padding:12px;border-radius:10px;text-align:center;border:1px solid #86efac;"><div style="font-size:10px;font-weight:700;color:#166534;">TỔNG THU</div><div style="font-size:16px;font-weight:bold;color:#166534;">${fmt(totalIn)}</div></div>
+    <div style="background:#fef3c7;padding:12px;border-radius:10px;text-align:center;border:1px solid #fbbf24;"><div style="font-size:10px;font-weight:700;color:#92400e;">BÀN GIAO</div><div style="font-size:16px;font-weight:bold;color:#92400e;">${fmt(totalOut)}</div></div>
+    <div style="background:#fee2e2;padding:12px;border-radius:10px;text-align:center;border:1px solid #fca5a5;"><div style="font-size:10px;font-weight:700;color:#991b1b;">TỔNG CHI</div><div style="font-size:16px;font-weight:bold;color:#991b1b;">${fmt(totalExp)}</div></div>
+    <div style="background:#f0fdf4;padding:12px;border-radius:10px;text-align:center;border:1px solid #4ade80;"><div style="font-size:10px;font-weight:700;color:#166534;">ĐÃ TRẢ</div><div style="font-size:16px;font-weight:bold;color:#166534;">${fmt(paidExp)}</div></div>
+    <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:12px;border-radius:10px;text-align:center;color:#fff;"><div style="font-size:10px;font-weight:700;">TỒN QUỸ</div><div style="font-size:18px;font-weight:bold;">${fmt(balance)}</div></div>
+  </div>`;
+  if (box2) {
+    if (!collects.length) box2.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:14px;">Chưa có đợt thu</p>';
+    else box2.innerHTML = collects.map(c => {
+      const paid = (c.payments||[]).length;
+      const collected = (c.payments||[]).reduce((a,p)=>a+(p.amount||c.amount),0);
+      const unpaid = students.length - paid;
+      return `<div style="padding:8px 12px;border-left:4px solid ${unpaid===0?'#10b981':'#f59e0b'};background:#f8fafc;border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+        <span><b>${esc(c.name)}</b> <span style="font-size:11px;color:#64748b;">— ${esc(c.date)}</span></span>
+        <span style="font-size:12px;"><b style="color:#1e40af;">${collected.toLocaleString('vi-VN')}đ</b> — <span style="color:${unpaid===0?'#10b981':'#ef4444'};">${paid}/${students.length} HS</span></span>
+      </div>`;
+    }).join('');
+  }
+  if (tbExpAll) {
+    const sorted = exps.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    tbExpAll.innerHTML = sorted.map(e => `<tr><td>${esc(e.date)}</td><td>${esc(e.title)}</td><td style="text-align:right;"><b style="color:#1e40af;">${e.amt.toLocaleString('vi-VN')}đ</b></td><td style="text-align:center;"><span class="badge ${e.paid?'badge-paid':'badge-pending'}">${e.paid?'Đã trả':'Chưa'}</span></td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">Không có khoản chi</td></tr>';
+  }
+}
+  
 /* ═══════════ HELPERS TAB ═══════════ */
 function showTab(id, btn) {
   document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
@@ -3266,11 +3448,11 @@ function showTab(id, btn) {
   const el = document.getElementById('sec-' + id);
   if (el) el.classList.add('active');
   if (btn) btn.classList.add('active');
-  if (id === 'diemdanh') renderCcViolationChart();
+    if (id === 'thongke') renderCcViolationChart();
   if (id === 'phat') renderAllPunish();
   if (id === 'laodong') renderAllLabor();
   if (id === 'random') initRandom();
-  if (id === 'thuquy') { renderCollectList(); renderCollectStats(); }
+  if (id === 'thuchi') { renderCollectList(); renderCollectStats(); renderExpenseTable(); }
   if (id === 'thungrac') renderTrashList();
     if (id === 'baocao') {
     renderReportChecklist();
@@ -3497,10 +3679,11 @@ function rpWrapHtml(body) {
 .vc-icon.no-pulse { animation:none; font-size:14px; }
 @keyframes vcPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
 .vc-name { font-size:13px; font-weight:700; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.vc-bar-wrap { background:#e2e8f0; border-radius:6px; height:24px; overflow:hidden; box-shadow:inset 0 1px 3px rgba(0,0,0,.08); }
-.vc-bar { height:100%; display:flex; border-radius:6px; overflow:hidden; min-width:6px; }
-.vc-seg { height:100%; border-right:1px solid rgba(255,255,255,.4); }
+.vc-bar-wrap { background:#e2e8f0; border-radius:8px; height:26px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(0,0,0,.1); position:relative; }
+.vc-bar { height:100%; display:flex; border-radius:8px; overflow:hidden; min-width:8px; transition:width .6s cubic-bezier(.34,1.56,.64,1); }
+.vc-seg { height:100%; border-right:1px solid rgba(255,255,255,.35); transition:filter .15s; }
 .vc-seg:last-child { border-right:none; }
+.vc-seg:hover { filter:brightness(1.15); cursor:help; }
 .vc-total { text-align:center; font-weight:900; font-size:14px; padding:4px 8px; border-radius:6px; border:2px solid transparent; }
 .vc-total.lv-critical { background:#dc2626; color:#fff; border-color:#991b1b; }
 .vc-total.lv-danger   { background:#ea580c; color:#fff; border-color:#c2410c; }
@@ -3513,10 +3696,10 @@ function rpWrapHtml(body) {
 .vc-label.lv-warning  { background:#fef3c7; color:#92400e; }
 .vc-label.lv-caution  { background:#dbeafe; color:#1e40af; }
 .vc-label.lv-normal   { background:#dcfce7; color:#166534; }
-.vc-legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; padding:10px 12px; background:#fff; border:1px dashed #c4b5fd; border-radius:8px; font-size:11px; }
+.vc-legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; padding:12px 14px; background:linear-gradient(135deg,#faf5ff,#f5f3ff); border:1px dashed #c4b5fd; border-radius:10px; font-size:11px; }
 .vc-legend-item { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:#475569; }
 .vc-legend-dot { width:12px; height:12px; border-radius:3px; }
-.vc-scale { margin-top:10px; padding:10px 12px; background:#fff; border:1px dashed #fca5a5; border-radius:8px; font-size:11px; }
+.vc-scale { margin-top:10px; padding:12px 14px; background:linear-gradient(135deg,#fff5f5,#fef2f2); border:1px dashed #fca5a5; border-radius:10px; font-size:11px; }
 .vc-scale-title { font-weight:800; color:#991b1b; margin-bottom:6px; text-transform:uppercase; font-size:10px; }
 .vc-scale-items { display:flex; gap:14px; flex-wrap:wrap; }
 .vc-scale-item { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:#475569; }
