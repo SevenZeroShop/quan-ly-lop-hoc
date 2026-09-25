@@ -4121,14 +4121,15 @@ function buildViolationTableHTML() {
     { key: 'chua_btvn',   label: 'BTVN',       kind: 'kp' },
     { key: 'so_daubai',   label: 'SĐB',        kind: 'kp' }
   ];
-    const WEIGHTS_INLINE = { v_khongphep:1, v_cophep:0.33, di_muon:0.5, di_muon_cp:0.33, chua_btvn:0.5, so_daubai:0.5 };
-  const getW = (k) => WEIGHTS_INLINE[k] !== undefined ? WEIGHTS_INLINE[k] : 0.5;
+  // ✅ Dùng chung getVpWeight() với tab Thống Kê để tránh lệch hệ số
+  const getW = (k) => getVpWeight(k);
   const FIXED_KEYS = FIXED_TYPES.map(t => t.key);
 
   const byStudent = {};
   logs.forEach(l => {
-    if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0 };
+    if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0, _score: 0 };
     byStudent[l.stId]._total++;
+    byStudent[l.stId]._score += getVpWeight(l.type);   // ✅ tính điểm ngay khi gom
     if (FIXED_KEYS.includes(l.type)) {
       byStudent[l.stId][l.type] = (byStudent[l.stId][l.type] || 0) + 1;
     } else {
@@ -4139,18 +4140,26 @@ function buildViolationTableHTML() {
   const ranking = Object.entries(byStudent).map(([stId, data]) => {
     const st = students.find(s => String(s.id) === String(stId));
     if (!st) return null;
-    return { st, idx: students.indexOf(st) + 1, ...data };
-  }).filter(Boolean).sort((a,b) => b._total - a._total);
+    return {
+      st,
+      idx: students.indexOf(st) + 1,
+      ...data,
+      _score: Math.round(data._score * 100) / 100,   // làm tròn 2 chữ số
+    };
+  }).filter(Boolean)
+    // ✅ Sắp xếp GIỐNG tab Thống Kê: ĐIỂM VP giảm dần, rồi LƯỢT giảm dần
+    .sort((a, b) => (b._score - a._score) || (b._total - a._total));
 
   if (!ranking.length) return '<p class="rp-indent2" style="font-style:italic">Không có vi phạm.</p>';
 
   const colTotals = {};
   FIXED_KEYS.forEach(k => colTotals[k] = 0);
-  let otherTotal = 0, grandTotal = 0;
+  let otherTotal = 0, grandTotal = 0, grandScore = 0;
   ranking.forEach(r => {
     FIXED_KEYS.forEach(k => colTotals[k] += (r[k] || 0));
     otherTotal += r._other;
     grandTotal += r._total;
+    grandScore += r._score;
   });
 
   const totalBg = n => n >= 4 ? 'background:#fee2e2;color:#991b1b'
@@ -4172,10 +4181,6 @@ function buildViolationTableHTML() {
     </thead>
     <tbody>
       ${ranking.map((r,i) => {
-        let vpScore = 0;
-        FIXED_TYPES.forEach(t => { vpScore += (r[t.key] || 0) * getW(t.key); });
-        vpScore += (r._other || 0) * 0.5;
-        vpScore = Math.round(vpScore * 100) / 100;
         return `<tr>
           <td class="center">${i+1}</td>
           <td>${r._total >= 4 ? '<b>' : ''}${r.idx}. ${esc(r.st.name)}${r._total >= 4 ? '</b>' : ''}</td>
@@ -4185,7 +4190,7 @@ function buildViolationTableHTML() {
           }).join('')}
           <td class="${r._other ? 'cell-cp' : 'cell-ok'}">${r._other || '·'}</td>
           <td class="cell-viol" style="${totalBg(r._total)};font-weight:bold">${r._total}</td>
-          <td class="cell-viol" style="font-weight:bold">${vpScore.toFixed(2)}</td>
+          <td class="cell-viol" style="font-weight:bold">${r._score.toFixed(2)}</td>
         </tr>`;
       }).join('')}
       <tr class="totals-row">
@@ -4193,7 +4198,7 @@ function buildViolationTableHTML() {
         ${FIXED_TYPES.map(t => `<td class="center">${colTotals[t.key]}</td>`).join('')}
         <td class="center">${otherTotal}</td>
         <td class="center">${grandTotal}</td>
-        <td class="center">${ranking.reduce((s,r) => { let vp = 0; FIXED_TYPES.forEach(t => vp += (r[t.key]||0)*getW(t.key)); vp += (r._other||0)*0.5; return s + vp; }, 0).toFixed(2)}</td>
+        <td class="center">${grandScore.toFixed(2)}</td>
       </tr>
     </tbody>
   </table>
@@ -4206,7 +4211,6 @@ function buildViolationTableHTML() {
     <span style="background:#f0fdf4;color:#166534;padding:1pt 6pt;border-radius:3px;font-weight:bold">1 lỗi: Lưu ý</span>
   </p>`;
 }
-
 /* ---------- Bảng trường hợp đặc biệt ---------- */
 function buildSpecialCasesHTML() {
   const students = getStudents();
@@ -5138,26 +5142,30 @@ function buildExcelSheet(kind) {
   });
   return { name: 'Bảng Điểm', ws: XLSX.utils.aoa_to_sheet(aoa) };
 }
-  if (kind === 'violations') {
-    const aoa = [['STT','Họ và tên','Nghỉ KP','Nghỉ CP','Muộn KP','Muộn CP','BTVN','SĐB','Khác','Tổng']];
+    if (kind === 'violations') {
+    const aoa = [['STT','Họ và tên','Nghỉ KP','Nghỉ CP','Muộn KP','Muộn CP','BTVN','SĐB','Khác','Lượt','Điểm VP']];
     const FIXED = ['v_khongphep','v_cophep','di_muon','di_muon_cp','chua_btvn','so_daubai'];
     const byStudent = {};
     logs.filter(l => l.type !== 'dac_biet').forEach(l => {
-      if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0 };
+      if (!byStudent[l.stId]) byStudent[l.stId] = { _total: 0, _other: 0, _score: 0 };
       byStudent[l.stId]._total++;
+      byStudent[l.stId]._score += getVpWeight(l.type);   // ✅
       if (FIXED.includes(l.type)) byStudent[l.stId][l.type] = (byStudent[l.stId][l.type]||0)+1;
       else byStudent[l.stId]._other++;
     });
     const arr = Object.entries(byStudent).map(([id,d]) => {
       const st = students.find(s => String(s.id)===String(id));
-      return st ? { st, d } : null;
-    }).filter(Boolean).sort((a,b)=>b.d._total - a.d._total);
+      return st ? { st, d: { ...d, _score: Math.round(d._score * 100) / 100 } } : null;
+    }).filter(Boolean)
+      // ✅ Sắp xếp giống tab Thống Kê
+      .sort((a,b) => (b.d._score - a.d._score) || (b.d._total - a.d._total));
     arr.forEach((x,i) => aoa.push([
       i+1, x.st.name,
       x.d.v_khongphep || 0, x.d.v_cophep || 0,
       x.d.di_muon || 0, x.d.di_muon_cp || 0,
       x.d.chua_btvn || 0, x.d.so_daubai || 0,
-      x.d._other, x.d._total
+      x.d._other, x.d._total,
+      +x.d._score.toFixed(2)      // ✅ cột Điểm VP mới
     ]));
     return { name: 'Vi Phạm', ws: XLSX.utils.aoa_to_sheet(aoa) };
   }
