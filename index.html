@@ -4702,64 +4702,138 @@ function openPrintWindow(fullHtml, filename) {
   toast('🖨️ Chọn "Lưu dưới dạng PDF" trong hộp thoại in', '#dc2626');
 }
 
-/* ---------- Tạo PDF blob từ HTML ---------- */
+/* ---------- Tạo PDF — CHUẨN A4, NGẮT TRANG AN TOÀN ---------- */
 async function generatePDFBlob(fullHtml) {
   if (!window.jspdf || !window.html2canvas) {
-    toast('⚠️ Thư viện PDF chưa tải xong!', '#f59e0b'); return null;
+    toast('⚠️ Thư viện PDF chưa tải xong!', '#f59e0b');
+    return null;
   }
   let iframe = null;
   try {
     const { jsPDF } = window.jspdf;
+
+    /* ─── Kích thước A4 @ 96dpi ─── */
+    const A4_W_PX = 794;    // 210mm
+    const A4_H_PX = 1123;   // 297mm
+    const mm2px = (mm) => Math.round(mm * 96 / 25.4);
+
+    /* ─── Lề chuẩn NĐ 30: Trên 2 - Dưới 2 - Trái 3 - Phải 2 (cm) ─── */
+    const M_TOP_MM    = 20;
+    const M_BOTTOM_MM = 20;
+    const M_LEFT_MM   = 30;
+    const M_RIGHT_MM  = 20;
+
+    const M_TOP_PX    = mm2px(M_TOP_MM);
+    const M_BOTTOM_PX = mm2px(M_BOTTOM_MM);
+    const M_LEFT_PX   = mm2px(M_LEFT_MM);
+    const M_RIGHT_PX  = mm2px(M_RIGHT_MM);
+
+    /* ─── Vùng nội dung in được ─── */
+    const CONTENT_W_PX = A4_W_PX - M_LEFT_PX - M_RIGHT_PX;   // ≈ 605px
+    const CONTENT_H_PX = A4_H_PX - M_TOP_PX - M_BOTTOM_PX;   // ≈ 971px
+    const CONTENT_W_MM = 210 - M_LEFT_MM - M_RIGHT_MM;       // = 160mm
+    const CONTENT_H_MM = 297 - M_TOP_MM - M_BOTTOM_MM;       // = 257mm
+
+    /* ─── Render HTML vào iframe với ĐÚNG chiều rộng vùng in ─── */
     iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:200px;border:0;background:#fff;';
+    iframe.style.cssText = `position:fixed;left:-10000px;top:0;width:${CONTENT_W_PX}px;height:200px;border:0;background:#fff;`;
     document.body.appendChild(iframe);
     const iDoc = iframe.contentWindow.document;
     iDoc.open(); iDoc.write(fullHtml); iDoc.close();
 
-    // Đợi fonts + layout
-    await new Promise(r => setTimeout(r, 1200));
+    // Đợi fonts + layout render xong
+    await new Promise(r => setTimeout(r, 1500));
+    iframe.style.height = '60000px';
+    await new Promise(r => setTimeout(r, 500));
 
-    // Đo chiều cao thật (tạm nới iframe để đo đúng)
-    iframe.style.height = '10000px';
-    await new Promise(r => setTimeout(r, 300));
     const bodyEl = iDoc.body;
-    const totalW = bodyEl.scrollWidth || 794;
+    const bodyRect = bodyEl.getBoundingClientRect();
+
+    /* ═══════════════════════════════════════════════════════════
+       QUÉT VỊ TRÍ NGẮT TRANG AN TOÀN
+       - Chỉ ngắt tại ranh giới phần tử (không cắt giữa chữ)
+       - Tôn trọng thẻ .page-break (buộc sang trang mới)
+    ═══════════════════════════════════════════════════════════ */
+    const children = Array.from(bodyEl.children).filter(
+      c => c.offsetHeight > 0 || c.classList.contains('page-break')
+    );
+
+    const breakYs = [0];
+    let curPageY = 0;
+
+    for (const child of children) {
+      const rect = child.getBoundingClientRect();
+      const childTop    = rect.top - bodyRect.top;
+      const childBottom = rect.bottom - bodyRect.top;
+
+      /* Nếu có .page-break → buộc sang trang mới */
+      if (child.classList.contains('page-break')) {
+        if (childTop > curPageY + 1) {
+          breakYs.push(childTop);
+          curPageY = childTop;
+        }
+        continue;
+      }
+
+      /* Nếu element tràn khỏi trang hiện tại → ngắt TRƯỚC element này */
+      if (childBottom - curPageY > CONTENT_H_PX && childTop > curPageY + 1) {
+        breakYs.push(childTop);
+        curPageY = childTop;
+      }
+    }
+
+    /* Thêm điểm cuối cùng */
     const totalH = bodyEl.scrollHeight;
-    iframe.style.height = Math.min(totalH + 50, 10000) + 'px';
+    if (breakYs[breakYs.length - 1] < totalH - 1) {
+      breakYs.push(totalH);
+    }
 
-    await new Promise(r => setTimeout(r, 300));
+    console.log('📄 PDF — Số trang:', breakYs.length - 1, '| Vị trí ngắt (px):', breakYs);
 
-    // A4 @ 96dpi = 794 x 1123 px. Nhưng do body có margin nên trừ padding
-    const PAGE_W_PX = 794;
-    const PAGE_H_PX = 1123;
-    const numPages = Math.max(1, Math.ceil(totalH / PAGE_H_PX));
+    const numPages = breakYs.length - 1;
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
 
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
-
+    /* ═══════════════════════════════════════════════════════════
+       XUẤT TỪNG TRANG
+    ═══════════════════════════════════════════════════════════ */
     for (let p = 0; p < numPages; p++) {
       if (p > 0) pdf.addPage();
-      const yOffset = p * PAGE_H_PX;
-      const sliceH = Math.min(PAGE_H_PX, totalH - yOffset);
-      if (sliceH <= 0) break;
+
+      const yStart = breakYs[p];
+      const yEnd   = breakYs[p + 1];
+      const sliceH = yEnd - yStart;
+      if (sliceH <= 0) continue;
 
       const canvas = await html2canvas(bodyEl, {
-        y: yOffset,
+        y: yStart,
         height: sliceH,
-        windowWidth: totalW,
+        windowWidth: CONTENT_W_PX,
         windowHeight: totalH,
-        width: totalW,
-        scale: 2,                 // nét hơn (2x)
+        width: CONTENT_W_PX,
+        scale: 2,               // nét gấp đôi
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
         scrollX: 0,
-        scrollY: 0                // ❌ BỎ -yOffset
+        scrollY: 0
       });
 
-      // ✅ Giữ đúng tỉ lệ - KHÔNG kéo giãn trang cuối
-      const heightMm = (sliceH / PAGE_H_PX) * 297;
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);   // nét hơn
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, heightMm, undefined, 'FAST');
+      /* Chiều cao ảnh theo tỉ lệ THỰC — không kéo giãn trang cuối */
+      const imgH_mm = (sliceH / CONTENT_H_PX) * CONTENT_H_MM;
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      /* ✅ Đặt ảnh vào ĐÚNG vùng nội dung (chừa lề 4 phía) */
+      pdf.addImage(
+        imgData, 'JPEG',
+        M_LEFT_MM, M_TOP_MM,      // x, y từ mép giấy
+        CONTENT_W_MM, imgH_mm,     // w, h
+        undefined, 'FAST'
+      );
     }
 
     iframe.remove();
@@ -4770,7 +4844,6 @@ async function generatePDFBlob(fullHtml) {
     return null;
   }
 }
-
 /* ---------- Xuất PDF ---------- */
 async function exportPDFFile(fullHtml, filename) {
   // === MOBILE: Web Share API ===
