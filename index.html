@@ -4702,7 +4702,12 @@ function openPrintWindow(fullHtml, filename) {
   toast('🖨️ Chọn "Lưu dưới dạng PDF" trong hộp thoại in', '#dc2626');
 }
 
-/* ---------- Tạo PDF — CHUẨN A4, NGẮT TRANG AN TOÀN ---------- */
+/* ═══════════════════════════════════════════════════════════════
+   TẠO PDF — CHUẨN A4, NGẮT TRANG THEO HÀNG BẢNG
+   - Lề: Trên 2 - Dưới 2 - Trái 3 - Phải 2 (cm) — chuẩn NĐ 30
+   - Ngắt trang tại: ranh giới phần tử + từng hàng <tr> của bảng
+   - Không cắt giữa chữ, không cắt giữa hàng
+═══════════════════════════════════════════════════════════════ */
 async function generatePDFBlob(fullHtml) {
   if (!window.jspdf || !window.html2canvas) {
     toast('⚠️ Thư viện PDF chưa tải xong!', '#f59e0b');
@@ -4712,29 +4717,15 @@ async function generatePDFBlob(fullHtml) {
   try {
     const { jsPDF } = window.jspdf;
 
-    /* ─── Kích thước A4 @ 96dpi ─── */
-    const A4_W_PX = 794;    // 210mm
-    const A4_H_PX = 1123;   // 297mm
-    const mm2px = (mm) => Math.round(mm * 96 / 25.4);
+    /* ─── Kích thước & lề (mm) ─── */
+    const mm2px = mm => mm * 96 / 25.4;
+    const M_TOP = 20, M_BOTTOM = 20, M_LEFT = 30, M_RIGHT = 20;
+    const CONTENT_W_MM = 210 - M_LEFT - M_RIGHT;  // = 160mm
+    const CONTENT_H_MM = 297 - M_TOP  - M_BOTTOM; // = 257mm
+    const CONTENT_W_PX = Math.round(mm2px(CONTENT_W_MM)); // ≈ 605
+    const CONTENT_H_PX = Math.round(mm2px(CONTENT_H_MM)); // ≈ 971
 
-    /* ─── Lề chuẩn NĐ 30: Trên 2 - Dưới 2 - Trái 3 - Phải 2 (cm) ─── */
-    const M_TOP_MM    = 20;
-    const M_BOTTOM_MM = 20;
-    const M_LEFT_MM   = 30;
-    const M_RIGHT_MM  = 20;
-
-    const M_TOP_PX    = mm2px(M_TOP_MM);
-    const M_BOTTOM_PX = mm2px(M_BOTTOM_MM);
-    const M_LEFT_PX   = mm2px(M_LEFT_MM);
-    const M_RIGHT_PX  = mm2px(M_RIGHT_MM);
-
-    /* ─── Vùng nội dung in được ─── */
-    const CONTENT_W_PX = A4_W_PX - M_LEFT_PX - M_RIGHT_PX;   // ≈ 605px
-    const CONTENT_H_PX = A4_H_PX - M_TOP_PX - M_BOTTOM_PX;   // ≈ 971px
-    const CONTENT_W_MM = 210 - M_LEFT_MM - M_RIGHT_MM;       // = 160mm
-    const CONTENT_H_MM = 297 - M_TOP_MM - M_BOTTOM_MM;       // = 257mm
-
-    /* ─── Render HTML vào iframe với ĐÚNG chiều rộng vùng in ─── */
+    /* ─── Render HTML trong iframe ảo ─── */
     iframe = document.createElement('iframe');
     iframe.style.cssText = `position:fixed;left:-10000px;top:0;width:${CONTENT_W_PX}px;height:200px;border:0;background:#fff;`;
     document.body.appendChild(iframe);
@@ -4743,54 +4734,129 @@ async function generatePDFBlob(fullHtml) {
 
     // Đợi fonts + layout render xong
     await new Promise(r => setTimeout(r, 1500));
-    iframe.style.height = '60000px';
+    iframe.style.height = '100000px';
     await new Promise(r => setTimeout(r, 500));
 
     const bodyEl = iDoc.body;
-    const bodyRect = bodyEl.getBoundingClientRect();
+    // Fix cứng chiều rộng body = vùng in, bỏ mọi margin/padding
+    bodyEl.style.width = CONTENT_W_PX + 'px';
+    bodyEl.style.margin = '0';
+    bodyEl.style.padding = '0';
+    await new Promise(r => setTimeout(r, 300));
+
+    const bodyTop = bodyEl.getBoundingClientRect().top;
+    const totalH = bodyEl.scrollHeight;
 
     /* ═══════════════════════════════════════════════════════════
-       QUÉT VỊ TRÍ NGẮT TRANG AN TOÀN
-       - Chỉ ngắt tại ranh giới phần tử (không cắt giữa chữ)
-       - Tôn trọng thẻ .page-break (buộc sang trang mới)
+       THU THẬP MỌI ĐIỂM NGẮT AN TOÀN (Y-pixel)
+       - Top/bottom của mọi phần tử block
+       - Top của TỪNG HÀNG <tr> trong mọi <table>
+       - Vị trí các <div class="page-break"> (buộc sang trang)
     ═══════════════════════════════════════════════════════════ */
-    const children = Array.from(bodyEl.children).filter(
-      c => c.offsetHeight > 0 || c.classList.contains('page-break')
-    );
+    const cutsSet = new Set([0, totalH]);
+    const forcedBreaks = new Set();
 
-    const breakYs = [0];
-    let curPageY = 0;
+    function collectBreaks(el) {
+      for (const child of el.children) {
+        const r = child.getBoundingClientRect();
+        const top = Math.round(r.top - bodyTop);
+        const bottom = Math.round(r.bottom - bodyTop);
 
-    for (const child of children) {
-      const rect = child.getBoundingClientRect();
-      const childTop    = rect.top - bodyRect.top;
-      const childBottom = rect.bottom - bodyRect.top;
-
-      /* Nếu có .page-break → buộc sang trang mới */
-      if (child.classList.contains('page-break')) {
-        if (childTop > curPageY + 1) {
-          breakYs.push(childTop);
-          curPageY = childTop;
+        // Buộc sang trang mới
+        if (child.classList.contains('page-break')) {
+          cutsSet.add(top);
+          forcedBreaks.add(top);
+          continue;
         }
+
+        // ─── Nếu là TABLE: quét từng hàng <tr> ───
+        if (child.tagName === 'TABLE') {
+          cutsSet.add(top);
+          cutsSet.add(bottom);
+          const tbody = child.querySelector('tbody');
+          if (tbody) {
+            for (const tr of tbody.children) {
+              if (tr.tagName !== 'TR') continue;
+              const trRect = tr.getBoundingClientRect();
+              cutsSet.add(Math.round(trRect.top - bodyTop));
+              cutsSet.add(Math.round(trRect.bottom - bodyTop));
+            }
+          }
+          continue; // Không đệ quy vào trong bảng
+        }
+
+        // Block bình thường: đánh dấu top/bottom
+        cutsSet.add(top);
+        cutsSet.add(bottom);
+
+        // Đệ quy nếu còn chứa table con
+        if (child.children.length && child.querySelector('table, .page-break')) {
+          collectBreaks(child);
+        }
+      }
+    }
+    collectBreaks(bodyEl);
+
+    const cuts = [...cutsSet]
+      .filter(y => y >= 0 && y <= totalH)
+      .sort((a, b) => a - b);
+
+    console.log('📄 Safe cuts:', cuts.length, '| Forced breaks:', forcedBreaks.size);
+
+    /* ═══════════════════════════════════════════════════════════
+       ĐÓNG GÓI NỘI DUNG VÀO CÁC TRANG
+       - Ưu tiên: cắt tại forcedBreak nếu nằm trong tầm trang
+       - Ngược lại: cắt tại cut lớn nhất mà vẫn ≤ chiều cao trang
+    ═══════════════════════════════════════════════════════════ */
+    const pageStarts = [0];
+    let cursor = 0;
+    let guard = 0;
+
+    while (cursor < totalH - 1 && guard++ < 500) {
+      const maxY = cursor + CONTENT_H_PX;
+
+      // 1) Có forced break trong tầm trang → ưu tiên cắt ở đó
+      let nextForced = null;
+      for (const fb of forcedBreaks) {
+        if (fb > cursor && fb <= maxY) { nextForced = fb; break; }
+        if (fb > maxY) break;
+      }
+      if (nextForced !== null) {
+        pageStarts.push(nextForced);
+        cursor = nextForced;
         continue;
       }
 
-      /* Nếu element tràn khỏi trang hiện tại → ngắt TRƯỚC element này */
-      if (childBottom - curPageY > CONTENT_H_PX && childTop > curPageY + 1) {
-        breakYs.push(childTop);
-        curPageY = childTop;
+      // 2) Cắt tại cut lớn nhất ≤ maxY
+      let best = cursor;
+      for (const cut of cuts) {
+        if (cut > cursor && cut <= maxY) best = cut;
+        else if (cut > maxY) break;
       }
+
+      // 3) Trường hợp xấu: 1 phần tử > 1 trang (VD: 1 hàng bảng siêu cao)
+      //    → buộc cắt tại cut kế tiếp, chấp nhận tràn
+      if (best === cursor) {
+        for (const cut of cuts) {
+          if (cut > cursor) { best = cut; break; }
+        }
+      }
+      if (best <= cursor) break;
+      pageStarts.push(best);
+      cursor = best;
     }
 
-    /* Thêm điểm cuối cùng */
-    const totalH = bodyEl.scrollHeight;
-    if (breakYs[breakYs.length - 1] < totalH - 1) {
-      breakYs.push(totalH);
+    const numPages = pageStarts.length - 1;
+    console.log('📄 Số trang:', numPages, '| Vị trí (px):', pageStarts);
+
+    if (numPages <= 0) {
+      iframe.remove();
+      return null;
     }
 
-    console.log('📄 PDF — Số trang:', breakYs.length - 1, '| Vị trí ngắt (px):', breakYs);
-
-    const numPages = breakYs.length - 1;
+    /* ═══════════════════════════════════════════════════════════
+       XUẤT TỪNG TRANG
+    ═══════════════════════════════════════════════════════════ */
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -4798,14 +4864,10 @@ async function generatePDFBlob(fullHtml) {
       compress: true
     });
 
-    /* ═══════════════════════════════════════════════════════════
-       XUẤT TỪNG TRANG
-    ═══════════════════════════════════════════════════════════ */
     for (let p = 0; p < numPages; p++) {
       if (p > 0) pdf.addPage();
-
-      const yStart = breakYs[p];
-      const yEnd   = breakYs[p + 1];
+      const yStart = pageStarts[p];
+      const yEnd   = pageStarts[p + 1];
       const sliceH = yEnd - yStart;
       if (sliceH <= 0) continue;
 
@@ -4815,7 +4877,7 @@ async function generatePDFBlob(fullHtml) {
         windowWidth: CONTENT_W_PX,
         windowHeight: totalH,
         width: CONTENT_W_PX,
-        scale: 2,               // nét gấp đôi
+        scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
@@ -4823,15 +4885,14 @@ async function generatePDFBlob(fullHtml) {
         scrollY: 0
       });
 
-      /* Chiều cao ảnh theo tỉ lệ THỰC — không kéo giãn trang cuối */
+      // Giữ đúng tỉ lệ; nếu trang này ngắn hơn 1 trang A4 thì ảnh cũng ngắn theo
       const imgH_mm = (sliceH / CONTENT_H_PX) * CONTENT_H_MM;
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-      /* ✅ Đặt ảnh vào ĐÚNG vùng nội dung (chừa lề 4 phía) */
       pdf.addImage(
         imgData, 'JPEG',
-        M_LEFT_MM, M_TOP_MM,      // x, y từ mép giấy
-        CONTENT_W_MM, imgH_mm,     // w, h
+        M_LEFT, M_TOP,
+        CONTENT_W_MM, imgH_mm,
         undefined, 'FAST'
       );
     }
@@ -4844,6 +4905,7 @@ async function generatePDFBlob(fullHtml) {
     return null;
   }
 }
+  
 /* ---------- Xuất PDF ---------- */
 async function exportPDFFile(fullHtml, filename) {
   // === MOBILE: Web Share API ===
