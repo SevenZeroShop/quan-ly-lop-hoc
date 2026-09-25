@@ -581,7 +581,8 @@ body.dark .vc-legend-item, body.dark .vc-scale-item { color:#cbd5e1; }
   </div>
   <div class="card">
     <h3>📋 Bảng Điểm</h3>
-    <input type="text" class="search-input" id="searchScoreList" oninput="renderScoreSummary()" placeholder="🔍 Tìm theo tên hoặc STT...">
+        <input type="text" class="search-input" id="searchScoreList" oninput="renderScoreSummary()" placeholder="🔍 Tìm theo tên hoặc STT...">
+    <div id="scoreLimitInfo" style="margin-top:8px;"></div>
   </div>
   <div class="table-wrapper"><table><thead><tr>
     <th style="width:8%;text-align:center;">STT</th><th style="width:25%;">Họ và Tên</th>
@@ -1475,8 +1476,10 @@ function renderDDByDate() {
     const st = students.find(s => String(s.id) === String(l.stId));
     return (st?.name || '').toLowerCase().includes(keyword) || (l.note||'').toLowerCase().includes(keyword) || (getCCLabel(l.type)||'').toLowerCase().includes(keyword);
   }));
-  if (!dates.length) { document.getElementById('ddViewContainer').innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:24px;">Không có kết quả</div>'; return; }
-  document.getElementById('ddViewContainer').innerHTML = dates.map(date => {
+    if (!dates.length) { document.getElementById('ddViewContainer').innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:24px;">Không có kết quả</div>'; return; }
+  const _totalDates = dates.length;
+  dates = _limit('ddDate', dates);
+  const _cardsHtml = dates.map(date => {
     const dayLogs = byDate[date];
     const groups = {};
     dayLogs.forEach(l => { const key = l.type + '|||' + (l.note||''); (groups[key] = groups[key] || []).push(l); });
@@ -1500,8 +1503,11 @@ function renderDDByDate() {
     return `<div class="card" style="margin-bottom:10px;border-left:5px solid #1e3a8a;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
         <div style="font-size:15px;font-weight:bold;color:#1e3a8a;">📅 ${dayName}, ${dateVN}<span style="background:#1e3a8a;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;margin-left:6px;">${dayLogs.length} vi phạm</span></div>
-      </div>${groupsHtml}</div>`;
+            </div>${groupsHtml}</div>`;
   }).join('');
+  const _info = _limitInfo(_totalDates, dates.length, 'ngày');
+  const _btn = _limitBtn('ddDate', _totalDates, 'renderDDByDate', 'ngày');
+  document.getElementById('ddViewContainer').innerHTML = _info + _cardsHtml + _btn;
 }
 
 function openCCGroupEdit(date, type, noteEncoded) {
@@ -1519,8 +1525,11 @@ function renderCCByStudent() {
   const students = getStudents(), logs = getLogs();
   const keyword = (document.getElementById('searchDDList')?.value || '').toLowerCase().trim();
   let filtered = students;
-  if (keyword) filtered = students.filter((st, idx) => st.name.toLowerCase().includes(keyword) || String(idx+1).includes(keyword));
-  document.getElementById('ddViewContainer').innerHTML = `<div class="table-wrapper"><table><thead><tr>
+    if (keyword) filtered = students.filter((st, idx) => st.name.toLowerCase().includes(keyword) || String(idx+1).includes(keyword));
+  const _totalStu = filtered.length;
+  filtered = _limit('ddStudent', filtered);
+  const _stuInfo = _limitInfo(_totalStu, filtered.length, 'học sinh');
+  document.getElementById('ddViewContainer').innerHTML = _stuInfo + `<div class="table-wrapper"><table><thead><tr>
     <th style="width:8%;text-align:center;">STT</th><th style="width:30%;">Họ và Tên</th><th style="width:42%;">Tổng Hợp</th><th style="width:20%;text-align:center;">Chi Tiết</th>
   </tr></thead><tbody>${filtered.map(st => {
     const i = students.indexOf(st);
@@ -1531,7 +1540,7 @@ function renderCCByStudent() {
     if (!badges) badges = '<span style="color:#94a3b8;font-size:12px;">✅ Tốt</span>';
     else badges += `<button class="btn-act btn-mini btn-warning" style="margin-left:4px;" onclick="sendToPunish('${st.id}')" title="Chuyển sang phạt">⚖️ Phạt</button>`;
     return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(st.name)}</b></td><td>${badges}</td><td style="text-align:center;"><button class="btn-act btn-mini" onclick="openStudentModal('${st.id}','dd')">🔍</button></td></tr>`;
-  }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</td></tr>'}</tbody></table></div>`;
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</td></tr>'}</tbody></table></div>` + _limitBtn('ddStudent', _totalStu, 'renderCCByStudent', 'học sinh');
 }
 
 function renderDD5Days() {
@@ -1610,7 +1619,7 @@ function renderCCWarning() {
     byStudent[l.stId].total++;
     byStudent[l.stId].types[l.type] = (byStudent[l.stId].types[l.type] || 0) + 1;
   });
-  let ranking = Object.entries(byStudent).map(([stId, d]) => {
+    let ranking = Object.entries(byStudent).map(([stId, d]) => {
     const st = students.find(s => String(s.id) === String(stId));
     if (!st) return null;
     return { st, idx: students.indexOf(st) + 1, total: d.total, types: d.types };
@@ -1618,6 +1627,8 @@ function renderCCWarning() {
   if (search) ranking = ranking.filter(r => r.st.name.toLowerCase().includes(search));
   if (tkFilter === 'top10') ranking = ranking.slice(0, 10);
   if (!ranking.length) { box.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">Không có kết quả</p>'; return; }
+  const _totalRank = ranking.length;
+  ranking = _limit('tk', ranking);
 
   const maxTotal = Math.max(...ranking.map(r => r.total));
   function getLevel(t) {
@@ -1660,8 +1671,10 @@ function renderCCWarning() {
     <span class="vc-scale-item"><b style="color:#3b82f6">❗ 2</b> Chú ý (${counts.caution})</span>
     <span class="vc-scale-item"><b style="color:#10b981">• 1</b> Nhẹ (${counts.normal})</span>
   </div></div>`;
-  box.innerHTML = `<div style="font-size:13px;color:#991b1b;margin-bottom:10px;font-weight:700;">🚨 Tổng <b>${logs.length}</b> vi phạm của <b>${ranking.length}</b> HS</div>
-    <div class="vc-wrap">${rowsHTML}</div>${scaleHTML}
+    box.innerHTML = _limitInfo(_totalRank, ranking.length, 'học sinh') + `<div style="font-size:13px;color:#991b1b;margin-bottom:10px;font-weight:700;">🚨 Tổng <b>${logs.length}</b> vi phạm của <b>${_totalRank}</b> HS</div>
+    <div class="vc-wrap">${rowsHTML}</div>
+    ${_limitBtn('tk', _totalRank, 'renderCcViolationChart', 'học sinh')}
+    ${scaleHTML}
     <div class="vc-legend">${legendHTML}</div>`;
 }
   
@@ -1755,12 +1768,19 @@ function renderStudentList() {
   document.getElementById('stCount').textContent = students.length;
   const kw = (document.getElementById('searchStList')?.value || '').toLowerCase().trim();
   let list = students;
-  if (kw) list = list.filter((s, idx) => s.name.toLowerCase().includes(kw) || String(idx+1).includes(kw) || (s.phone||'').toLowerCase().includes(kw) || (s.role||'').toLowerCase().includes(kw));
+    if (kw) list = list.filter((s, idx) => s.name.toLowerCase().includes(kw) || String(idx+1).includes(kw) || (s.phone||'').toLowerCase().includes(kw) || (s.role||'').toLowerCase().includes(kw));
+  const _totalList = list.length;
+  list = _limit('student', list);
   document.getElementById('tbStList').innerHTML = list.map(s => {
     const i = students.indexOf(s);
     const roleBadge = s.role ? `<span style="background:#fef3c7;color:#92400e;border:1px solid #fbbf24;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${esc(s.role)}</span>` : '<span style="color:#cbd5e1;">—</span>';
     return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(s.name)}</b></td><td>${roleBadge}</td><td>${s.phone ? `<b>${esc(s.phone)}</b>` : '—'}</td><td>${s.address ? esc(s.address) : '—'}</td><td style="text-align:center;white-space:nowrap;">${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="editStudent('${s.id}')">✏️</button> <button class="btn-act btn-danger btn-mini" onclick="delStudent('${s.id}')">🗑️</button>`:'—'}</td></tr>`;
-  }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+  const _lsBtn = _limitBtn('student', _totalList, 'renderStudentList', 'học sinh');
+  if (_lsBtn) {
+    const _tb = document.getElementById('tbStList');
+    if (_tb) _tb.innerHTML += `<tr><td colspan="6" style="padding:0;border:none;">${_lsBtn}</td></tr>`;
+  }
 }
 function editStudent(id) {
   if (!canEdit()) return;
@@ -1816,6 +1836,9 @@ function renderScoreSummary(filterFn) {
   const keyword = (document.getElementById('searchScoreList')?.value || '').toLowerCase().trim();
   let filtered = filterFn ? students.filter(filterFn) : students.slice();
   if (keyword) filtered = filtered.filter(st => { const oi = students.indexOf(st) + 1; return st.name.toLowerCase().includes(keyword) || String(oi).includes(keyword); });
+  const _totalScore = filtered.length;
+  filtered = _limit('score', filtered);
+  const _scoreInfo = _limitInfo(_totalScore, filtered.length, 'học sinh');
   document.getElementById('tbScore').innerHTML = filtered.map(st => {
     const i = students.indexOf(st);
     const stScores = scores.filter(s => String(s.stId) === String(st.id));
@@ -1827,7 +1850,14 @@ function renderScoreSummary(filterFn) {
     if (!badges) badges = '<span style="color:#94a3b8;font-size:12px;">Chưa có điểm</span>';
     badges += `<div style="margin-top:4px;font-size:11px;color:#1e40af;"><b>ĐTB: ${stScores.length ? avg.toFixed(2) : '—'}</b></div>`;
     return `<tr><td style="text-align:center;"><b>${i+1}</b></td><td><b>${esc(st.name)}</b></td><td>${badges}</td><td style="text-align:center;">${cls.cls ? `<span class="badge ${cls.cls}">${cls.label}</span><br>` : ''}<button class="btn-act btn-success btn-mini" onclick="openStudentModal('${st.id}','sc')">🔍</button></td></tr>`;
-  }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+  const _btn = _limitBtn('score', _totalScore, 'renderScoreSummary', 'học sinh');
+  const _infoEl = document.getElementById('scoreLimitInfo');
+  if (_infoEl) _infoEl.innerHTML = _scoreInfo;
+  if (_btn) {
+    const _tb = document.getElementById('tbScore');
+    if (_tb) _tb.innerHTML += `<tr><td colspan="4" style="padding:0;border:none;">${_btn}</td></tr>`;
+  }
 }
 function applyAdvSearch() {
   const min = parseFloat(document.getElementById('advMin').value);
@@ -1908,12 +1938,15 @@ function renderCollectList() {
   if (!list.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#94a3b8;padding:24px;">Chưa có đợt thu nào!</div>'; return; }
   const groups = {};
   list.forEach(c => { (groups[c.name] = groups[c.name]||[]).push(c); });
-  box.innerHTML = Object.keys(groups).sort((a,b) => (groups[b][0].date||'').localeCompare(groups[a][0].date||'')).map(name => {
+    const _names = Object.keys(groups).sort((a,b) => (groups[b][0].date||'').localeCompare(groups[a][0].date||''));
+  const _total = _names.length;
+  const _visible = _limit('thu', _names);
+  box.innerHTML = _limitInfo(_total, _visible.length, 'đợt thu') + _visible.map(name => {
     const items = groups[name];
     const totalIn = items.reduce((s,c) => s + calcCollectStats(c).collected, 0);
     const totalUnpaid = items.reduce((s,c) => s + calcCollectStats(c).unpaidCount, 0);
     return `<div class="group-header"><span>📁 ${esc(name)} — ${items.length} đợt</span><span>Đã thu: ${totalIn.toLocaleString('vi-VN')}đ • Chưa: ${totalUnpaid}</span></div>` + items.map(c => renderCollectCard(c)).join('');
-  }).join('');
+  }).join('') + _limitBtn('thu', _total, 'renderCollectList', 'đợt thu');
 }
 function renderCollectCard(c) {
   const s = calcCollectStats(c);
@@ -2030,14 +2063,18 @@ function renderExpenseTable() {
   const keyword = (document.getElementById('searchExpList')?.value || '').toLowerCase().trim();
   let sorted = getExps().slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
   if (keyword) sorted = sorted.filter(e => (e.title||'').toLowerCase().includes(keyword) || (e.date||'').includes(keyword) || String(e.amt).includes(keyword));
-  const tb = document.getElementById('tbExpense');
+    const tb = document.getElementById('tbExpense');
   if (!tb) return;
+  const _totalExp = sorted.length;
+  sorted = _limit('chi', sorted);
   tb.innerHTML = sorted.map(e => {
     e.paid ? (paid += e.amt) : (pending += e.amt);
     const qty = e.qty!=null ? e.qty : 1;
     const price = e.price!=null ? e.price : (e.amt||0);
     return `<tr><td>${esc(e.date)}</td><td><b>${esc(e.title)}</b></td><td style="text-align:center;">${e.unit?esc(e.unit):'—'}</td><td style="text-align:center;"><b>${qty}</b></td><td style="text-align:right;">${price.toLocaleString('vi-VN')}đ</td><td style="text-align:right;"><b style="color:#1e40af;">${e.amt.toLocaleString('vi-VN')}đ</b></td><td style="text-align:center;"><span class="badge ${e.paid?'badge-paid':'badge-pending'}">${e.paid?'Đã trả':'Chưa'}</span></td><td style="text-align:center;white-space:nowrap;">${canEdit()?`<button class="btn-act ${e.paid?'btn-warning':'btn-success'} btn-mini" onclick="togglePaid('${e.id}')">${e.paid?'↩️':'✓'}</button><button class="btn-act btn-danger btn-mini" onclick="deleteExpense('${e.id}')">🗑️</button>`:'—'}</td></tr>`;
   }).join('') || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;">Không có kết quả</td></tr>';
+    const _expBtn = _limitBtn('chi', _totalExp, 'renderExpenseTable', 'khoản chi');
+  if (_expBtn) tb.innerHTML += `<tr><td colspan="8" style="padding:0;border:none;">${_expBtn}</td></tr>`;
   document.getElementById('lblPendingAmt').textContent = fmt(pending);
   document.getElementById('lblPaidAmt').textContent = fmt(paid);
   renderFundSummary();
@@ -2116,9 +2153,11 @@ function renderLaborTeamList() {
   const teams = getTeams();
   const countEl = document.getElementById('ldTeamCount');
   if (countEl) countEl.textContent = teams.length ? `(${teams.length} tổ)` : '';
-  if (!teams.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px;font-size:13px;">📭 Chưa có tổ nào.</p>'; return; }
+    if (!teams.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px;font-size:13px;">📭 Chưa có tổ nào.</p>'; return; }
   const students = getStudents();
-  box.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">${teams.map(t => { const leader = students.find(s => String(s.id) === String(t.leaderId)); const memberNames = (t.memberIds||[]).map(id => students.find(s => String(s.id) === String(id))?.name).filter(Boolean); return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:5px solid ${t.color};border-radius:10px;padding:12px;"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;"><b style="color:${t.color};font-size:15px;">${esc(t.name)}</b><span style="font-size:11px;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:10px;font-weight:700;">${memberNames.length} TV</span></div>${leader ? `<div style="font-size:12px;color:#475569;margin-bottom:4px;">👑 <b>${esc(leader.name)}</b></div>` : ''}<div style="font-size:11px;color:#64748b;line-height:1.5;">${memberNames.map(n => esc(n)).join(', ') || '—'}</div>${t.note ? `<div style="font-size:11px;color:#94a3b8;margin-top:6px;font-style:italic;">📝 ${esc(t.note)}</div>` : ''}${canEdit()?`<div style="display:flex;gap:6px;margin-top:8px;"><button class="btn-act btn-warning btn-mini" onclick="editLaborTeam('${t.id}')">✏️</button><button class="btn-act btn-danger btn-mini" onclick="deleteLaborTeam('${t.id}')">🗑️</button></div>`:''}</div>`; }).join('')}</div>`;
+  const _totalTeams = teams.length;
+  const _visibleTeams = _limit('ldTeam', teams);
+  box.innerHTML = _limitInfo(_totalTeams, _visibleTeams.length, 'tổ') + `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">${_visibleTeams.map(t => {const leader = students.find(s => String(s.id) === String(t.leaderId)); const memberNames = (t.memberIds||[]).map(id => students.find(s => String(s.id) === String(id))?.name).filter(Boolean); return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:5px solid ${t.color};border-radius:10px;padding:12px;"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;"><b style="color:${t.color};font-size:15px;">${esc(t.name)}</b><span style="font-size:11px;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:10px;font-weight:700;">${memberNames.length} TV</span></div>${leader ? `<div style="font-size:12px;color:#475569;margin-bottom:4px;">👑 <b>${esc(leader.name)}</b></div>` : ''}<div style="font-size:11px;color:#64748b;line-height:1.5;">${memberNames.map(n => esc(n)).join(', ') || '—'}</div>${t.note ? `<div style="font-size:11px;color:#94a3b8;margin-top:6px;font-style:italic;">📝 ${esc(t.note)}</div>` : ''}${canEdit()?`<div style="display:flex;gap:6px;margin-top:8px;"><button class="btn-act btn-warning btn-mini" onclick="editLaborTeam('${t.id}')">✏️</button><button class="btn-act btn-danger btn-mini" onclick="deleteLaborTeam('${t.id}')">🗑️</button></div>`:''}</div>`; }).join('')}</div>` + _limitBtn('ldTeam', _totalTeams, 'renderLaborTeamList', 'tổ');
 }
 function updateLdDutyPreview() {
   const box = document.getElementById('ldDutyTeamsPreview'); if (!box) return;
@@ -2156,11 +2195,13 @@ function renderLdPending() {
   pending.sort((a, b) => (a.date||'').localeCompare(b.date||''));
   const countEl = document.getElementById('ldPendingCount');
   if (countEl) countEl.textContent = `(${pending.length} NV)`;
-  if (!pending.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:20px;font-weight:bold;">🎉 Không có NV nào đang chờ!</div>'; return; }
-  box.innerHTML = pending.map(d => {
+    if (!pending.length) { box.innerHTML = '<div class="card" style="text-align:center;color:#10b981;padding:20px;font-weight:bold;">🎉 Không có NV nào đang chờ!</div>'; return; }
+  const _totalLd = pending.length;
+  pending = _limit('ldPending', pending);
+  box.innerHTML = _limitInfo(_totalLd, pending.length, 'nhiệm vụ') + pending.map(d => {
     const memberNames = (d.memberIds||[]).map(id => { const st = students.find(s => String(s.id) === String(id)); if (!st) return ''; const team = getTeams().find(t => t.memberIds.some(mid => String(mid) === String(st.id))); const tag = team ? ` <span style="color:${team.color};font-size:10px;font-weight:700;">[${esc(team.name)}]</span>` : ''; return `${esc(st.name)}${tag}`; }).filter(Boolean).join(', ') || '—';
     return `<div class="collect-card" style="border:2px dashed #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff);margin-bottom:10px;"><div class="collect-name"><span style="font-size:14px;">⏳ <b>${esc(d.task)}</b></span><span style="background:#fef3c7;color:#92400e;border:1px solid #fbbf24;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:bold;">📅 ${esc(d.date)}</span></div><div style="font-size:13px;color:#475569;margin-top:8px;">👥 <b>HS trực:</b> ${memberNames}</div>${d.note ? `<div style="font-size:12px;color:#64748b;margin-top:4px;">📝 ${esc(d.note)}</div>` : ''}${canEdit()?`<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center;"><select id="status_${d.id}" style="flex:1;min-width:130px;padding:7px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;font-weight:600;"><option value="done">✅ Hoàn thành tốt</option><option value="late">⚠️ Muộn</option><option value="partial">🟡 Chưa đủ</option><option value="missed">❌ Bỏ trực</option></select><input type="number" id="score_${d.id}" min="0" max="10" step="0.5" value="10" style="width:70px;padding:7px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;text-align:center;font-weight:600;"><button class="btn-act btn-success" onclick="completeDuty('${d.id}')">💾</button><button class="btn-act btn-danger btn-mini" onclick="deleteDutyLog('${d.id}')">🗑️</button></div>`:''}</div>`;
-  }).join('');
+    }).join('') + _limitBtn('ldPending', _totalLd, 'renderLdPending', 'nhiệm vụ');
 }
 function completeDuty(id) {
   if (!canEdit()) return;
@@ -2176,12 +2217,16 @@ function renderDutyLogTable() {
   const students = getStudents();
   const keyword = (document.getElementById('searchDutyLog')?.value || '').toLowerCase().trim();
   let sorted = getDuties().filter(d => d.status !== 'pending').sort((a, b) => (b.date||'').localeCompare(a.date||''));
-  if (keyword) sorted = sorted.filter(d => { const names = (d.memberIds||[]).map(id => students.find(s => String(s.id) === String(id))?.name || '').join(' ').toLowerCase(); return names.includes(keyword) || (d.date||'').includes(keyword) || (d.task||'').toLowerCase().includes(keyword); });
+    if (keyword) sorted = sorted.filter(d => { const names = (d.memberIds||[]).map(id => students.find(s => String(s.id) === String(id))?.name || '').join(' ').toLowerCase(); return names.includes(keyword) || (d.date||'').includes(keyword) || (d.task||'').toLowerCase().includes(keyword); });
   const statusLabels = { done: '<span class="badge badge-paid">✅ Tốt</span>', late: '<span class="badge badge-late">⚠️ Muộn</span>', missed: '<span class="badge badge-pending">❌ Bỏ</span>', partial: '<span class="badge badge-perm">🟡 Chưa đủ</span>' };
+  const _totalHis = sorted.length;
+  sorted = _limit('ldHistory', sorted);
   tb.innerHTML = sorted.map(l => {
     const members = (l.memberIds||[]).map(id => { const st = students.find(s => String(s.id) === String(id)); if (!st) return ''; const team = getTeams().find(t => t.memberIds.some(mid => String(mid) === String(st.id))); const tag = team ? ` <span style="color:${team.color};font-size:10px;font-weight:600;">[${esc(team.name)}]</span>` : ''; return `${esc(st.name)}${tag}`; }).filter(Boolean).join(', ') || '—';
     return `<tr><td><b>${esc(l.date)}</b></td><td>${members}</td><td>${esc(l.task)}</td><td style="text-align:center;">${statusLabels[l.status]||''}</td><td style="text-align:center;"><b style="color:${l.score>=8?'#10b981':l.score>=5?'#f59e0b':'#ef4444'};">${l.score}</b></td><td style="text-align:center;white-space:nowrap;">${canEdit()?`<button class="btn-act btn-warning btn-mini" onclick="reopenDuty('${l.id}')">↩️</button><button class="btn-act btn-danger btn-mini" onclick="deleteDutyLog('${l.id}')">🗑️</button>`:'—'}</td></tr>`;
-  }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có dữ liệu</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:14px;">Chưa có dữ liệu</td></tr>';
+  const _hisBtn = _limitBtn('ldHistory', _totalHis, 'renderDutyLogTable', 'lượt trực');
+  if (_hisBtn) tb.innerHTML += `<tr><td colspan="6" style="padding:0;border:none;">${_hisBtn}</td></tr>`;
 }
 function reopenDuty(id) { if (!canEdit()) return; if (!confirm('Mở lại NV?')) return; const d = getDuties().find(x => String(x.id) === String(id)); if (!d) return; d.status = 'pending'; d.score = 0; d.completedAt = null; saveData(); toast('↩️ Đã mở lại!'); }
 function deleteDutyLog(id) { if (!canEdit()) return; if (!confirm('Xóa NV này?')) return; setDuties(getDuties().filter(l => String(l.id) !== String(id))); saveData(); toast('🗑️ Đã xóa!'); }
@@ -2265,9 +2310,11 @@ function renderPunishActive() {
     return;
   }
 
-  const groups = sortPunishGroups(groupPunishments(all));
+    const groups = sortPunishGroups(groupPunishments(all));
+  const _totalGroups = groups.length;
+  const _visibleGroups = _limit('punish', groups);
 
-  box.innerHTML = groups.map(g => {
+  box.innerHTML = _limitInfo(_totalGroups, _visibleGroups.length, 'nhóm phạt') + _visibleGroups.map(g => {
     const stats = calcPunishGroupStats(g);
     const lvl = PT_LEVEL_NAMES[g.level] || PT_LEVEL_NAMES.nhe;
     const typeColor = PT_TYPE_COLORS[g.type] || '#64748b';
@@ -2356,7 +2403,7 @@ function renderPunishActive() {
         <button class="btn-act btn-danger" onclick="deletePunishGroup('${esc(g.key)}')">🗑️</button>
       </div>` : ''}
     </div>`;
-  }).join('');
+  }).join('') + _limitBtn('punish', _totalGroups, 'renderPunishActive', 'nhóm phạt');
 }
 
 /* ═══════════ RENDER 1 ITEM PHẠT (hỗ trợ nhiều buổi) ═══════════ */
@@ -2758,13 +2805,17 @@ function renderTrashList() {
   const keyword = (document.getElementById('searchTrash')?.value || '').toLowerCase().trim();
   if (!trash.length) { box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px;">🗑️ Thùng rác trống</p>'; return; }
   const typeLabels = { student: '👤 Học sinh', collect: '💰 Đợt thu', expense: '💸 Khoản chi' };
-  if (keyword) trash = trash.filter(item => ((item.data.name || item.data.title || '').toLowerCase()).includes(keyword));
-  box.innerHTML = trash.slice().reverse().map(item => {
+    if (keyword) trash = trash.filter(item => ((item.data.name || item.data.title || '').toLowerCase()).includes(keyword));
+  let _trashList = trash.slice().reverse();
+  const _totalTrash = _trashList.length;
+  _trashList = _limit('trash', _trashList);
+  box.innerHTML = _limitInfo(_totalTrash, _trashList.length, 'mục') + _trashList.map(item => {
     const label = typeLabels[item.type] || item.type;
     const title = item.data.name || item.data.title || '';
     const daysLeft = 30 - Math.floor((Date.now() - new Date(item.deletedAt).getTime()) / 86400000);
     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;background:#f8fafc;flex-wrap:wrap;"><div style="flex:1;min-width:150px;"><b>${label}: ${esc(title)}</b><div style="font-size:12px;color:#64748b;margin-top:2px;">Xóa: ${new Date(item.deletedAt).toLocaleString('vi-VN')} • Còn ${daysLeft} ngày</div></div><button class="btn-act btn-success btn-mini" onclick="restoreFromTrash('${item.id}')">↩️ Phục hồi</button><button class="btn-act btn-danger btn-mini" onclick="deleteFromTrash('${item.id}')">🗑️</button></div>`;
-  }).join('') || '<p style="color:#94a3b8;text-align:center;padding:14px;">Không có kết quả</p>';
+    }).join('') || '<p style="color:#94a3b8;text-align:center;padding:14px;">Không có kết quả</p>';
+  box.innerHTML += _limitBtn('trash', _totalTrash, 'renderTrashList', 'mục');
 }
 function restoreFromTrash(itemId) {
   if (!canEdit()) return;
@@ -3375,7 +3426,50 @@ function startVoice(targetId, btn) {
   inlineRec.start();
 }
 
-  /* ═══════════ STATE TAB MỚI ═══════════ */
+  /* ═══════════ STATE CUỘN TRANG CHO MỌI TAB ═══════════ */
+const listShowAll = {};  // key -> true/false
+const LIST_LIMIT = {
+  tk: 8,            // Chart VP - Thống Kê
+  ddDate: 5,        // Chuyên cần - Theo ngày
+  ddStudent: 10,    // Chuyên cần - Theo HS
+  score: 10,        // Sổ điểm
+  thu: 5,           // Thu Chi - Đợt thu
+  chi: 5,           // Thu Chi - Khoản chi
+  ldTeam: 5,        // Lao động - Tổ
+  ldPending: 5,     // Lao động - NV chờ
+  ldHistory: 5,     // Lao động - Lịch sử
+  punish: 5,        // Phạt
+  student: 10,      // Danh sách HS
+  trash: 10         // Thùng rác
+};
+
+function _limit(key, arr) {
+  if (listShowAll[key]) return arr;
+  const lim = LIST_LIMIT[key] || 5;
+  return arr.length > lim ? arr.slice(0, lim) : arr;
+}
+
+function toggleLimit(key, fnName) {
+  listShowAll[key] = !listShowAll[key];
+  if (typeof window[fnName] === 'function') window[fnName]();
+}
+
+function _limitBtn(key, total, fnName, label) {
+  const lim = LIST_LIMIT[key] || 5;
+  if (total <= lim) return '';
+  label = label || 'mục';
+  if (!listShowAll[key]) {
+    return `<button onclick="toggleLimit('${key}', '${fnName}')" style="margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,#dbeafe,#eff6ff);border:2px dashed #93c5fd;color:#1e40af;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">▼ Xem thêm ${total - lim} ${label} còn lại</button>`;
+  }
+  return `<button onclick="toggleLimit('${key}', '${fnName}')" style="margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border:2px dashed #94a3b8;color:#475569;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">▲ Thu gọn (chỉ hiện ${lim} mục)</button>`;
+}
+
+function _limitInfo(total, shown, label) {
+  if (total <= shown) return '';
+  return `<div style="text-align:center;font-size:12px;color:#64748b;margin-bottom:8px;font-style:italic;">Đang hiện ${shown}/${total} ${label}</div>`;
+}
+
+/* ═══════════ STATE TAB MỚI ═══════════ */
 let tkFilter = 'all';
 function setTkFilter(f) {
   tkFilter = f;
