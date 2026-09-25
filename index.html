@@ -971,12 +971,19 @@ body.dark .nav-group-btn.active{background:linear-gradient(135deg,#2563eb,#1e40a
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn-act btn-word" style="flex:1;min-width:120px;padding:14px;background:#2b579a;" onclick="exportSelectedReports('word')">📥 Word</button>
       <button class="btn-act btn-pdf" style="flex:1;min-width:120px;padding:14px;background:#dc2626;" onclick="exportSelectedReports('pdf')">📥 PDF</button>
-      <button id="btnExcelReport" class="btn-act btn-excel" style="flex:1;min-width:100px;padding:14px;" onclick="exportSelectedReports('excel')">📊 Excel</button>
       <button class="btn-act" style="flex:1;min-width:120px;padding:14px;background:linear-gradient(135deg,#10b981,#059669);font-weight:800;" onclick="shareSelectedReports()">📤 Chia sẻ</button>
     </div>
-    <p style="font-size:11px;opacity:.85;margin-top:10px;text-align:center;font-style:italic;">💡 Chia sẻ: tạo PDF và gửi qua Zalo / Gmail / Messenger…</p>
+     <!-- ✅ Nút Zalo / Messenger -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+    <button class="btn-act" style="flex:1;min-width:120px;padding:12px;background:#0068FF;" onclick="shareViaZalo()">💬 Gửi Zalo</button>
+    <button class="btn-act" style="flex:1;min-width:120px;padding:12px;background:#0084FF;" onclick="shareViaMessenger()">💬 Gửi Messenger</button>
   </div>
+
+  <p style="font-size:11px;opacity:.85;margin-top:10px;text-align:center;font-style:italic;">
+    💡 Zalo/Messenger không nhận file trực tiếp từ web — hãy tải PDF rồi gửi thủ công.
+  </p>
 </div>
+</div>  
 
 <!-- THÙNG RÁC -->
 <div id="sec-thungrac" class="section-pane">
@@ -4656,17 +4663,30 @@ function fallbackDownload(blob, filename) {
   
 /* ---------- Xuất Word ---------- */
 async function downloadWordFile(fullHtml, filename) {
-  const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword;charset=utf-8' });
+  // Đảm bảo có meta để Word nhận dạng UTF-8
+  const withMeta = fullHtml.includes('charset') ? fullHtml
+    : fullHtml.replace('<head>', '<head><meta charset="UTF-8">');
+
+  const blob = new Blob(['\ufeff' + withMeta], {
+    type: 'application/msword;charset=utf-8'
+  });
   const fileName = filename + '.doc';
+
   if (isMobileDevice()) {
-    if (isInAppBrowser()) toast('⚠️ Nếu không thấy bảng chia sẻ, bấm ⋯ → Mở bằng trình duyệt.', '#f59e0b');
+    if (isInAppBrowser()) {
+      toast('⚠️ Đang ở trình duyệt trong app. Bấm ⋯ → "Mở bằng trình duyệt" để tải file.', '#f59e0b');
+    }
     try {
       const file = new File([blob], fileName, { type: 'application/msword' });
       if (canShareFiles([file])) {
-        await navigator.share({ files: [file], title: filename, text: 'Báo cáo lớp học' });
-        toast('📤 Đã chia sẻ file Word!', '#2b579a'); return;
+        await navigator.share({ files: [file], title: filename });
+        toast('📤 Đã chia sẻ file Word!', '#2b579a');
+        return;
       }
-    } catch(err) { if (err.name === 'AbortError') return; console.warn(err); }
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.warn('Share word failed:', err);
+    }
   }
   fallbackDownload(blob, fileName);
   toast('📥 Đã tải file Word!', '#2b579a');
@@ -4684,7 +4704,9 @@ function openPrintWindow(fullHtml, filename) {
 
 /* ---------- Tạo PDF blob từ HTML ---------- */
 async function generatePDFBlob(fullHtml) {
-  if (!window.jspdf || !window.html2canvas) { toast('⚠️ Thư viện PDF chưa tải xong!', '#f59e0b'); return null; }
+  if (!window.jspdf || !window.html2canvas) {
+    toast('⚠️ Thư viện PDF chưa tải xong!', '#f59e0b'); return null;
+  }
   let iframe = null;
   try {
     const { jsPDF } = window.jspdf;
@@ -4693,28 +4715,60 @@ async function generatePDFBlob(fullHtml) {
     document.body.appendChild(iframe);
     const iDoc = iframe.contentWindow.document;
     iDoc.open(); iDoc.write(fullHtml); iDoc.close();
+
+    // Đợi fonts + layout
     await new Promise(r => setTimeout(r, 1200));
+
+    // Đo chiều cao thật (tạm nới iframe để đo đúng)
+    iframe.style.height = '10000px';
+    await new Promise(r => setTimeout(r, 300));
     const bodyEl = iDoc.body;
-    iframe.style.height = Math.max(bodyEl.scrollHeight, 500) + 'px';
-    await new Promise(r => setTimeout(r, 400));
-    const PAGE_H_PX = 1123, PAGE_W_PX = 794;
+    const totalW = bodyEl.scrollWidth || 794;
     const totalH = bodyEl.scrollHeight;
+    iframe.style.height = Math.min(totalH + 50, 10000) + 'px';
+
+    await new Promise(r => setTimeout(r, 300));
+
+    // A4 @ 96dpi = 794 x 1123 px. Nhưng do body có margin nên trừ padding
+    const PAGE_W_PX = 794;
+    const PAGE_H_PX = 1123;
     const numPages = Math.max(1, Math.ceil(totalH / PAGE_H_PX));
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+
     for (let p = 0; p < numPages; p++) {
       if (p > 0) pdf.addPage();
       const yOffset = p * PAGE_H_PX;
       const sliceH = Math.min(PAGE_H_PX, totalH - yOffset);
+      if (sliceH <= 0) break;
+
       const canvas = await html2canvas(bodyEl, {
-        y: yOffset, height: sliceH, windowWidth: PAGE_W_PX, windowHeight: PAGE_H_PX,
-        width: PAGE_W_PX, scale: 1.6, useCORS: true, backgroundColor: '#ffffff',
-        logging: false, scrollX: 0, scrollY: -yOffset
+        y: yOffset,
+        height: sliceH,
+        windowWidth: totalW,
+        windowHeight: totalH,
+        width: totalW,
+        scale: 2,                 // nét hơn (2x)
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        scrollX: 0,
+        scrollY: 0                // ❌ BỎ -yOffset
       });
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+
+      // ✅ Giữ đúng tỉ lệ - KHÔNG kéo giãn trang cuối
+      const heightMm = (sliceH / PAGE_H_PX) * 297;
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);   // nét hơn
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, heightMm, undefined, 'FAST');
     }
-    iframe.remove(); iframe = null;
+
+    iframe.remove();
     return pdf.output('blob');
-  } catch(err) { console.error(err); if (iframe) iframe.remove(); return null; }
+  } catch (err) {
+    console.error('PDF gen error:', err);
+    if (iframe) iframe.remove();
+    return null;
+  }
 }
 
 /* ---------- Xuất PDF ---------- */
@@ -4781,43 +4835,132 @@ async function exportPDFFile(fullHtml, filename) {
 async function shareSelectedReports() {
   const kinds = [...document.querySelectorAll('input[name="rptType"]:checked')].map(c => c.value);
   if (!kinds.length) { toast('⚠️ Chưa chọn báo cáo!', '#ef4444'); return; }
-  if (reportDateFrom && reportDateTo && reportDateFrom > reportDateTo) { toast('⚠️ Ngày BĐ > KT!', '#ef4444'); return; }
-  if (!navigator.share || !navigator.canShare) { toast('⚠️ Thiết bị không hỗ trợ share. Dùng nút PDF.', '#f59e0b'); return; }
+  if (reportDateFrom && reportDateTo && reportDateFrom > reportDateTo) {
+    toast('⚠️ Ngày BĐ > KT!', '#ef4444'); return;
+  }
+
   const indiIds = [...document.querySelectorAll('input[name="indivCheck"]:checked')].map(c => c.value);
-  if (kinds.includes('individual') && !indiIds.length) { toast('⚠️ Chọn HS báo cáo cá nhân!', '#ef4444'); return; }
+  if (kinds.includes('individual') && !indiIds.length) {
+    toast('⚠️ Chọn HS báo cáo cá nhân!', '#ef4444'); return;
+  }
+
+  // Phát hiện in-app browser
+  if (isInAppBrowser()) {
+    const ua = navigator.userAgent;
+    const app = /Zalo/i.test(ua) ? 'Zalo' : /FBAN|FBAV|FB_IAB/i.test(ua) ? 'Messenger/Facebook' : 'ứng dụng này';
+    if (!confirm(
+      `⚠️ Bạn đang mở trong trình duyệt của ${app}.\n\n` +
+      `${app} KHÔNG cho phép gửi file trực tiếp.\n\n` +
+      `👉 Bấm OK để TẢI FILE PDF về máy,\n` +
+      `sau đó mở ${app} và gửi file thủ công.`
+    )) return;
+  }
+
   await withReportRange(async () => {
-    toast('⏳ Đang tạo file chia sẻ...', '#10b981');
+    toast('⏳ Đang tạo PDF...', '#10b981');
     try {
       const pages = [];
       kinds.forEach(kind => {
-        if (kind === 'individual') indiIds.forEach(stId => { const h = rpIndividual(stId); if (h) pages.push(h); });
-        else { const h = buildReportByKind(kind); if (h) pages.push(h); }
+        if (kind === 'individual') {
+          indiIds.forEach(stId => {
+            const h = rpIndividual(stId);
+            if (h) pages.push(h);
+          });
+        } else {
+          const h = buildReportByKind(kind);
+          if (h) pages.push(h);
+        }
       });
       if (!pages.length) { toast('⚠️ Không có dữ liệu!', '#ef4444'); return; }
+
       const body = pages.map((p, i) => (i > 0 ? `<div class="page-break"></div>${p}` : p)).join('');
       const m = rpMeta();
-      const rangeTag = reportDateFrom || reportDateTo ? '_' + (reportDateFrom || 'dau') + '_' + (reportDateTo || 'nay') : '';
+      const rangeTag = reportDateFrom || reportDateTo
+        ? '_' + (reportDateFrom || 'dau') + '_' + (reportDateTo || 'nay') : '';
       const filename = `BaoCao_Lop${m.className.replace(/\s+/g,'')}${rangeTag}_${rpDateShort().replace(/\//g,'-')}`;
+
       const pdfBlob = await generatePDFBlob(rpWrapHtml(body));
       if (!pdfBlob) { toast('⚠️ Không tạo được PDF', '#ef4444'); return; }
+
       const pdfFile = new File([pdfBlob], filename + '.pdf', { type: 'application/pdf' });
-      if (navigator.canShare({ files: [pdfFile] })) {
+
+      // Thử Web Share API với file
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         try {
-          await navigator.share({ files: [pdfFile], title: 'Báo cáo lớp ' + m.className, text: `Báo cáo ${getReportRangeText()} — Lớp ${m.className}` });
-          toast('📤 Đã chia sẻ!', '#10b981'); return;
-        } catch (err) { if (err.name === 'AbortError') return; console.warn(err); }
+          await navigator.share({
+            files: [pdfFile],
+            title: 'Báo cáo lớp ' + m.className,
+            text: `📊 Báo cáo ${getReportRangeText()} — Lớp ${m.className}`
+          });
+          toast('📤 Đã chia sẻ!', '#10b981');
+          return;
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+          console.warn('Share file failed:', err);
+        }
       }
-      try {
-        await navigator.share({ title: 'Báo cáo lớp ' + m.className, text: `📊 Báo cáo ${getReportRangeText()} — Lớp ${m.className}` });
-        fallbackDownload(pdfBlob, filename + '.pdf');
-        toast('📤 Đã share + tải PDF!', '#10b981');
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        fallbackDownload(pdfBlob, filename + '.pdf');
-        toast('📥 Đã tải PDF', '#f59e0b');
-      }
-    } catch (err) { console.error(err); toast('❌ Lỗi: ' + err.message, '#ef4444'); }
+
+      // Fallback: tải file + mở hộp thoại gợi ý
+      fallbackDownload(pdfBlob, filename + '.pdf');
+      toast('📥 Đã tải PDF. Mở Zalo/Messenger để gửi file.', '#f59e0b');
+
+    } catch (err) {
+      console.error(err);
+      toast('❌ Lỗi: ' + err.message, '#ef4444');
+    }
   });
+}
+
+/* ═══════════ CHIA SẺ NHANH QUA ZALO / MESSENGER ═══════════ */
+
+/* ---------- Chia sẻ link qua Zalo ---------- */
+function shareViaZalo() {
+  const m = rpMeta();
+  const rangeTxt = getReportRangeText();
+  const text =
+    `📊 BÁO CÁO LỚP ${m.className}\n` +
+    `📅 ${rangeTxt}\n` +
+    `🏫 ${m.school}\n` +
+    `👩‍🏫 GVCN: ${m.teacher}\n` +
+    `🔗 ${location.href}`;
+
+  // Copy text + link vào clipboard trước
+  navigator.clipboard?.writeText(text)
+    .then(() => toast('📋 Đã copy nội dung. Dán vào Zalo nhé!', '#0068FF'))
+    .catch(() => {});
+
+  // Mở Zalo share (chỉ share link, không share file)
+  const zaloUrl = `https://zalo.me/share?u=${encodeURIComponent(location.href)}&t=${encodeURIComponent(`Báo cáo lớp ${m.className}`)}`;
+  const w = window.open(zaloUrl, '_blank');
+
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    // Popup bị chặn → thông báo cho user
+    toast('⚠️ Popup bị chặn. Đã copy nội dung, dán vào Zalo nhé!', '#f59e0b');
+  }
+}
+
+/* ---------- Chia sẻ link qua Messenger ---------- */
+function shareViaMessenger() {
+  const m = rpMeta();
+  const rangeTxt = getReportRangeText();
+  const text =
+    `📊 Báo cáo lớp ${m.className}\n` +
+    `📅 ${rangeTxt}\n` +
+    `🔗 ${location.href}`;
+
+  // Copy text + link vào clipboard trước
+  navigator.clipboard?.writeText(text)
+    .then(() => toast('📋 Đã copy nội dung. Dán vào Messenger nhé!', '#0084FF'))
+    .catch(() => {});
+
+  // Messenger share dùng Facebook Send Dialog
+  // Lưu ý: app_id dưới đây là ID demo, FB có thể chặn. Cách chắc ăn là dùng copy link.
+  const fbUrl = `https://www.facebook.com/dialog/send?link=${encodeURIComponent(location.href)}&app_id=123456789&redirect_uri=${encodeURIComponent(location.href)}`;
+  const w = window.open(fbUrl, '_blank');
+
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    toast('⚠️ Popup bị chặn. Đã copy nội dung, dán vào Messenger nhé!', '#f59e0b');
+  }
 }
   
 /* ---------- Excel đa sheet ---------- */
